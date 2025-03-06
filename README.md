@@ -1,2 +1,2 @@
 # Radar_Praia-Grande
-Repositório para versionar todo o projeto "Radar Praia Grande"
+Repositório criado para versionar todo o projeto "Radar Praia Grande"
