@@ -1,6 +1,10 @@
-const dotenv = require('dotenv')
-const connectToDatabase = require('./src/database/connect')
-require('./modules/express'); 
-dotenv.config();
-connectToDatabase();
+import dotenv from "dotenv";
+import app from "./modules/express.js";
 
+dotenv.config();
+
+const port = process.env.PORT;
+
+app.listen(port, () => {
+  console.log(`Rodando com express na porta ${port}!`);
+});
