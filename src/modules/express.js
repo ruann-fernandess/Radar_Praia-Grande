@@ -52,19 +52,19 @@ app.get("/login.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/login.html"));
 });
 
-app.get("/cadastro-publicacao.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "../view/cadastro-publicacao.html"));
+app.get("/cadastro-noticia.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/cadastro-noticia.html"));
 });
 
-app.get("/editar-publicacao.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "../view/editar-publicacao.html"));
+app.get("/editar-noticia.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/editar-noticia.html"));
 });
 
 app.get("/resultados-pesquisa.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/resultados-pesquisa.html"));
 });
 
-app.get("/perfil", (req, res) => {
+app.get("/perfil.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/perfil.html"));
 });
 
@@ -76,8 +76,8 @@ app.get("/consultar-usuarios.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/consultar-usuarios.html"));
 });
 
-app.get("/consultar-publicacoes.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "../view/consultar-publicacoes.html"));
+app.get("/consultar-noticias.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/consultar-noticias.html"));
 });
 
 app.get("/consultar-comentarios.html", (req, res) => {
@@ -89,9 +89,9 @@ import usuarioRoutes from "../routes/usuarioRoutes.js";
 // Definindo as rotas para funções atreladas ao usuário (como cadastro, login, etc.)
 app.use("/usuario", usuarioRoutes);
 
-// Importando as rotas relacionadas a publicação
-import publicacaoRoutes from "../routes/publicacaoRoutes.js";
-// Definindo as rotas para funções atreladas a publicacao (como validação de descrição, imagens, etc.)
-app.use("/publicacao", publicacaoRoutes);
+// Importando as rotas relacionadas a notícia
+import noticiaRoutes from "../routes/noticiaRoutes.js";
+// Definindo as rotas para funções atreladas a notícia (como validação de descrição, imagens, etc.)
+app.use("/noticia", noticiaRoutes);
 
 export default app;

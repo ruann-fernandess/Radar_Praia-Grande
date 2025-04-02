@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { analisarDescricao, analisarImagem } from "../controller/publicacaoController.js";
+import { analisarDescricao, analisarImagem } from "../controller/noticiaController.js";
 
 const router = express.Router();
 

@@ -194,7 +194,7 @@ async function analisarDescricao() {
     let descricao = textareaDescricao.value.trim();
 
     try {
-        const res = await fetch("publicacao/analisarDescricao", {
+        const res = await fetch("noticia/analisarDescricao", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ descricao }),
@@ -218,7 +218,7 @@ async function analisarImagens() {
             const formData = new FormData();
             formData.append("imagem", arrayImagens[i]);
 
-            const res = await fetch("publicacao/analisarImagem", {
+            const res = await fetch("noticia/analisarImagem", {
                 method: "POST",
                 body: formData
             });
@@ -236,7 +236,7 @@ async function analisarImagens() {
     }
 }
 
-document.getElementById("cadastroPublicacaoForm").addEventListener("submit", async function(event) {
+document.getElementById("cadastronoticiaForm").addEventListener("submit", async function(event) {
     event.preventDefault();
 
     let bairroValido = verificarBairro();
@@ -245,20 +245,20 @@ document.getElementById("cadastroPublicacaoForm").addEventListener("submit", asy
     if (bairroValido && descricaoValida) {
         analisarDescricao();
 
-        let publicacao;
+        let noticia;
 
         if (contadorImagens > 0) {
             analisarImagens();
 
-            publicacao = {
+            noticia = {
                 imagens: document.getElementById("imagens").files,
                 sg_bairro: document.getElementById("bairro").value,
-                ds_publicacao: document.getElementById("descricao").value
+                ds_noticia: document.getElementById("descricao").value
             };
         } else {
-            publicacao = {
+            noticia = {
                 sg_bairro: document.getElementById("bairro").value,
-                ds_publicacao: document.getElementById("descricao").value
+                ds_noticia: document.getElementById("descricao").value
             };
         }
     }
