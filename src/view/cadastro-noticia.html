@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Notícia</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        table,
+        table tr td {
+            border: 1px solid #D2D6D9;
+        }
+        table tr {
+            align-items: center;
+        }
+        table tr td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        table td img {
+            width: 125px;
+            max-width: 125px;
+            height: 70px;
+            padding: 0;
+            margin: 5px 0;
+        }
+        textarea {
+            resize: none;
+            overflow-y: hidden;
+        }
+    </style>
+</head>
+<body>
+    <h2>Cadastro de Notícia</h2>
+    <form id="cadastronoticiaForm">
+        <div>
+            <input type="file" id="imagens" accept=".jpg, .jpeg, .png" multiple>
+            <small>Sua notícia pode conter até 4 imagens.</small>
+            <small>Escolha apenas arquivos com a extensão ".jpg", ".jpeg" ou ".png".</small>
+        </div>
+
+        <table class="table" id="listaImagens">
+            <thead>
+                <tr>
+                    <td scope="col"><b>Imagem</b></td>
+                    <td scope="col"><b>Nome</b></td>
+                    <td scope="col"><b>Status</b></td>
+                    <td scope="col"><b>Remover</b></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="exemploItemImagem">
+                    <td>--</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>--</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div>
+            <input type="text" list="listaBairros" id="bairro" placeholder="Selecione o bairro atrelado...">
+            <datalist id="listaBairros">
+                <option value="Andaraguá">Andaraguá</option>
+                <option value="Anhanguera">Anhanguera</option>
+                <option value="Antártica">Antártica</option>
+                <option value="Área Rural de Praia Grande">Área Rural de Praia Grande</option>
+                <option value="Aviação">Aviação</option>
+                <option value="Balneário Esmeralda">Balneário Esmeralda</option>
+                <option value="Boqueirão">Boqueirão</option>
+                <option value="Caiçara">Caiçara</option>
+                <option value="Canto do Forte">Canto do Forte</option>
+                <option value="Cidade da Criança">Cidade da Criança</option>
+                <option value="Esmeralda">Esmeralda</option>
+                <option value="Flórida">Flórida</option>
+                <option value="Glória">Glória</option>
+                <option value="Guilhermina">Guilhermina</option>
+                <option value="Ilha das Caieiras">Ilha das Caieiras</option>
+                <option value="Imperador">Imperador</option>
+                <option value="Jardim Guaramar">Jardim Guaramar</option>
+                <option value="Jardim Trevo">Jardim Trevo</option>
+                <option value="Maracanã">Maracanã</option>
+                <option value="Melvi">Melvi</option>
+                <option value="Mirim">Mirim</option>
+                <option value="Nova Mirim">Nova Mirim</option>
+                <option value="Ocian">Ocian</option>
+                <option value="Parque das Américas">Parque das Américas</option>
+                <option value="Princesa">Princesa</option>
+                <option value="Quietude">Quietude</option>
+                <option value="Real">Real</option>
+                <option value="Ribeirópolis">Ribeirópolis</option>
+                <option value="Samambaia">Samambaia</option>
+                <option value="Sítio do Campo">Sítio do Campo</option>
+                <option value="Solemar">Solemar</option>
+                <option value="Tude Bastos (Sítio do Campo)">Tude Bastos (Sítio do Campo)</option>
+                <option value="Tupi">Tupi</option>
+                <option value="Tupiry">Tupiry</option>
+                <option value="Vila Balneária">Vila Balneária</option>
+                <option value="Vila Mirim">Vila Mirim</option>
+                <option value="Vila São Jorge">Vila São Jorge</option>
+                <option value="Vila Sônia">Vila Sônia</option>
+                <option value="Xixová">Xixová</option>
+            </datalist>
+        </div>
+
+        <div>
+            <textarea id="descricao" rows="12" placeholder="Digite a descrição da notícia.."></textarea>
+        </div>
+
+        <button type="submit">Verificar notícia</button>
+    </form>
+
+    <script src="/js/cadastro-noticia.js"></script>
+
+</body>
+</html>
