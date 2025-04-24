@@ -1,0 +1,26 @@
+{
+  "name": "Radar Praia Grande",
+  "version": "2.0.0",
+  "description": "O Radar Praia Grande é uma plataforma colaborativa onde os cidadãos de Praia Grande podem reportar notícias, eventos e problemas locais, ampliando a visibilidade de acontecimentos que muitas vezes não recebem cobertura da mídia tradicional.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "memorystore": "^1.6.7",
+    "multer": "^1.4.5-lts.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "type": "module"
+}
