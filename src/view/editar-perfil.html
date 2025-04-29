@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil</title>
+    <title>Editar perfil</title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/perfil.css">
+    <link rel="stylesheet" href="/css/editar-perfil.css">
 </head>
 <body>
 
@@ -18,26 +18,32 @@
             </div>
             <div>
                 <strong>E-mail: </strong><span id="email"></span>
+                <button class="editar-btn" id="editar-email">Editar</button>
             </div>
             <div>
                 <strong>Nome: </strong><span id="nome"></span>
+                <button class="editar-btn" id="editar-nome">Editar</button>
             </div>
 
             <div>
                 <strong>Foto de Perfil: </strong><span id="fotoPerfil-text"><img id="fotoPerfil" alt="Foto de Perfil" width="50"></span>
+                <button class="editar-btn" id="editar-fotoPerfil">Editar</button>
             </div>
  
             <div>
                 <strong>Foto de Capa: </strong><span id="fotoCapa-text"><img id="fotoCapa" alt="Foto de Capa" width="150"></span>
+                <button class="editar-btn" id="editar-fotoCapa">Editar</button>
             </div>
 
             <div> 
                 <strong> Biografia: </strong><span id="biografia"></span>
+                <button class="editar-btn" id="editar-biografia">Editar</button>
             </div>
-            <button class="editar-btn" onclick="window.location.href='editar-perfil.html'">Editar Perfil</button>
         </div>
+        <button id="salvar-btn" class="hidden">Salvar Alterações</button>
+        <button id="apagar-perfil-btn">Apagar perfil</button>
     </div>
 
-    <script src="/js/perfil.js"></script>
+    <script src="/js/editar-perfil.js"></script>
 </body>
 </html>

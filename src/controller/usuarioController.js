@@ -88,7 +88,6 @@ export function verificaAutenticacao(req, res, next) {
     }
 }
 
-
 export async function perfil(req, res) {
     try {
         const usuario = req.session.user;

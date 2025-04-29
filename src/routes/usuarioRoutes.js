@@ -10,9 +10,12 @@ const router = express.Router();
 // Rota para processar a requisição
 router.post("/cadastro", cadastro);
 router.post("/login", login);
+router.get("/editar-perfil", verificaAutenticacao, perfil);
+router.put("/editar-perfil", verificaAutenticacao, alterarPerfil, perfil);
+router.delete("/editar-perfil", verificaAutenticacao, apagarPerfil);
 router.get("/perfil", verificaAutenticacao, perfil);
-router.put("/perfil", verificaAutenticacao, alterarPerfil, perfil);
-router.delete("/perfil", verificaAutenticacao, apagarPerfil);
+
+
 
 
 export default router;

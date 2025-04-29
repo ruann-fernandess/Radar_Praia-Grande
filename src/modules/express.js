@@ -100,6 +100,10 @@ app.get("/resultados-pesquisa.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/resultados-pesquisa.html"));
 });
 
+app.get("/editar-perfil.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/editar-perfil.html"));
+});
+
 app.get("/perfil.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/perfil.html"));
 });
