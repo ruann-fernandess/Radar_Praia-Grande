@@ -34,4 +34,26 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(err.message);
         window.location.href = "/login.html";
       });
-    });
+
+
+  document.getElementById("logout-btn").addEventListener("click", async () => {
+    try {
+      const resposta = await fetch("/usuario/logout", {
+        method: "GET",
+        credentials: "include" // garante envio do cookie de sessão
+      });
+
+      const resultado = await resposta.json();
+
+      if (resposta.ok) {
+        alert(resultado.message);
+        window.location.href = resultado.redirect;
+      } else {
+        alert("Erro ao fazer logout: " + resultado.message);
+      }
+    } catch (err) {
+      console.error("Erro na requisição de logout:", err);
+      alert("Erro inesperado no logout.");
+    }
+  });
+});

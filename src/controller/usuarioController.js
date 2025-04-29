@@ -192,3 +192,28 @@ export async function alterarPerfil(req, res) {
     }
   }
   
+  export async function logout(req, res) {
+    try {
+        req.session.destroy(err => {
+            if (err) {
+                console.error('Erro ao fazer logout:', err);
+                return res.status(500).json({ 
+                    statusCode: 500,
+                    message: '❌ Erro ao encerrar a sessão.' 
+                });
+            }
+
+            res.clearCookie('connect.sid'); // nome padrão do cookie
+            return res.status(200).json({ 
+                statusCode: 200,
+                message: '✅ Logout realizado com sucesso.',
+                redirect: '/login.html'
+            });
+        });
+    } catch (error) {
+        return res.status(500).json({ 
+            statusCode: 500,
+            message: '❌ Erro interno no logout: ' + error.message 
+        });
+    }
+}
