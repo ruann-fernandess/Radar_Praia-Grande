@@ -1,5 +1,6 @@
 import { openDb } from "./connect.js";
 const db = await openDb();
+import chalk from 'chalk';
 
 export async function createTableArquivo() {
   try {
@@ -13,8 +14,8 @@ export async function createTableArquivo() {
       );`
     );
 
-    console.log("✅ Tabela ARQUIVO criada com sucesso!");
+    console.log(chalk.green("Tabela ARQUIVO criada com sucesso!"));
   } catch (error) {
-    console.error("❌ Erro ao criar a tabela ARQUIVO:", error.message);
+    console.error(chalk.red("Erro ao criar a tabela ARQUIVO:", error.message));
   }
 }

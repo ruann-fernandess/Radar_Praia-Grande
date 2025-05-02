@@ -1,5 +1,6 @@
 import { openDb } from "./connect.js";
 const db = await openDb();
+import chalk from 'chalk';
 
 export async function createTableCurtidaNoticia() {
   try {
@@ -14,8 +15,8 @@ export async function createTableCurtidaNoticia() {
       );`
     );
 
-    console.log("✅ Tabela CURTIDA_NOTICIA criada com sucesso!");
+    console.log(chalk.green("Tabela CURTIDA_NOTICIA criada com sucesso!"));
   } catch (error) {
-    console.error("❌ Erro ao criar a tabela CURTIDA_NOTICIA:", error.message);
+    console.error(chalk.red("Erro ao criar a tabela CURTIDA_NOTICIA:", error.message));
   }
 }

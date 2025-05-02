@@ -1,5 +1,6 @@
 import { openDb } from "./connect.js";
 const db = await openDb();
+import chalk from 'chalk';
 
 export async function createTableBairro() {
   try {
@@ -67,10 +68,10 @@ export async function createTableBairro() {
 
     await db.exec('COMMIT');
 
-    console.log("✅ Tabela BAIRRO criada e preenchida com sucesso!");
+    console.log(chalk.green("Tabela BAIRRO criada e preenchida com sucesso!"));
   } catch (error) {
 
     await db.exec('ROLLBACK');
-    console.error("❌ Erro ao criar ou preencher a tabela BAIRRO:", error.message);
+    console.error(chalk.red("Erro ao criar ou preencher a tabela BAIRRO:", error.message));
   }
 }

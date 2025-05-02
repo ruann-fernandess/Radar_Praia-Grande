@@ -1,5 +1,6 @@
 import { openDb } from "./connect.js";
 const db = await openDb();
+import chalk from 'chalk';
 
 export async function createTableAmizade() {
     try {
@@ -14,9 +15,9 @@ export async function createTableAmizade() {
         );`
       );
   
-      console.log("✅ Tabela AMIZADE criada com sucesso!");
+      console.log(chalk.green("Tabela AMIZADE criada com sucesso!"));
     } catch (error) {
-      console.error("❌ Erro ao criar a tabela AMIZADE:", error.message);
+      console.error(chalk.red("Erro ao criar a tabela AMIZADE:", error.message));
     }
   }
   

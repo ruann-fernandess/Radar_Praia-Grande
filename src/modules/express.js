@@ -40,7 +40,7 @@ app.use(session({
     cookie: { 
         maxAge: 60000 * 60,
         httpOnly: true, 
-        secure: false
+        secure: process.env.NODE_ENV === 'production' // Ativa o secure apenas em produção (HTTPS)
     }
 }));
 

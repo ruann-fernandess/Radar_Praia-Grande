@@ -1,4 +1,5 @@
 import { openDb } from "./connect.js";
+import chalk from 'chalk';
 
 const db = await openDb();
 
@@ -18,9 +19,9 @@ export async function createTableUsuario() {
             );`
     );
     
-    console.log("✅ Tabela USUARIO criada com sucesso!");
+    console.log(chalk.green("Tabela USUARIO criada com sucesso!"));
   } catch (error) {
-    console.error("❌ Erro ao criar a tabela USUARIO:", error.message);
+    console.error(chalk.red("Erro ao criar a tabela USUARIO:", error.message));
   }
 }
 
@@ -59,7 +60,7 @@ export async function verificaLogin(email, senha) {
 
     return usuario || null; 
   } catch (error) {
-    console.error("❌ Email e senha não coincidem", error.message);
+    console.error(chalk.red("Email e senha não coincidem", error.message));
     return null; 
   }
 }
@@ -79,10 +80,10 @@ export async function insertUsuario(usuario) {
       ]
     );
 
-    console.log("✅ Usuário inserido com sucesso!");
+    console.log(chalk.green("Usuário inserido com sucesso!"));
     return { statusCode: 200, message: "✅ Usuário inserido com sucesso!" };
   } catch (error) {
-    console.error("❌ Erro ao inserir usuário:", error.message);
+    console.error(chalk.red("Erro ao inserir usuário:", error.message));
     return { statusCode: 500, message: "❌ Erro ao inserir usuário: " + error.message };
   }
 }
@@ -108,10 +109,10 @@ export async function updateUsuario(usuario) {
       ]
     );
 
-    console.log("✅ Usuário atualizado com sucesso!");
+    console.log(chalk.green("Usuário atualizado com sucesso!"));
     return { statusCode: 200, message: "✅ Usuário atualizado com sucesso!" };
   } catch (error) {
-    console.error("❌ Erro ao atualizar usuário:", error.message);
+    console.error(chalk.red("Erro ao atualizar usuário:", error.message));
     return { statusCode: 500, message: "❌ Erro ao atualizar usuário: " + error.message };
   }
 }
@@ -119,9 +120,9 @@ export async function updateUsuario(usuario) {
 export async function deleteUsuario(apelido) {
   try {
     await db.run(`DELETE FROM USUARIO WHERE apelido = ?`, [apelido]);
-    console.log(`🗑️ Usuário '${apelido}' apagado com sucesso!`);
+    console.log(chalk.green(`Usuário '${apelido}' apagado com sucesso!`));
   } catch (error) {
-    console.error("❌ Erro ao apagar o usuário:", error.message);
+    console.error(chalk.red("Erro ao apagar o usuário:", error.message));
   }
 }
 

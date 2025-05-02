@@ -1,5 +1,6 @@
 import { openDb } from "./connect.js";
 const db = await openDb();
+import chalk from 'chalk';
 
 export async function createTableCurtidaComentario() {
     try {
@@ -13,9 +14,9 @@ export async function createTableCurtidaComentario() {
         );`
       );
   
-      console.log("✅ Tabela CURTIDA_COMENTARIO criada com sucesso!");
+      console.log(chalk.green("Tabela CURTIDA_COMENTARIO criada com sucesso!"));
     } catch (error) {
-      console.error("❌ Erro ao criar a tabela CURTIDA_COMENTARIO:", error.message);
+      console.error(chalk.red("Erro ao criar a tabela CURTIDA_COMENTARIO:", error.message));
     }
   }
   
