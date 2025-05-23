@@ -10,17 +10,17 @@ export async function cadastro(req, res) {
             if (emailExiste > 0 && usuarioExiste > 0) {
                 return res.status(400).json({ 
                     statusCode: 400, 
-                    message: "❌ O e-mail e o usuário já estão cadastrados." 
+                    message: "O e-mail e o usuário já estão cadastrados." 
                 });
             } else if (emailExiste > 0) {
                 return res.status(400).json({ 
                     statusCode: 400, 
-                    message: "❌ O e-mail já está cadastrado." 
+                    message: "O e-mail já está cadastrado." 
                 });
             } else if (usuarioExiste > 0) {
                 return res.status(400).json({ 
                     statusCode: 400, 
-                    message: "❌ O usuário já está cadastrado." 
+                    message: "O usuário já está cadastrado." 
                 });
             } 
         }
@@ -35,7 +35,7 @@ export async function cadastro(req, res) {
     } catch (error) {
         res.status(500).json({ 
             statusCode: 500, 
-            message: "❌ Erro ao cadastrar usuário: " + error.message 
+            message: "Erro ao cadastrar usuário: " + error.message 
         });
     }
 }
@@ -65,13 +65,13 @@ export async function login(req, res){
         }else{
             return res.status(400).json({ 
                 statusCode: 400, 
-                message: "❌ Email e senha não coincidem." 
+                message: "Email ou senha não coincidem." 
             }); 
         }
     } catch(error){
         res.status(500).json({ 
             statusCode: 500, 
-            message: "❌ Erro ao logar usuário: " + error.message 
+            message: "Erro ao logar usuário: " + error.message 
         });
     }
 }

@@ -1,0 +1,151 @@
+@import url('root.css');
+
+body {
+  background-color: var(--marrom-escuro);
+  font-family: var(--fonte-principal);
+  background-image: url('../imagens/white-paper-texture.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
+}
+
+.container.principal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  flex-direction: column;
+}
+
+.quadrado {
+  background-color: var(--bege);
+  background-image: url('../imagens/newspaper_collage_texture.jpg');
+  background-size: 160%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
+
+  padding: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  min-height: 400px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 35px;
+  color: var(--branco);
+  font-family: var(--fonte-decoracao);
+  font-weight: 700;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  font-family: var(--fonte-decoracao);
+  font-weight: 700;
+  background-color: var(--branco);
+  border: none;
+  color: var(--preto)
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="text"]::placeholder {
+  color: var(--marrom-escuro);
+}
+
+input[type="email"]:focus::placeholder,
+input[type="password"]:focus::placeholder,
+input[type="text"]:focus::placeholder {
+  color: transparent;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--marrom-escuro);
+  color: var(--branco);
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: var(--fonte-decoracao);
+  font-weight: 700;
+}
+
+button[type="submit"]:hover{
+    background-color: var(--preto);
+}
+
+.conta-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: transparent;
+  color: var(--branco);
+  font-size: 16px;
+  cursor: pointer;
+  font-family: var(--fonte-decoracao);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.conta-btn:hover {
+  text-decoration: underline;
+}
+
+.ver-senha {
+  position: relative;
+  width: 100%;
+}
+
+.ver-senha input {
+  width: 100%;
+  padding-right: 40px; /* espaço para o botão */
+  box-sizing: border-box;
+}
+
+.ver-senha button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--marrom-escuro);
+  padding: 0;
+  line-height: 1;
+}
+
+.ver-senha button:hover{
+    color: var(--preto);
+}
+
+#erroMensagem{
+    margin-top: 10px;
+    color: red;
+    background-color: var(--branco);
+}

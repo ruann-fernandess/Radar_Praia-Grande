@@ -8,6 +8,9 @@ document.getElementById("cadastroForm").addEventListener("submit", async functio
         senha: document.getElementById("senha").value
     };
 
+    const erroMensagem = document.getElementById("erroMensagem");
+    erroMensagem.textContent = '';  // limpa mensagem antes
+
     const response = await fetch("usuario/cadastro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -15,9 +18,14 @@ document.getElementById("cadastroForm").addEventListener("submit", async functio
     });
 
     const data = await response.json();
-    alert(`(${data.statusCode}) ${data.message}`); 
 
-    if (data.redirect) {
-        window.location.href = data.redirect;  
+    if (!response.ok) {
+        erroMensagem.textContent = `${data.message}`;
+    } else {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            erroMensagem.textContent = 'Cadastro realizado com sucesso!';
+        }
     }
 });

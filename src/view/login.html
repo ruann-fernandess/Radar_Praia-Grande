@@ -1,28 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/login.css" />
-  </head>
-  </head>
-  <body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/login.css" />
+
+  <!-- Fonte -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap" rel="stylesheet">
+<!-- bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+</head>
+
+<body>
+  <section class="container principal">
     <div class="quadrado">
-    <h2>Login de Usuário</h2>
-    <form id="LoginForm">
-      <div>
+      <h2>Login</h2>
+      <form id="LoginForm">
         <input type="email" id="email" placeholder="E-mail" required />
-      </div>
-      <div>
+
+        <div class="ver-senha">
         <input type="password" id="senha" placeholder="Senha" required />
-      </div>
-      <button type="submit">Entrar</button>
-    </form>
-  </div>
-    <button class="cadastro-btn" onclick="window.location.href='cadastro.html'">Ainda não possui conta? Cadastre-se!</button>
-    <script src="/js/login.js"></script>
-    
-  </body>
+         <button type="button" id="toggleSenha" aria-label="Mostrar senha"><i class="bi bi-eye-fill"></i></button>
+         </div>
+
+        <button type="submit">Entrar</button>
+        <div id="erroMensagem"></div>
+      </form>
+    </div>
+
+    <a href="cadastro.html" class="conta-btn">
+  Ainda não possui conta? Cadastre-se!
+    </a>
+
+  </section>
+
+  <script src="/js/login.js"></script>
+  <script src="/js/ver-senha.js"></script>
+
+</body>
 </html>
