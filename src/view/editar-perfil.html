@@ -6,43 +6,54 @@
     <title>Editar perfil</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/editar-perfil.css">
+
+    <!-- fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap" rel="stylesheet">
+    
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
 </head>
 <body>
 
     <div class="perfil-container">
-        <h1>Editar perfil</h1>
-
+        <section class="perfil">
         <div class="perfil-info">
-            <div>
-                <strong>Apelido: </strong><span id="apelido"></span>
-            </div>
-            <div>
-                <strong>E-mail: </strong><span id="email"></span>
-                <button class="editar-btn" id="editar-email">Editar</button>
-            </div>
-            <div>
-                <strong>Nome: </strong><span id="nome"></span>
-                <button class="editar-btn" id="editar-nome">Editar</button>
+
+            <div class="elemento-edicao">
+            <span id="fotoCapa-text"><img id="fotoCapa" alt="Foto de Capa"></span>
+            <button class="editar-btn-perfil" id="editar-fotoCapa">Editar</button>
             </div>
 
-            <div>
-                <strong>Foto de Perfil: </strong><span id="fotoPerfil-text"><img id="fotoPerfil" alt="Foto de Perfil" width="50"></span>
-                <button class="editar-btn" id="editar-fotoPerfil">Editar</button>
-            </div>
- 
-            <div>
-                <strong>Foto de Capa: </strong><span id="fotoCapa-text"><img id="fotoCapa" alt="Foto de Capa" width="150"></span>
-                <button class="editar-btn" id="editar-fotoCapa">Editar</button>
+            <div class="elemento-edicao">
+                <span id="fotoPerfil-text"><img id="fotoPerfil" alt="Foto de Perfil"></span>
+                <button class="editar-btn-perfil" id="editar-fotoPerfil">Editar</button>
             </div>
 
-            <div> 
-                <strong> Biografia: </strong><span id="biografia"></span>
-                <button class="editar-btn" id="editar-biografia">Editar</button>
+            <span id="apelido"></span>
+               
+            <div class="elemento-edicao">
+                <span id="biografia"></span>
+                <button class="editar-btn-perfil" id="editar-biografia">Editar</button>
             </div>
+                
+            <div class="elemento-edicao">
+                <span id="email"></span>
+                <button class="editar-btn-perfil" id="editar-email">Editar</button>
+            </div>
+
+            <div class="elemento-edicao">
+                <span id="nome"></span>
+                <button class="editar-btn-perfil" id="editar-nome">Editar</button>
+            </div>
+            
         </div>
         <button id="salvar-btn" class="hidden">Salvar Alterações</button>
         <button id="apagar-perfil-btn">Apagar perfil</button>
-        <button id="parar-editar-btn" onclick="window.location.href='perfil.html'">Parar de editar</button>
+        <a id="parar-editar-btn" href="perfil.html">Parar de editar</a>
+        </section>
     </div>
 
     <script src="/js/editar-perfil.js"></script>

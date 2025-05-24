@@ -41,7 +41,6 @@ h2 {
   margin-bottom: 20px;
   font-size: 35px;
   color: var(--branco);
-  font-family: var(--fonte-decoracao);
   font-weight: 700;
 }
 
@@ -57,7 +56,7 @@ input[type="text"] {
   width: 100%;
   padding: 10px;
   font-size: 16px;
-  font-family: var(--fonte-decoracao);
+  font-family: var(--fonte-principal);
   font-weight: 700;
   background-color: var(--branco);
   border: none;
@@ -91,7 +90,7 @@ button[type="submit"] {
   border: none;
   font-size: 16px;
   cursor: pointer;
-  font-family: var(--fonte-decoracao);
+  font-family: var(--fonte-principal);
   font-weight: 700;
 }
 
@@ -106,7 +105,6 @@ button[type="submit"]:hover{
   color: var(--branco);
   font-size: 16px;
   cursor: pointer;
-  font-family: var(--fonte-decoracao);
   font-weight: 700;
   text-decoration: none;
 }
