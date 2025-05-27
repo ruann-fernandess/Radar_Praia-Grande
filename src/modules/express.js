@@ -2,7 +2,7 @@ import { createTableUsuario } from "../model/usuarioModel.js";
 import { createTableAmizade } from "../model/amizadeModel.js";
 import { createTableBairro } from "../model/bairroModel.js";
 import { createTableNoticia } from "../model/noticiaModel.js";
-import { createTableArquivo } from "../model/arquivoModel.js";
+import { createTableImagem } from "../model/imagemModel.js";
 import { createTableCurtidaNoticia } from "../model/curtidaNoticiaModel.js";
 import { createTableComentario } from "../model/comentarioModel.js";
 import { createTableCurtidaComentario } from "../model/curtidaComentarioModel.js";
@@ -11,7 +11,7 @@ await createTableUsuario();
 await createTableAmizade();
 await createTableBairro();
 await createTableNoticia();
-await createTableArquivo();
+await createTableImagem();
 await createTableCurtidaNoticia();
 await createTableComentario();
 await createTableCurtidaComentario();
@@ -133,5 +133,10 @@ app.use("/usuario", usuarioRoutes);
 import noticiaRoutes from "../routes/noticiaRoutes.js";
 // Definindo as rotas para funções atreladas a notícia (como validação de descrição, imagens, etc.)
 app.use("/noticia", noticiaRoutes);
+
+// Importando as rotas relacionadas a notícia
+import imagemRoutes from "../routes/imagemRoutes.js";
+// Definindo as rotas para funções atreladas a notícia (como validação de descrição, imagens, etc.)
+app.use("/imagem", imagemRoutes);
 
 export default app;

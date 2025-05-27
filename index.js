@@ -14,4 +14,3 @@ https.createServer({
   }, app).listen(port, () => {
      console.log(chalk.magentaBright.bold(`Disponível em: https://localhost:8080/login.html (pode ser necessário autorizar entrada)`));
   })
-

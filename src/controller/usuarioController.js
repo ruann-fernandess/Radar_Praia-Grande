@@ -1,4 +1,6 @@
-import {verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, deleteUsuario } from "../model/usuarioModel.js";
+import { deleteImagensUsuario } from "../model/imagemModel.js";
+import { deleteNoticiasUsuario } from "../model/noticiaModel.js";
+import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario } from "../model/usuarioModel.js";
 
 export async function cadastro(req, res) {
     try {
@@ -10,17 +12,17 @@ export async function cadastro(req, res) {
             if (emailExiste > 0 && usuarioExiste > 0) {
                 return res.status(400).json({ 
                     statusCode: 400, 
-                    message: "O e-mail e o usuário já estão cadastrados." 
+                    message: "❌ O e-mail e o usuário já estão cadastrados." 
                 });
             } else if (emailExiste > 0) {
                 return res.status(400).json({ 
                     statusCode: 400, 
-                    message: "O e-mail já está cadastrado." 
+                    message: "❌ O e-mail já está cadastrado." 
                 });
             } else if (usuarioExiste > 0) {
                 return res.status(400).json({ 
                     statusCode: 400, 
-                    message: "O usuário já está cadastrado." 
+                    message: "❌ O usuário já está cadastrado." 
                 });
             } 
         }
@@ -35,7 +37,7 @@ export async function cadastro(req, res) {
     } catch (error) {
         res.status(500).json({ 
             statusCode: 500, 
-            message: "Erro ao cadastrar usuário: " + error.message 
+            message: "❌ Erro ao cadastrar usuário: " + error.message 
         });
     }
 }
@@ -65,19 +67,19 @@ export async function login(req, res){
         }else{
             return res.status(400).json({ 
                 statusCode: 400, 
-                message: "Email ou senha não coincidem." 
+                message: "❌ Email e senha não coincidem." 
             }); 
         }
     } catch(error){
         res.status(500).json({ 
             statusCode: 500, 
-            message: "Erro ao logar usuário: " + error.message 
+            message: "❌ Erro ao logar usuário: " + error.message 
         });
     }
 }
 
 export function verificaAutenticacao(req, res, next) {
-    console.log("🔍 Sessão do usuário:", req.session.user); 
+    //console.log("🔍 Sessão do usuário:", req.session.user); 
     if (req.session.user) {
         return next();
     } else {
@@ -112,61 +114,71 @@ export async function perfil(req, res) {
 }
 
 export async function alterarPerfil(req, res) {
-    try {
-      const usuario = req.session.user;
-  
-      
-      const { nome, email, fotoPerfil, fotoCapa, biografia } = req.body;
-  
-      
-      if (email && email !== usuario.email) {
-        const count = await verificaEmail(email);
-        if (count > 0) {
-          return res.status(400).json({
-            statusCode: 400,
-            message: "❌ E-mail já em uso."
-          });
-        }
-      }
-  
-      
-      const usuarioAtualizado = {
-        nome: nome || usuario.nome,
-        fotoPerfil: fotoPerfil || usuario.fotoPerfil || "/imagens/iconeUsuarioPadrao.jpg",
-        email: email || usuario.email,
-        fotoCapa: fotoCapa || usuario.fotoCapa || "/imagens/bannerUsuarioPadrao.jpg",
-        biografia: biografia || usuario.biografia || "Estou usando o RADAR PG!",
-        apelido: usuario.apelido
-      };
-  
-      
-      const resultadoUpdate = await updateUsuario(usuarioAtualizado);
-  
-      if (resultadoUpdate.statusCode === 200) {
-        
-        req.session.user = { ...usuario, ...usuarioAtualizado };
-  
-        return res.status(200).json({
-          statusCode: 200,
-          message: "✅ Perfil atualizado com sucesso.",
-          usuario: { ...usuario, ...usuarioAtualizado }
+  try {
+    const usuario = req.session.user;
+    const { nome, email, biografia } = req.body;
+
+    if (email && email !== usuario.email) {
+      const count = await verificaEmail(email);
+      if (count > 0) {
+        return res.status(400).json({
+          statusCode: 400,
+          message: "❌ E-mail já em uso."
         });
-      } else {
-        return res.status(resultadoUpdate.statusCode).json(resultadoUpdate);
       }
-  
-    } catch (error) {
-      return res.status(500).json({
-        statusCode: 500,
-        message: "❌ Erro ao alterar perfil: " + error.message
-      });
     }
+
+    const usuarioAtualizado = {
+      nome: nome || usuario.nome,
+      email: email || usuario.email,
+      biografia: biografia || usuario.biografia || "Estou usando o RADAR PG!",
+      apelido: usuario.apelido
+    };
+
+    const resultadoUpdate = await updateUsuario(usuarioAtualizado);
+
+    if (resultadoUpdate.statusCode === 200) {
+      const usuarioComImagens = await buscarUsuarioPorApelido(usuario.apelido);
+
+      // Converte BLOB para base64 data URL
+      if (usuarioComImagens.fotoPerfil) {
+        usuarioComImagens.fotoPerfil = `data:image/jpeg;base64,${usuarioComImagens.fotoPerfil.toString('base64')}`;
+      } else {
+        usuarioComImagens.fotoPerfil = null;
+      }
+
+      if (usuarioComImagens.fotoCapa) {
+        usuarioComImagens.fotoCapa = `data:image/jpeg;base64,${usuarioComImagens.fotoCapa.toString('base64')}`;
+      } else {
+        usuarioComImagens.fotoCapa = null;
+      }
+
+      req.session.user = usuarioComImagens;
+
+      return res.status(200).json({
+        statusCode: 200,
+        message: "✅ Perfil atualizado com sucesso.",
+        usuario: usuarioComImagens
+      });
+    } else {
+      return res.status(resultadoUpdate.statusCode).json(resultadoUpdate);
+    }
+
+  } catch (error) {
+    return res.status(500).json({
+      statusCode: 500,
+      message: "❌ Erro ao alterar perfil: " + error.message
+    });
   }
+}
+
   
   export async function apagarPerfil(req, res) {
     try {
       const usuario = req.session.user;
   
+      await deleteImagensUsuario(usuario.apelido);
+      await deleteNoticiasUsuario(usuario.apelido);
       await deleteUsuario(usuario.apelido);
   
       req.session.destroy((err) => {

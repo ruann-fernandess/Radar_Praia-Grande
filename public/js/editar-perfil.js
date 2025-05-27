@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const apagarBtn = document.getElementById("apagar-perfil-btn")
 
   let dadosEditados = {};
+  let arquivosEditados = {};
 
 
   fetch("/usuario/editar-perfil")
@@ -73,43 +74,88 @@ document.getElementById("editar-fotoCapa").addEventListener("click", () =>
     container.innerHTML = "";
     container.appendChild(input);
     salvarBtn.classList.remove("hidden");
-  
+
     input.addEventListener("change", () => {
       const file = input.files[0];
       if (file) {
+        // Armazena o arquivo no objeto para envio posterior
+        arquivosEditados[campo] = file;
+
+        // Atualiza a visualização da imagem
         const reader = new FileReader();
-        reader.onload = e => {
-          const base64 = e.target.result;
-          imgElement.src = base64;
-          dadosEditados[campo] = base64;
+        reader.onload = (e) => {
+          imgElement.src = e.target.result;
         };
         reader.readAsDataURL(file);
       }
     });
+
   }
   
-  salvarBtn.addEventListener("click", () => {
-    fetch("/usuario/editar-perfil", {
+salvarBtn.addEventListener("click", async () => {
+  try {
+    const apelidoUsuario = document.getElementById("apelido").textContent;
+
+    const uploads = [];
+
+    if (arquivosEditados["fotoPerfil"]) {
+      const formDataPerfil = new FormData();
+      formDataPerfil.append("imagem", arquivosEditados["fotoPerfil"]);
+      formDataPerfil.append("idNoticia", "");
+      formDataPerfil.append("apelido", apelidoUsuario);
+      formDataPerfil.append("identificador", "Ícone");
+
+      // Adiciona a promessa ao array uploads para aguardar depois
+      uploads.push(fetch("/imagem/update", {
+        method: "POST",
+        body: formDataPerfil
+      }));
+    }
+
+    if (arquivosEditados["fotoCapa"]) {
+      const formDatafotoCapa = new FormData();
+      formDatafotoCapa.append("imagem", arquivosEditados["fotoCapa"]);
+      formDatafotoCapa.append("idNoticia", "");
+      formDatafotoCapa.append("apelido", apelidoUsuario);
+      formDatafotoCapa.append("identificador", "Banner");
+
+      uploads.push(fetch("/imagem/update", {
+        method: "POST",
+        body: formDatafotoCapa
+      }));
+    }
+
+    // Aguarda o upload das imagens, se houverem
+    if (uploads.length > 0) {
+      const results = await Promise.all(uploads);
+      const failed = results.some(res => !res.ok);
+      if (failed) throw new Error("Falha ao enviar imagens.");
+    }
+
+    // Agora que as imagens foram enviadas, envia os demais dados do perfil
+    const resposta = await fetch("/usuario/editar-perfil", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(dadosEditados)
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.statusCode === 200) {
-        alert("✅ Perfil atualizado com sucesso!");
-        location.reload(); 
-      } else {
-        alert("❌ Erro: " + data.message);
-      }
-    })
-    .catch(err => {
-      console.error("Erro na requisição:", err);
-      alert("❌ Erro ao salvar alterações.");
     });
-  });
+
+    const resultado = await resposta.json();
+
+    if (resposta.ok && resultado.statusCode === 200) {
+      alert("✅ Perfil atualizado com sucesso!");
+      location.reload();
+    } else {
+      alert("❌ Erro ao atualizar perfil: " + resultado.message);
+    }
+
+  } catch (err) {
+    console.error("❌ Erro ao salvar alterações:", err);
+    alert("❌ Ocorreu um erro ao atualizar o perfil.");
+  }
+});
+
 
   apagarBtn.addEventListener("click", async () => {
     const confirmar = confirm("Tem certeza que deseja apagar seu perfil? Essa ação é irreversível.");

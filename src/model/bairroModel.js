@@ -75,3 +75,16 @@ export async function createTableBairro() {
     console.error(chalk.red("Erro ao criar ou preencher a tabela BAIRRO:", error.message));
   }
 }
+
+export async function selectBairros() {
+  try {
+    const result = await db.all(
+      `SELECT siglaBairro, nomeBairro FROM bairro`
+    );
+
+    return result;
+  } catch (error) {
+    console.error("Erro ao selecionar bairros:", error);
+    return [];
+  }
+}

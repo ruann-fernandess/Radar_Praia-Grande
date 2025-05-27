@@ -9,9 +9,7 @@ export async function createTableUsuario() {
       `CREATE TABLE IF NOT EXISTS USUARIO (
                 apelido VARCHAR(15) PRIMARY KEY COLLATE NOCASE,
                 nome VARCHAR(100) NOT NULL,
-                fotoPerfil VARCHAR(200) DEFAULT "/imagens/iconeUsuarioPadrao.jpg",
                 email VARCHAR(100) NOT NULL UNIQUE COLLATE NOCASE,
-                fotoCapa VARCHAR(200) DEFAULT "/imagens/bannerUsuarioPadrao.jpg",
                 senha VARCHAR(100) NOT NULL,
                 biografia VARCHAR(200) DEFAULT "Estou usando o RADAR PG!",
                 dataCriacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -54,17 +52,45 @@ export async function verificaEmail(email) {
 export async function verificaLogin(email, senha) {
   try {
     const usuario = await db.get(
-      `SELECT apelido, email, nome, fotoPerfil, fotoCapa, biografia FROM USUARIO WHERE email = ? AND senha = ?`, 
+      // IP = Imagem perfil
+      // IB = Imagem fotoCapa
+      `SELECT 
+        U.apelido, 
+        U.email, 
+        U.nome, 
+        U.biografia, 
+        IP.imagem AS fotoPerfil,
+        IB.imagem AS fotoCapa
+      FROM USUARIO U
+      LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
+      LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
+      WHERE U.email = ? AND U.senha = ?`,
       [email, senha]
     );
 
-    return usuario || null; 
+    if (!usuario) return null;
+
+    // Função para converter BLOB (Buffer) em data URI base64
+    function blobToDataURI(blobBuffer, mimeType = 'image/jpeg') {
+      if (!blobBuffer) return null;
+      const base64 = blobBuffer.toString('base64');
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    // Cria novo objeto com as imagens convertidas
+    return {
+      apelido: usuario.apelido,
+      email: usuario.email,
+      nome: usuario.nome,
+      biografia: usuario.biografia,
+      fotoPerfil: blobToDataURI(usuario.fotoPerfil),
+      fotoCapa: blobToDataURI(usuario.fotoCapa),
+    };
   } catch (error) {
     console.error(chalk.red("Email e senha não coincidem", error.message));
-    return null; 
+    return null;
   }
 }
-
 
 export async function insertUsuario(usuario) {
   try {
@@ -94,16 +120,12 @@ export async function updateUsuario(usuario) {
     await db.run(
       `UPDATE usuario 
                 SET nome = ?, 
-                    fotoPerfil = ?, 
                     email = ?, 
-                    fotoCapa = ?, 
                     biografia = ?
                 WHERE apelido = ?`,
       [
         usuario.nome,
-        usuario.fotoPerfil || "/imagens/iconeUsuarioPadrao.jpg",
         usuario.email,
-        usuario.fotoCapa || "/imagens/bannerUsuarioPadrao.jpg",
         usuario.biografia || "Estou usando o RADAR PG!",
         usuario.apelido, // qual usuário será atualizado
       ]
@@ -116,6 +138,31 @@ export async function updateUsuario(usuario) {
     return { statusCode: 500, message: "❌ Erro ao atualizar usuário: " + error.message };
   }
 }
+
+export async function buscarUsuarioPorApelido(apelido) {
+  try {
+    const usuario = await db.get(
+      `SELECT 
+        U.apelido, 
+        U.email, 
+        U.nome, 
+        U.biografia, 
+        IP.imagem AS fotoPerfil,
+        IB.imagem AS fotoCapa
+      FROM USUARIO U
+      LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
+      LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
+      WHERE U.apelido = ?`,
+      [apelido]
+    );
+
+    return usuario || null;
+  } catch (error) {
+    console.error("Erro ao buscar usuário por apelido:", error.message);
+    return null;
+  }
+}
+
 
 export async function deleteUsuario(apelido) {
   try {

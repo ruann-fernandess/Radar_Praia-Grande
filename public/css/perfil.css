@@ -56,3 +56,9 @@
 .modal-content button:hover {
 background-color: var(--marrom-escuro);
 }
+
+.noticia {
+  margin: 10px;
+  padding: 15px;
+  background-color: white;
+}
