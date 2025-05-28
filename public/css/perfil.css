@@ -12,14 +12,13 @@
   font-weight: 700;
   text-decoration: none;
   border: none;
-  border-radius: 50%;
+  border-radius: 100px;
 }
 
 #logout-btn:hover{
   text-decoration: underline;
 }
 
-/* Modal escondido por padrão */
 .modal {
   display: none;
   position: fixed;
