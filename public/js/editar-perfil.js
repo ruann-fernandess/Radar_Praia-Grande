@@ -41,19 +41,66 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "/login.html";
     });
 
-  function editarCampo(span, campo, tipo = "text") {
-    const valorAtual = span.textContent || span.querySelector("img")?.src || "";
-    const input = document.createElement("input");
-    input.type = tipo;
-    input.value = valorAtual;
-    span.innerHTML = "";
-    span.appendChild(input);
-    salvarBtn.classList.remove("hidden");
+function editarCampo(span, campo, tipo = "text") {
+  // Verifica se já está em modo de edição
+  const inputExistente = span.querySelector("input");
 
-    input.addEventListener("input", () => {
-      dadosEditados[campo] = input.value;
-    });
+  if (inputExistente) {
+    // Volta para o valor original
+    span.textContent = inputExistente.defaultValue || "Não informado";
+    delete dadosEditados[campo];
+    return;
   }
+
+  const valorAtual = span.textContent.trim() || "Não informado";
+
+  const input = document.createElement("input");
+  input.type = tipo;
+  input.value = valorAtual;
+  input.defaultValue = valorAtual;
+  input.classList.add("input-editar");
+
+  span.innerHTML = "";
+  span.appendChild(input);
+  salvarBtn.classList.remove("hidden");
+
+  input.addEventListener("input", () => {
+    dadosEditados[campo] = input.value;
+  });
+}
+
+function editarImagem(container, campo, imgElement) {
+  const parent = container.parentElement; // container = fotoPerfil-text ou fotoCapa-text
+  const inputExistente = parent.querySelector("input");
+
+  if (inputExistente) {
+    // Remove o input e volta só a imagem
+    inputExistente.remove();
+    delete arquivosEditados[campo];
+    return;
+  }
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.classList.add("input-editar");
+
+  parent.appendChild(input); // Adiciona fora da imagem, mas dentro do .elemento-edicao
+  salvarBtn.classList.remove("hidden");
+
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    if (file) {
+      arquivosEditados[campo] = file;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imgElement.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
 
   document.getElementById("editar-email").addEventListener("click", () => editarCampo(emailSpan, "email"));
   document.getElementById("editar-nome").addEventListener("click", () => editarCampo(nomeSpan, "nome"));
@@ -66,31 +113,7 @@ document.getElementById("editar-fotoCapa").addEventListener("click", () =>
 );
 
   document.getElementById("editar-biografia").addEventListener("click", () => editarCampo(biografiaSpan, "biografia"));
-  
-  function editarImagem(container, campo, imgElement) {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    container.innerHTML = "";
-    container.appendChild(input);
-    salvarBtn.classList.remove("hidden");
 
-    input.addEventListener("change", () => {
-      const file = input.files[0];
-      if (file) {
-        // Armazena o arquivo no objeto para envio posterior
-        arquivosEditados[campo] = file;
-
-        // Atualiza a visualização da imagem
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          imgElement.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-  }
   
 salvarBtn.addEventListener("click", async () => {
   try {
