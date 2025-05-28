@@ -79,7 +79,7 @@ export async function createTableBairro() {
 export async function selectBairros() {
   try {
     const result = await db.all(
-      `SELECT siglaBairro, nomeBairro FROM bairro`
+      `SELECT siglaBairro, nomeBairro FROM bairro order by nomeBairro`
     );
 
     return result;
