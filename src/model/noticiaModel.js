@@ -101,12 +101,11 @@ export async function updateNoticia(noticia) {
   }
 }
 
-
 export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
   try {
     const offset = (pagina - 1) * limite;
 
-    // Consulta principal com paginação
+    // Consulta principal (sem GROUP BY) para capturar todas as imagens
     const rows = await db.all(
       `SELECT 
         N.idNoticia,
@@ -117,27 +116,30 @@ export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
         B.nomeBairro,
         I.idImagem,
         I.imagem
-      FROM NOTICIA N
-      JOIN BAIRRO B ON N.siglaBairro = B.siglaBairro
-      LEFT JOIN IMAGEM I ON N.idNoticia = I.idNoticia AND I.identificador = ?
-      WHERE N.apelido = ?
-      GROUP BY N.idNoticia
+      FROM NOTICIA N, BAIRRO B, IMAGEM I
+      WHERE N.siglaBairro = B.siglaBairro
+        AND N.idNoticia = I.idNoticia
+        AND I.identificador = ?
+        AND N.apelido = ?
+      ORDER BY N.idNoticia DESC
       LIMIT ? OFFSET ?`,
       ["Notícia", apelido, limite, offset]
     );
 
-    // Consulta para contar o total
+    // Consulta para contar o total de notícias (sem se preocupar com imagens)
     const countResult = await db.get(
       `SELECT COUNT(*) as total FROM NOTICIA WHERE apelido = ?`,
       [apelido]
     );
 
+    // Utilitário para converter blob em Data URI
     function blobToDataURI(blobBuffer, mimeType = 'image/jpeg') {
       if (!blobBuffer) return null;
       const base64 = blobBuffer.toString('base64');
       return `data:${mimeType};base64,${base64}`;
     }
 
+    // Agrupar notícias pelo id usando Map
     const noticiasMap = new Map();
 
     for (const row of rows) {
@@ -153,6 +155,7 @@ export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
         });
       }
 
+      // Se tiver imagem, adiciona ao array de imagens
       if (row.idImagem && row.imagem) {
         noticiasMap.get(row.idNoticia).imagens.push({
           idImagem: row.idImagem,
@@ -171,7 +174,6 @@ export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
     return { noticias: [], totalNoticias: 0 };
   }
 }
-
 
 export async function selectNoticiaPorIdEApelido(idNoticia, apelido) {
   try {

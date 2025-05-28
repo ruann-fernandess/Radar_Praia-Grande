@@ -102,42 +102,48 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
       const noticiaDiv = document.createElement("div");
       noticiaDiv.classList.add("noticia");
 
-      noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: `ID: ${noticia.idNoticia}` }));
-      noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: `Legenda: ${noticia.legenda}` }));
-      noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: `Data: ${noticia.dataNoticia}` }));
-      noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: `Autor: ${noticia.apelido}` }));
-      noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: `Sigla Bairro: ${noticia.siglaBairro}` }));
-      noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: `Nome Bairro: ${noticia.nomeBairro}` }));
+      // Legenda (descrição)
+      noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.legenda }));
 
+      // Metadados
+      const metadados = document.createElement("div");
+      metadados.classList.add("metadados");
+      metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Bairro: ${noticia.nomeBairro} (${noticia.siglaBairro})` }));
+
+      const dataFormatada = formatarDataNoticia(noticia.dataNoticia);
+      metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Última atualização: ${dataFormatada}` }));
+
+      noticiaDiv.appendChild(metadados);
+
+
+      // Imagens responsivas
       if (noticia.imagens && noticia.imagens.length > 0) {
         const imagensContainer = document.createElement("div");
-        imagensContainer.textContent = "Imagens:";
+        imagensContainer.classList.add("imagens-container");
+
         for (const imgObj of noticia.imagens) {
           const imgEl = document.createElement("img");
           imgEl.src = imgObj.imagem;
           imgEl.alt = `Imagem ${imgObj.idImagem}`;
-          imgEl.style.maxWidth = "150px";
-          imgEl.style.marginRight = "10px";
+          // Remove estilos inline e deixe responsividade no CSS
           imagensContainer.appendChild(imgEl);
         }
+
         noticiaDiv.appendChild(imagensContainer);
       } else {
         noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: "Sem imagens." }));
       }
 
+      // Link editar
       const linkEditar = document.createElement("a");
       linkEditar.href = `editar-noticia.html?idNoticia=${encodeURIComponent(noticia.idNoticia)}`;
       linkEditar.textContent = "Editar notícia";
-      linkEditar.style.display = "inline-block";
-      linkEditar.style.marginTop = "10px";
-      linkEditar.style.color = "blue";
-      linkEditar.style.textDecoration = "underline";
       noticiaDiv.appendChild(linkEditar);
 
       noticiasUsuario.appendChild(noticiaDiv);
     }
 
-    // Geração dinâmica da paginação
+    // Paginação
     const totalPaginas = Math.ceil(data.totalNoticias / 10);
     for (let i = 1; i <= totalPaginas; i++) {
       const btn = document.createElement("button");
@@ -155,4 +161,18 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
   } catch (error) {
     alert(`(${error.statusCode}) ${error.message}`);
   }
+}
+
+function formatarDataNoticia(dataString) {
+  const meses = [
+    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+  ];
+
+  const [data, hora] = dataString.split(' ');
+  const [ano, mes, dia] = data.split('-');
+  const [horaStr, minuto] = hora.split(':');
+
+  // Exemplo: "27 de maio de 2025, 12:08"
+  return `${parseInt(dia)} de ${meses[parseInt(mes) - 1]} de ${ano}, ${horaStr}:${minuto}`;
 }
