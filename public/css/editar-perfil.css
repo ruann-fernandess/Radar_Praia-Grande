@@ -2,7 +2,53 @@
 @import url(root.css);
 
 
-#editar-fotoCapa{
-width: 300px;
-height: 300px;
+.elemento-edicao {
+  position: relative;
+  display: inline-block;
+}
+
+.flutuante {
+  position: absolute;
+  z-index: 1;
+}
+
+#editar-fotoCapa {
+  right: 1em;
+  top: -0.5em;
+}
+
+#editar-fotoPerfil {
+  top: 55%;
+  right: 26em;
+  transform: translateY(-50%);
+  font-size: 13px;
+}
+
+#editar-biografia,
+#editar-nome,
+#editar-email{
+    font-size: 13px;
+    margin-left: 10px;
+}
+
+.input-editar {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.elemento-edicao input[type="file"] {
+  position: absolute;
+  top: 100%; /* fica logo abaixo da foto */
+  left: 0;
+  margin-top: 4px;
+  z-index: 10;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 6px;
+  border-radius: 4px;
 }
