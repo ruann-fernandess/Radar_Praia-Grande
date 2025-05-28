@@ -105,7 +105,6 @@ export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
   try {
     const offset = (pagina - 1) * limite;
 
-    // Consulta principal (sem GROUP BY) para capturar todas as imagens
     const rows = await db.all(
       `SELECT 
         N.idNoticia,
@@ -116,11 +115,10 @@ export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
         B.nomeBairro,
         I.idImagem,
         I.imagem
-      FROM NOTICIA N, BAIRRO B, IMAGEM I
-      WHERE N.siglaBairro = B.siglaBairro
-        AND N.idNoticia = I.idNoticia
-        AND I.identificador = ?
-        AND N.apelido = ?
+      FROM NOTICIA N
+      JOIN BAIRRO B ON N.siglaBairro = B.siglaBairro
+      LEFT JOIN IMAGEM I ON N.idNoticia = I.idNoticia AND I.identificador = ?
+      WHERE N.apelido = ?
       ORDER BY N.idNoticia DESC
       LIMIT ? OFFSET ?`,
       ["Notícia", apelido, limite, offset]
