@@ -98,7 +98,7 @@ h2 {
   font-weight: 700;
   text-decoration: none;
   border: none;
-    border-radius: 50%;
+  border-radius: 100px;
 }
 
 .editar-btn:hover {
