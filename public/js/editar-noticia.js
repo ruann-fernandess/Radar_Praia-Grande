@@ -429,14 +429,14 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
   event.preventDefault();
 
   const loadingContainer = document.querySelector(".loading-container");
-  loadingContainer.style.display = "flex";
-
   const listaBairros = document.getElementById("listaBairros");
 
   let bairroValido = await verificarBairro();
   let descricaoValida = await verificarDescricao();
 
   if (bairroValido && descricaoValida) {
+    loadingContainer.style.display = "flex";
+
     const resultadoAnalise = await analisarDescricao();
 
     if (resultadoAnalise.statusCode !== 200) {

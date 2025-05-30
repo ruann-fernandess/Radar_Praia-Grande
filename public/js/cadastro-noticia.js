@@ -301,14 +301,15 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
   event.preventDefault();
 
   const loadingContainer = document.querySelector(".loading-container");
-  loadingContainer.style.display = "flex";
-
+  
   const listaBairros = document.getElementById("listaBairros");
 
   let bairroValido = await verificarBairro();
   let descricaoValida = await verificarDescricao();
 
   if (bairroValido && descricaoValida) {
+    loadingContainer.style.display = "flex";
+
     const resultadoAnalise = await analisarDescricao();
 
     if (resultadoAnalise.statusCode !== 200) {
@@ -316,9 +317,9 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
       return;
     }
 
-    alert(contadorImagens)
     if (contadorImagens > 0) {
       const resultadoImagens = await analisarImagens();
+
       if (resultadoImagens.statusCode !== 200) {
         alert(resultadoImagens.message);
         loadingContainer.style.display = "none";
