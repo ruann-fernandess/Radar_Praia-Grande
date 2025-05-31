@@ -1,3 +1,5 @@
+import { exibirAlertaErro, exibirAlertaErroERedirecionar} from "./alert.js";
+
 let apelido = "";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,9 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) {
         if (contentType && contentType.includes("application/json")) {
           const errorData = JSON.parse(responseText);
+          await exibirAlertaErro("error", "Erro", "Erro desconhecido!")
           throw new Error(errorData.message || "Erro desconhecido");
         }
-        throw new Error("⚠️ Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+        await exibirAlertaErro("error", "Erro", "Erro ao carregar perfil!")
+        throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
       }
 
       return JSON.parse(responseText);
@@ -31,10 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
       
       capturarNoticiasDoUsuario(apelido, 1);
     })
-    .catch((err) => {
-      console.error("❌ Erro ao carregar perfil:", err.message);
-      alert(err.message);
-      window.location.href = "/login.html";
+    .catch(async (err) => {
+      console.error(err.message);
+      await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
     });
 
   const modal = document.getElementById("confirmModal");
@@ -61,15 +64,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const resultado = await resposta.json();
 
       if (resposta.ok) {
-        alert(resultado.message);
         window.location.href = resultado.redirect;
       } else {
-        alert("Erro ao fazer logout: " + resultado.message);
+        await exibirAlertaErro("error", "Erro", resultado.message);
         modal.style.display = "none";
       }
     } catch (err) {
       console.error("Erro na requisição de logout:", err);
-      alert("Erro inesperado no logout.");
+      await exibirAlertaErro("error", "Erro", resultado.message);
       modal.style.display = "none";
     }
   });
@@ -84,11 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
 async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
   try {
     const res = await fetch(`/noticia/capturar-noticias-usuario/${encodeURIComponent(apelido)}?pagina=${pagina}`);
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw errorData;
-    }
+            if (!res.ok) {
+            const errorData = await res.json();
+            await exibirAlertaErro("error", "Erro", "Erro ao buscar notícias!");
+            throw new Error(errorData.message || "Erro ao buscar notícias"); 
+        }
 
     const data = await res.json();
 
@@ -159,7 +161,7 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
 
     console.log(`(${data.statusCode}) ${data.message}`);
   } catch (error) {
-    alert(`(${error.statusCode}) ${error.message}`);
+    await exibirAlertaErro(error.message);
   }
 }
 

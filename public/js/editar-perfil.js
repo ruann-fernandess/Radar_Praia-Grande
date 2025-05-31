@@ -1,3 +1,5 @@
+import { exibirAlertaErroERedirecionar, exibirAlertaErro, exibirAlertaSucesso } from "./alert.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const apelidoSpan = document.getElementById("apelido");
   const emailSpan = document.getElementById("email");
@@ -20,11 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) {
         if (contentType && contentType.includes("application/json")) {
           const errorData = JSON.parse(responseText);
+          await exibirAlertaErro("error", "Erro", "Erro desconhecido!");
           throw new Error(errorData.message || "Erro desconhecido");
         }
-        throw new Error("⚠️ Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+        await exibirAlertaErro("error", "Erro", "Erro ao carregar perfil")
+        throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
       }
-
       return JSON.parse(responseText);
     })
     .then((data) => {
@@ -35,10 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
       fotoCapaImg.src = data.fotoCapa;
       biografiaSpan.textContent = data.biografia;
     })
-    .catch((err) => {
-      console.error("❌ Erro ao carregar perfil:", err.message);
-      alert(err.message);
-      window.location.href = "/login.html";
+    .catch( async (err) => {
+      console.error(err.message);
+      await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
+
     });
 
 function editarCampo(span, campo, tipo = "text") {
@@ -152,6 +155,7 @@ salvarBtn.addEventListener("click", async () => {
     if (uploads.length > 0) {
       const results = await Promise.all(uploads);
       const failed = results.some(res => !res.ok);
+      await exibirAlertaErro("error", "Erro", "Erro ao enviar imagens!");
       if (failed) throw new Error("Falha ao enviar imagens.");
     }
 
@@ -167,15 +171,14 @@ salvarBtn.addEventListener("click", async () => {
     const resultado = await resposta.json();
 
     if (resposta.ok && resultado.statusCode === 200) {
-      alert("✅ Perfil atualizado com sucesso!");
+      await exibirAlertaSucesso("Alterações salvas!");
       location.reload();
     } else {
-      alert("❌ Erro ao atualizar perfil: " + resultado.message);
+      await exibirAlertaErro("error", "Erro", "Erro ao atualizar perfil!");
     }
-
   } catch (err) {
-    console.error("❌ Erro ao salvar alterações:", err);
-    alert("❌ Ocorreu um erro ao atualizar o perfil.");
+    console.error(err);
+    await exibirAlertaErro("error", "Erro", "Erro ao salvar alterações!");
   }
 });
 
@@ -192,13 +195,17 @@ salvarBtn.addEventListener("click", async () => {
   
       const resultado = await resposta.json();
   
-      alert(resultado.message);
-  
+        if(resultado.statusCode == 200){
+          await exibirAlertaSucesso(resultado.message);
+        } else{
+          await exibirAlertaErro(resultado.message);
+        }
+
       if (resultado.redirect) {
         window.location.href = resultado.redirect;
       }
     } catch (erro) {
-      alert("❌ Ocorreu um erro ao tentar apagar o perfil.");
+      await exibirAlertaErro("error", "Erro", "Erro ao tentar apagar perfil!");
       console.error(erro);
     }
   });

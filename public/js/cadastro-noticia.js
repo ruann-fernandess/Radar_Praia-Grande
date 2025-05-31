@@ -1,3 +1,5 @@
+import { exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
+
 let apelido = "";
 
 fetch("/usuario/perfil")
@@ -8,20 +10,20 @@ fetch("/usuario/perfil")
         if (!res.ok) {
             if (contentType && contentType.includes("application/json")) {
                 const errorData = JSON.parse(responseText);
+                await exibirAlertaErro("error", "Erro", "Erro desconhecido!")
                 throw new Error(errorData.message || "Erro desconhecido");
             }
-            throw new Error("⚠️ Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+            await exibirAlertaErro("error", "Erro", "Erro ao carregar perfil!")
+            throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
         }
-    
         return JSON.parse(responseText);
     })
     .then((data) => {
         apelido = data.apelido;
     })
-    .catch((err) => {
-        console.error("❌ Erro ao carregar perfil:", err.message);
-        alert(err.message);
-        window.location.href = "/login.html";
+    .catch(async (err) => {
+        console.error(err.message);
+        await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
     });
 
 // Adicionando os bairros disponíveis num array
@@ -32,7 +34,8 @@ async function capturarBairros() {
         const res = await fetch("noticia/capturar-bairros");
         if (!res.ok) {
             const errorData = await res.json();
-            throw errorData;
+            await exibirAlertaErro("error", "Erro", "Erro ao buscar bairros!");
+            throw new Error(errorData.message || "Erro ao buscar bairros"); 
         }
 
         const data = await res.json();
@@ -46,10 +49,8 @@ async function capturarBairros() {
             listaBairros.appendChild(opcaoBairro);
             arrayBairros.push(data.bairros[i].siglaBairro);
         }
-
-        console.log(`(${data.statusCode}) ${data.message}`);
     } catch (error) {
-        alert(`(${error.statusCode}) ${error.message}`);
+        await exibirAlertaErro("error", "Erro", error.message);
     }
 }
 
@@ -62,7 +63,7 @@ let arrayImagens = [];
 let contadorImagens = 0;
 const arrayTiposArquivosAceitos = ["image/jpg", "image/jpeg", "image/png"];
 
-inputImagens.addEventListener("change", function () {
+inputImagens.addEventListener("change", async function () {
     let novosArquivos = inputImagens.files;
     let contadorNovosArquivos = inputImagens.files.length;
 
@@ -79,21 +80,21 @@ inputImagens.addEventListener("change", function () {
                         exemploItemImagem.style.display = "none";
                     } else {
                         const nomeArquivoAtual = arquivoAtual.name;
-                        alert("O arquivo " + nomeArquivoAtual + " não possui um formato suportado.");
+                        await exibirAlertaErro("warning", "Atenção", "O arquivo " + nomeArquivoAtual + " não possui um formato suportado.")
                     }
                 } else {
-                    alert("Você pode adicionar no máximo 4 imagens. Apenas os primeiros arquivos disponíveis foram adicionados.");
+                    await exibirAlertaErro("warning", "Atenção", "Você pode adicionar no máximo 4 imagens. Apenas os primeiros arquivos disponíveis foram adicionados.");
                     break;
                 }
             }
         } else {
-            alert("Você pode adicionar no máximo 4 imagens. Apenas os primeiros arquivos disponíveis foram adicionados.");
+            await exibirAlertaErro("warning", "Atenção", "Você pode adicionar no máximo 4 imagens. Apenas os primeiros arquivos disponíveis foram adicionados.");
         }
 
         if (contadorImagens == 0) {
             inputImagens.value = "";
 
-            alert("Selecione apenas arquivos com a extensão .jpg, .jpeg ou .png");
+            await exibirAlertaErro("warning", "Atenção", "Selecione apenas arquivos com a extensão .jpg, .jpeg ou .png");
         } else {
             resetarListaImagens();
 
@@ -203,17 +204,15 @@ async function verificarBairro() {
     let bairroSelecionado = listaBairros.value;
 
     if (bairroSelecionado == "") {
-        alert("❌ Nenhum bairro foi declarado.");
+        
+    await exibirAlertaErro("warning", "Atenção", "Declare o bairro.");
 
         return false;
     } else {
         if (arrayBairros.indexOf(bairroSelecionado) >= 0) {
-            alert("✅ O bairro selecionado é válido.");
-
             return true;
         } else {
-            alert("❌ O bairro selecionado não é válido.");
-
+                await exibirAlertaErro("warning", "Atenção", "Declare um bairro válido.");
             return false;
         }
     }
@@ -224,16 +223,14 @@ async function verificarDescricao() {
     let descricao = textareaDescricao.value.trim();
 
     if (descricao == "") {
-        alert("❌ Nenhuma descrição foi declarada.");
+    await exibirAlertaErro("warning", "Atenção", "Adicione uma descrição.");
 
         return false;
     } else if (descricao.length < 4) {
-        alert("❌ A descrição deve ter ao menos 5 caracteres.");
+        await exibirAlertaErro("warning", "Atenção", "A descrição deve ter ao menos 5 caracteres.");
 
         return false;
     } else {
-        alert("✅ A descrição é válida.");
-
         return true;
     }
 }
@@ -255,9 +252,9 @@ async function analisarDescricao() {
 
         const data = await res.json();
         return data;
-        //alert(`(${data.statusCode}) ${data.message}`);
     } catch (error) {
-        //alert(`(${error.statusCode}) ${error.message}`);
+        //talvez o erro certo seja que a descrição não está dentro dos parâmetros
+        await exibirAlertaErro("error", "Erro", "Erro na análise da descrição.")
         return error;
     }
 }
@@ -273,27 +270,27 @@ async function analisarImagens() {
                 body: formData
             });
 
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw errorData;
-            }
+        if (!res.ok) {
+            const errorData = await res.json();
+            //talvez a descrição do erro seja outra
+            await exibirAlertaErro("error", "Erro", "Erro ao analisar imagem!");
+            throw new Error(errorData.message || "Erro ao analisar imagem!"); 
+        }
 
             const data = await res.json();
-            alert(`(${data.statusCode}) ${data.message}`);
 
             if (data.statusCode != 200) {
+                await exibirAlertaErro("error", "Erro", data.message)
                 return data;
             }
         } catch (error) {
-            alert(`(${error.statusCode}) ${error.message}`);
-            
+            await exibirAlertaErro("error", "Erro", error.message);
             return error;
         }
     }
 
     return {
         statusCode: 200,
-        message: "✅ Todas as imagens são válidas."
     };
 }
 
@@ -313,6 +310,7 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
     const resultadoAnalise = await analisarDescricao();
 
     if (resultadoAnalise.statusCode !== 200) {
+    await exibirAlertaErro("error", "Erro", resultadoAnalise.message);
       loadingContainer.style.display = "none";
       return;
     }
@@ -321,7 +319,7 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
       const resultadoImagens = await analisarImagens();
 
       if (resultadoImagens.statusCode !== 200) {
-        alert(resultadoImagens.message);
+        await exibirAlertaErro("error", "Erro", resultadoImagens.message);
         loadingContainer.style.display = "none";
         return;
       }
@@ -354,7 +352,7 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
                 formData.append("identificador", "Notícia"); // ex: Noticia-1, Noticia-2, etc
 
                 try {
-                    await fetch("/imagem/upload", {
+                    const imgRes = await fetch("/imagem/upload", {
                         method: "POST",
                         body: formData
                     });
@@ -362,11 +360,12 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
 
                     if (!imgRes.ok) {
                         const erro = await imgRes.text();
-                        console.error("Erro ao enviar imagem:", erro);
-                        alert("⚠️ Uma ou mais imagens não foram enviadas corretamente.");
+                        console.error(erro);
+                        await exibirAlertaErro("error", "Erro", "Uma ou mais imagens não foram enviadas corretamente.");
                     }
                 } catch (erro) {
-                    console.error("Erro de rede ao enviar imagem:", erro);
+                    await exibirAlertaErro("error", "Erro", "Erro desconhecido!")
+                    console.error(erro);
                 }
             }
         }

@@ -36,18 +36,18 @@ export async function analisarDescricao(req, res) {
         if (result.response.text().trim() == "true") {
             return res.status(400).json({ 
                 statusCode: 400, 
-                message: "❌ A descrição desta notícia é inválida ou viola alguma lei, regra ou diretriz de nossa comunidade. Revise-a e tente novamente."
+                message: "A descrição desta notícia é inválida ou viola alguma lei, regra ou diretriz de nossa comunidade. Revise-a e tente novamente."
             });
         } else {
             return res.status(200).json({ 
                 statusCode: 200, 
-                message: "✅ A descrição desta notícia é válida."
+                message: "A descrição desta notícia é válida."
             });
         }
     } catch (error) {
         return res.status(500).json({ 
             statusCode: 500, 
-            message: "❌ Erro ao validar a descrição desta notícia: " + error.message
+            message: "Erro ao validar a descrição desta notícia."
         });
     }
 }
@@ -86,12 +86,12 @@ export async function analisarImagem(req, res) {
         if (result.response.text().trim() == "true") {
             return res.status(400).json({ 
                 statusCode: 400, 
-                message: "❌ A imagem '" + nome + "' viola alguma regra. Revise-a e tente novamente."
+                message: "A imagem '" + nome + "' viola alguma regra. Revise-a e tente novamente!"
             });
         } else {
             return res.status(200).json({ 
                 statusCode: 200, 
-                message: "✅ A imagem '" + nome + "' é válida."
+                message: "A imagem '" + nome + "' é válida."
             });
         }
     } catch (error) {
@@ -99,7 +99,7 @@ export async function analisarImagem(req, res) {
 
         res.status(500).json({ 
             statusCode: 500, 
-            message: "❌ Erro ao validar a imagem '" + nome + "' - " + error.message
+            message: "Erro ao validar a imagem: " + nome
         });
     }
 }
@@ -111,19 +111,19 @@ export async function capturarBairros(req, res) {
         if (!bairros || bairros.length === 0) {
             return res.status(400).json({ 
                 statusCode: 400, 
-                message: "❌ Nenhum bairro foi encontrado." 
+                message: "Nenhum bairro foi encontrado!" 
             });
         }
 
         res.status(200).json({
             statusCode: 200, 
-            message: "✅ Os bairros foram capturados com sucesso!",
+            message: "Os bairros foram capturados com sucesso!",
             bairros
         });
     } catch (error) {
         res.status(500).json({ 
             statusCode: 500, 
-            message: "❌ Erro ao capturar os bairros: " + error.message 
+            message: "Erro ao capturar os bairros!"
         });
     }
 }
@@ -136,7 +136,7 @@ export async function capturarNoticiasDoUsuario(req, res) {
     if (!apelido) {
       return res.status(400).json({
         statusCode: 400,
-        message: "❌ Parâmetro 'apelido' é obrigatório."
+        message: "Parâmetro 'apelido' é obrigatório."
       });
     }
 
@@ -144,14 +144,14 @@ export async function capturarNoticiasDoUsuario(req, res) {
 
     res.status(200).json({
       statusCode: 200,
-      message: "✅ As notícias foram capturadas com sucesso!",
+      message: "As notícias foram capturadas com sucesso!",
       noticias,
       totalNoticias
     });
   } catch (error) {
     res.status(500).json({
       statusCode: 500,
-      message: "❌ Erro ao capturar as notícias: " + error.message
+      message: "Erro ao capturar as notícias."
     });
   }
 }
@@ -175,19 +175,19 @@ export async function capturarNoticiaDoUsuario(req, res) {
     if (!noticia) {
       return res.status(404).json({
         statusCode: 404,
-        message: "❌ Notícia não encontrada.",
+        message: "Notícia não encontrada!",
       });
     }
 
     return res.status(200).json({
       statusCode: 200,
-      message: "✅ Notícia capturada com sucesso!",
+      message: "Notícia capturada com sucesso!",
       noticia,
     });
   } catch (error) {
     return res.status(500).json({
       statusCode: 500,
-      message: "❌ Erro ao capturar notícia: " + error.message,
+      message: "Erro ao capturar notícia!"
     });
   }
 }
@@ -204,7 +204,7 @@ export async function cadastro(req, res) {
     } catch (error) {
         res.status(500).json({ 
             statusCode: 500, 
-            message: "❌ Erro ao cadastrar notícia: " + error.message 
+            message: "Erro ao cadastrar notícia!"
         });
     }
 }
@@ -223,7 +223,7 @@ export async function editarNoticia(req, res) {
     } catch (error) {
         res.status(500).json({ 
             statusCode: 500, 
-            message: "❌ Erro ao atualizar notícia: " + error.message 
+            message: "Erro ao atualizar notícia!"
         });
     }
 }
@@ -249,7 +249,7 @@ export async function apagarNoticia(req, res) {
   } catch (error) {
     res.status(500).json({ 
       statusCode: 500, 
-      message: "❌ Erro ao apagar notícia: " + error.message 
+      message: "Erro ao apagar notícia!"
     });
   }
 }

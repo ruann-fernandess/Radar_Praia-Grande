@@ -37,11 +37,11 @@ export async function insertImagem(imagem) {
       ]
     );
 
-    console.log("✅ Imagem inserida com sucesso!");
-    return { statusCode: 200, message: "✅ Imagem inserida com sucesso!" };
+    console.log(chalk.green("Imagem inserida com sucesso!"));
+    return { statusCode: 200, message: "Imagem inserida com sucesso!" };
   } catch (error) {
-    console.error("❌ Erro ao inserir imagem:", error.message);
-    return { statusCode: 500, message: "❌ Erro ao inserir imagem: " + error.message };
+    console.error(chalk.red(" Erro ao inserir imagem:", error.message));
+    return { statusCode: 500, message: "Erro ao inserir imagem!" };
   }
 }
 
@@ -60,10 +60,10 @@ export async function updateImagem(imagem) {
     );
 
     console.log(chalk.green("Imagem atualizada com sucesso!"));
-    return { statusCode: 200, message: "✅ Imagem atualizada com sucesso!" };
+    return { statusCode: 200, message: "Imagem atualizada com sucesso!" };
   } catch (error) {
     console.error(chalk.red("Erro ao atualizar imagem:", error.message));
-    return { statusCode: 500, message: "❌ Erro ao atualizar imagem: " + error.message };
+    return { statusCode: 500, message: "Erro ao atualizar imagem!"};
   }
 }
 

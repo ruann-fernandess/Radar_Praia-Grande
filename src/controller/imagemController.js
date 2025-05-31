@@ -21,7 +21,7 @@ export async function cadastro(req, res) {
 
   } catch (error) {
     res.status(500).json({
-      message: "❌ Erro ao cadastrar imagem: " + error.message
+      message: "Erro ao cadastrar imagem!"
     });
   }
 }
@@ -44,7 +44,7 @@ export async function atualizarImagem(req, res) {
   } catch (error) {
     res.status(500).json({
       statusCode: 500,
-      message: "❌ Erro ao atualizar imagem: " + error.message
+      message: "Erro ao atualizar imagem!"
     });
   }
 }

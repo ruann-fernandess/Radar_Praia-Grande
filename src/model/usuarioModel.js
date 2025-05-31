@@ -107,10 +107,10 @@ export async function insertUsuario(usuario) {
     );
 
     console.log(chalk.green("Usuário inserido com sucesso!"));
-    return { statusCode: 200, message: "✅ Usuário inserido com sucesso!" };
+    return { statusCode: 200, message: "Usuário inserido com sucesso!" };
   } catch (error) {
     console.error(chalk.red("Erro ao inserir usuário:", error.message));
-    return { statusCode: 500, message: "❌ Erro ao inserir usuário: " + error.message };
+    return { statusCode: 500, message: "Erro ao inserir usuário!"};
   }
 }
 
@@ -132,10 +132,10 @@ export async function updateUsuario(usuario) {
     );
 
     console.log(chalk.green("Usuário atualizado com sucesso!"));
-    return { statusCode: 200, message: "✅ Usuário atualizado com sucesso!" };
+    return { statusCode: 200, message: "Usuário atualizado com sucesso!" };
   } catch (error) {
     console.error(chalk.red("Erro ao atualizar usuário:", error.message));
-    return { statusCode: 500, message: "❌ Erro ao atualizar usuário: " + error.message };
+    return { statusCode: 500, message: "Erro ao atualizar usuário!" };
   }
 }
 

@@ -42,14 +42,14 @@ export async function insertNoticia(noticia) {
     return {
       idNoticia: idNoticia,
       statusCode: 200,
-      message: "✅ Notícia inserida com sucesso!",
+      message: "Notícia inserida com sucesso!",
     };
   } catch (error) {
     console.error(chalk.red("Erro ao inserir notícia:", error.message));
     return {
       idNoticia: 0,
       statusCode: 500,
-      message: "❌ Erro ao inserir notícia: " + error.message,
+      message: "Erro ao inserir notícia!"
     };
   }
 }
@@ -79,24 +79,24 @@ export async function updateNoticia(noticia) {
     );
 
     if (result.changes === 0) {
-      console.warn(chalk.yellow("⚠️ Nenhuma notícia foi atualizada. Verifique o ID."));
+      console.warn(chalk.yellow("Nenhuma notícia foi atualizada. Verifique o ID."));
       return {
         statusCode: 404,
-        message: "⚠️ Nenhuma notícia encontrada com esse ID.",
+        message: "Nenhuma notícia encontrada com esse ID.",
       };
     }
 
-    console.log(chalk.green("✅ Notícia atualizada com sucesso!"));
+    console.log(chalk.green("Notícia atualizada com sucesso!"));
     return {
       statusCode: 200,
-      message: "✅ Notícia atualizada com sucesso!",
+      message: "Notícia atualizada com sucesso!",
     };
 
   } catch (error) {
-    console.error(chalk.red("❌ Erro ao atualizar notícia:", error.message));
+    console.error(chalk.red("Erro ao atualizar notícia:", error.message));
     return {
       statusCode: 500,
-      message: "❌ Erro ao atualizar notícia: " + error.message,
+      message: "Erro ao atualizar notícia!",
     };
   }
 }
