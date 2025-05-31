@@ -56,7 +56,8 @@ export async function login(req, res){
                 nome: usuarioExiste.nome,
                 fotoCapa: usuarioExiste.fotoCapa,
                 fotoPerfil: usuarioExiste.fotoPerfil,
-                biografia: usuarioExiste.biografia
+                biografia: usuarioExiste.biografia,
+                dataCriacao: usuarioExiste.dataCriacao
             };
 
             return res.status(200).json({ 
@@ -101,7 +102,8 @@ export async function perfil(req, res) {
             nome: usuario.nome,
             fotoCapa: usuario.fotoCapa,
             fotoPerfil: usuario.fotoPerfil,
-            biografia: usuario.biografia
+            biografia: usuario.biografia,
+            dataCriacao: usuario.dataCriacao
         });
 
     } catch (error) {

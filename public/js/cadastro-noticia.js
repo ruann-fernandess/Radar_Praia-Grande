@@ -212,7 +212,7 @@ async function verificarBairro() {
         if (arrayBairros.indexOf(bairroSelecionado) >= 0) {
             return true;
         } else {
-                await exibirAlertaErro("warning", "Atenção", "Declare um bairro válido.");
+            await exibirAlertaErro("warning", "Atenção", "Declare um bairro válido.");
             return false;
         }
     }
@@ -223,7 +223,7 @@ async function verificarDescricao() {
     let descricao = textareaDescricao.value.trim();
 
     if (descricao == "") {
-    await exibirAlertaErro("warning", "Atenção", "Adicione uma descrição.");
+        await exibirAlertaErro("warning", "Atenção", "Adicione uma descrição.");
 
         return false;
     } else if (descricao.length < 4) {
@@ -338,51 +338,49 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
       body: JSON.stringify(noticia)
     });
 
+    // Resultado do cadastro da notícia
     const data = await response.json();
-    alert(`(${data.statusCode}) ${data.message}`);
 
     if (data.statusCode === 200) {
         if (contadorImagens > 0) {
             // Envia as imagens usando FormData para /upload
             for (let i = 0; i < arrayImagens.length; i++) {
                 const formData = new FormData();
-                formData.append("imagem", arrayImagens[i]); // File
+                formData.append("imagem", arrayImagens[i]);
                 formData.append("idNoticia", data.idNoticia);
                 formData.append("apelido", apelido);
-                formData.append("identificador", "Notícia"); // ex: Noticia-1, Noticia-2, etc
+                formData.append("identificador", "Notícia");
 
                 try {
-                    const imgRes = await fetch("/imagem/upload", {
+                    const res = await fetch("/imagem/upload", {
                         method: "POST",
                         body: formData
                     });
 
+                    const resultado = await res.json();
 
-                    if (!imgRes.ok) {
-                        const erro = await imgRes.text();
-                        console.error(erro);
+                    if (!res.ok) {
+                        console.error(`(${resultado.statusCode}) ${resultado.message}`);
                         await exibirAlertaErro("error", "Erro", "Uma ou mais imagens não foram enviadas corretamente.");
+                        return;
                     }
+
+                    await exibirAlertaSucesso(resultado.message);
                 } catch (erro) {
-                    await exibirAlertaErro("error", "Erro", "Erro desconhecido!")
+                    await exibirAlertaErro("error", "Erro", "Erro desconhecido!");
                     console.error(erro);
+                    return;
                 }
             }
         }
-        // Redireciona somente depois de todas as imagens
+
+        await exibirAlertaSucesso(data.message);
         window.location.href = "cadastro-noticia.html";
+    } else {
+        await exibirAlertaErro("error", "Erro", "Erro ao cadastrar notícia!");
+        console.log(data.message);
     }
 
     loadingContainer.style.display = "none";
   }
 });
-
-
-function converterParaBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    });
-}

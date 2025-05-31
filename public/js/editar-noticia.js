@@ -448,7 +448,7 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
         return;
       }
     }
-    ////
+    
     const urlParams = new URLSearchParams(window.location.search);
     const idNoticia = urlParams.get('idNoticia');
 
@@ -489,24 +489,32 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
                             body: formData
                         });
 
+                        const resultado = await res.json();
+
                         if (!res.ok) {
-                            const errorData = await res.json();
-                            await exibirAlertaErro("error", "Erro", "Erro ao enviar imagem da notícia!");
-                            throw new Error(errorData.message || "Erro ao enviar imagem da notícia"); 
+                            console.error(`(${resultado.statusCode}) ${resultado.message}`);
+                            await exibirAlertaErro("error", "Erro", "Uma ou mais imagens não foram enviadas corretamente.");
+                            return;
                         }
+
+                        await exibirAlertaSucesso(resultado.message);
                     } catch (erro) {
                         await exibirAlertaErro("error", "Erro", "Erro desconhecido!");
                         console.error(erro);
+                        return;
                     }
                 }
             }
-            // Redireciona somente depois de todas as imagens
+            
+            await exibirAlertaSucesso(data.message);
             window.location.href = "perfil.html";
+        } else {
+            await exibirAlertaErro("error", "Erro", "Erro ao editar notícia!");
+            console.log(data.message);
         }
     } catch (error) {
         await exibirAlertaErro(error.message);
     }
-    ////
 
     loadingContainer.style.display = "none";
   }

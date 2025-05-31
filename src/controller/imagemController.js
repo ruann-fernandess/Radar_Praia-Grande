@@ -3,13 +3,16 @@ import { insertImagem, updateImagem } from "../model/imagemModel.js";
 export async function cadastro(req, res) {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: "Arquivo de imagem não enviado." });
+      return res.status(400).json({ 
+        statusCode: 400,
+        message: "Arquivo de imagem não enviado." 
+      });
     }
 
     const { apelido, idNoticia, identificador } = req.body;
 
     const novaImagem = {
-      blob: req.file.buffer, // 👈 isso será o BLOB inserido
+      blob: req.file.buffer,
       apelido,
       idNoticia,
       identificador
@@ -17,10 +20,14 @@ export async function cadastro(req, res) {
 
     const result = await insertImagem(novaImagem);
 
-    res.status(result.statusCode).json({ message: result.message });
+    res.status(result.statusCode).json({ 
+      statusCode: result.statusCode,
+      message: result.message 
+    });
 
   } catch (error) {
     res.status(500).json({
+      statusCode: 500,
       message: "Erro ao cadastrar imagem!"
     });
   }
@@ -28,6 +35,13 @@ export async function cadastro(req, res) {
 
 export async function atualizarImagem(req, res) {
   try {
+    if (!req.file) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Arquivo de imagem não enviado."
+      });
+    }
+
     const imagemBlob = req.file.buffer;
     const { apelido, idNoticia, identificador } = req.body;
 
@@ -38,8 +52,12 @@ export async function atualizarImagem(req, res) {
       identificador
     };
 
-    const resultado = await updateImagem(imagem);
-    res.status(resultado.statusCode).json(resultado);
+    const result = await updateImagem(imagem);
+
+    res.status(result.statusCode).json({ 
+      statusCode: result.statusCode,
+      message: result.message 
+    });
 
   } catch (error) {
     res.status(500).json({
@@ -48,4 +66,3 @@ export async function atualizarImagem(req, res) {
     });
   }
 }
-

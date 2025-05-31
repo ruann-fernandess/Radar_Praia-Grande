@@ -27,8 +27,8 @@ export async function insertNoticia(noticia) {
   try {
     const result = await db.run(
       `INSERT INTO noticia 
-                (legenda, dataNoticia, apelido, siglaBairro) 
-                VALUES (?, CURRENT_TIMESTAMP, ?, ?)`,
+                (legenda, apelido, siglaBairro) 
+                VALUES (?, ?, ?)`,
       [
         noticia.ds_noticia,
         noticia.apelido,
@@ -56,23 +56,13 @@ export async function insertNoticia(noticia) {
 
 export async function updateNoticia(noticia) {
   try {
-    const now = new Date();
-    const nowLocal = now.getFullYear() +
-        '-' + String(now.getMonth() + 1).padStart(2, '0') +
-        '-' + String(now.getDate()).padStart(2, '0') +
-        ' ' + String(now.getHours()).padStart(2, '0') +
-        ':' + String(now.getMinutes()).padStart(2, '0') +
-        ':' + String(now.getSeconds()).padStart(2, '0');
-
     const result = await db.run(
       `UPDATE noticia 
        SET legenda = ?, 
-           dataNoticia = ?, 
            siglaBairro = ?
        WHERE idNoticia = ?`,
       [
         noticia.ds_noticia,
-        nowLocal,
         noticia.sg_bairro,
         noticia.idNoticia
       ]
@@ -109,7 +99,7 @@ export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
       `SELECT 
         N.idNoticia,
         N.legenda,
-        N.dataNoticia,
+        datetime(N.dataNoticia, 'localtime') AS dataNoticia, 
         N.apelido,
         N.siglaBairro,
         B.nomeBairro,
@@ -178,8 +168,8 @@ export async function selectNoticiaPorIdEApelido(idNoticia, apelido) {
     const rows = await db.all(
       `SELECT 
         N.idNoticia,
-        N.legenda,
-        N.dataNoticia,
+        N.legenda, 
+        datetime(N.dataNoticia, 'localtime') AS dataNoticia, 
         N.apelido,
         N.siglaBairro,
         B.nomeBairro,

@@ -155,8 +155,10 @@ salvarBtn.addEventListener("click", async () => {
     if (uploads.length > 0) {
       const results = await Promise.all(uploads);
       const failed = results.some(res => !res.ok);
-      await exibirAlertaErro("error", "Erro", "Erro ao enviar imagens!");
-      if (failed) throw new Error("Falha ao enviar imagens.");
+      if (failed) {
+        await exibirAlertaErro("error", "Erro", "Erro ao enviar imagens!");
+        throw new Error("Falha ao enviar imagens.");
+      }
     }
 
     // Agora que as imagens foram enviadas, envia os demais dados do perfil

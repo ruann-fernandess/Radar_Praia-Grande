@@ -113,10 +113,9 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
       metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Bairro: ${noticia.nomeBairro} (${noticia.siglaBairro})` }));
 
       const dataFormatada = formatarDataNoticia(noticia.dataNoticia);
-      metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Última atualização: ${dataFormatada}` }));
+      metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Data de criação: ${dataFormatada}` }));
 
       noticiaDiv.appendChild(metadados);
-
 
       // Imagens responsivas
       if (noticia.imagens && noticia.imagens.length > 0) {
@@ -150,12 +149,24 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
     for (let i = 1; i <= totalPaginas; i++) {
       const btn = document.createElement("button");
       btn.textContent = i;
-      btn.style.margin = "0 5px";
+
       if (i === pagina) {
         btn.disabled = true;
-        btn.style.fontWeight = "bold";
+        btn.classList.add("ativo");
       }
-      btn.onclick = () => capturarNoticiasDoUsuario(apelido, i);
+      
+      btn.onclick = () => {
+        document.querySelectorAll("#paginacaoNoticias button").forEach(b => {
+          b.classList.remove("ativo");
+          b.disabled = false;
+        });
+
+        btn.classList.add("ativo");
+        btn.disabled = true;
+
+        capturarNoticiasDoUsuario(apelido, i);
+      };
+
       paginacaoNoticias.appendChild(btn);
     }
 

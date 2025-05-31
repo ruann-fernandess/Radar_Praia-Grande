@@ -192,7 +192,6 @@ h2 {
   justify-content: center;
   margin-top: 2em;
   gap: 10px;
-  background-color: blue;
 }
 
 #paginacaoNoticias button {
@@ -209,4 +208,11 @@ h2 {
 #paginacaoNoticias button:hover {
   background-color: var(--bege-escuro);
   color: var(--branco);
+}
+
+#paginacaoNoticias button.ativo {
+  background-color: var(--marrom-claro);
+  color: var(--branco);
+  font-weight: bold;
+  cursor: default;
 }

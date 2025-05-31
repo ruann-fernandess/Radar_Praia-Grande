@@ -11,7 +11,7 @@ const upload = multer({ storage: storage });
 // Definir a rota com Multer para processar uploads
 router.get("/capturar-bairros", verificaAutenticacao, capturarBairros);
 router.post("/analisar-descricao", verificaAutenticacao, analisarDescricao);
-router.post("/analisar-imagem", upload.single("imagem"), verificaAutenticacao, analisarImagem);
+router.post("/analisar-imagem", verificaAutenticacao, upload.single("imagem"), analisarImagem);
 router.post("/cadastro", verificaAutenticacao, cadastro);
 router.get("/capturar-noticias-usuario/:apelido", verificaAutenticacao, capturarNoticiasDoUsuario);
 router.get("/capturar-noticia-usuario/:idNoticia", verificaAutenticacao,  capturarNoticiaDoUsuario);

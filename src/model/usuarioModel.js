@@ -59,6 +59,7 @@ export async function verificaLogin(email, senha) {
         U.email, 
         U.nome, 
         U.biografia, 
+        datetime(U.dataCriacao, 'localtime') AS dataCriacao, 
         IP.imagem AS fotoPerfil,
         IB.imagem AS fotoCapa
       FROM USUARIO U
@@ -83,6 +84,7 @@ export async function verificaLogin(email, senha) {
       email: usuario.email,
       nome: usuario.nome,
       biografia: usuario.biografia,
+      dataCriacao: usuario.dataCriacao,
       fotoPerfil: blobToDataURI(usuario.fotoPerfil),
       fotoCapa: blobToDataURI(usuario.fotoCapa),
     };

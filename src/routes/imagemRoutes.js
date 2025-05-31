@@ -9,7 +9,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Definir a rota com Multer para processar uploads
-router.post("/upload", upload.single("imagem"), verificaAutenticacao, cadastro);
-router.post("/update", upload.single("imagem"), verificaAutenticacao, atualizarImagem);
+router.post("/upload", upload.single("imagem"), cadastro);
+router.post("/update", verificaAutenticacao, upload.single("imagem"), atualizarImagem);
 
 export default router;
