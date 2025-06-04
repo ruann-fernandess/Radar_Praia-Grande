@@ -13,36 +13,32 @@ document.addEventListener("DOMContentLoaded", () => {
   let dadosEditados = {};
   let arquivosEditados = {};
 
+ fetch("/usuario/editar-perfil")
+  .then(async (res) => {
+    const contentType = res.headers.get("content-type");
+    const responseText = await res.text();
 
-  fetch("/usuario/editar-perfil")
-    .then(async (res) => {
-      const contentType = res.headers.get("content-type");
-      const responseText = await res.text();
-
-      if (!res.ok) {
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = JSON.parse(responseText);
-          await exibirAlertaErro("error", "Erro", "Erro desconhecido!");
-          throw new Error(errorData.message || "Erro desconhecido");
-        }
-        await exibirAlertaErro("error", "Erro", "Erro ao carregar perfil")
-        throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+    if (!res.ok) {
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.message || "Erro desconhecido");
       }
-      return JSON.parse(responseText);
-    })
-    .then((data) => {
-      apelidoSpan.textContent = data.apelido;
-      emailSpan.textContent = data.email;
-      nomeSpan.textContent = data.nome;
-      fotoPerfilImg.src = data.fotoPerfil;
-      fotoCapaImg.src = data.fotoCapa;
-      biografiaSpan.textContent = data.biografia;
-    })
-    .catch( async (err) => {
-      console.error(err.message);
-      await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
-
-    });
+      throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+    }
+    return JSON.parse(responseText);
+  })
+  .then((data) => {
+    apelidoSpan.textContent = data.apelido;
+    emailSpan.textContent = data.email;
+    nomeSpan.textContent = data.nome;
+    fotoPerfilImg.src = data.fotoPerfil;
+    fotoCapaImg.src = data.fotoCapa;
+    biografiaSpan.textContent = data.biografia;
+  })
+  .catch(async (err) => {
+    console.error(err.message);
+    await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
+  });
 
 function editarCampo(span, campo, tipo = "text") {
   // Verifica se já está em modo de edição

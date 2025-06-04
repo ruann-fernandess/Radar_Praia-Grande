@@ -1,17 +1,20 @@
-export function exibirAlertaErroERedirecionar(icon, title, mensagem, url) {
-  Swal.fire({
+export async function exibirAlertaErroERedirecionar(icon, title, mensagem, url) {
+  const result = await Swal.fire({
     icon: icon,
     title: title,
     text: mensagem,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      window.location.href = url;
-    }
+    showConfirmButton: true,
+    confirmButtonText: "OK",
+    allowOutsideClick: false,
+    allowEscapeKey: false,
   });
+  if (result.isConfirmed) {
+    window.location.href = url;
+  }
 }
 
-export function exibirAlertaErro(icon, title, mensagem) {
-  Swal.fire({
+export async function exibirAlertaErro(icon, title, mensagem) {
+  await Swal.fire({
     icon: icon,
     title: title,
     text: mensagem,
@@ -30,7 +33,6 @@ export function exibirAlertaSucesso(title) {
       toast.onmouseleave = Swal.resumeTimer;
     }
   });
-
   Toast.fire({
     icon: "success",
     title: title

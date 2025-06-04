@@ -8,37 +8,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const fotoCapaImg = document.getElementById("fotoCapa");
   const biografiaSpan = document.getElementById("biografia");
 
-  fetch("/usuario/perfil")
-    .then(async (res) => {
-      const contentType = res.headers.get("content-type");
-      const responseText = await res.text();
+ fetch("/usuario/perfil")
+  .then(async (res) => {
+    const contentType = res.headers.get("content-type");
+    const responseText = await res.text();
 
-      if (!res.ok) {
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = JSON.parse(responseText);
-          await exibirAlertaErro("error", "Erro", "Erro desconhecido!")
-          throw new Error(errorData.message || "Erro desconhecido");
-        }
-        await exibirAlertaErro("error", "Erro", "Erro ao carregar perfil!")
-        throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+    if (!res.ok) {
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.message || "Erro desconhecido");
       }
+      throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+    }
 
-      return JSON.parse(responseText);
-    })
-    .then((data) => {
-      apelido = data.apelido;
+    return JSON.parse(responseText);
+  })
+  .then((data) => {
+    apelido = data.apelido;
+    apelidoSpan.textContent = data.apelido;
+    fotoPerfilImg.src = data.fotoPerfil;
+    fotoCapaImg.src = data.fotoCapa;
+    biografiaSpan.textContent = data.biografia;
 
-      apelidoSpan.textContent = data.apelido;
-      fotoPerfilImg.src = data.fotoPerfil;
-      fotoCapaImg.src = data.fotoCapa;
-      biografiaSpan.textContent = data.biografia;
-      
-      capturarNoticiasDoUsuario(apelido, 1);
-    })
-    .catch(async (err) => {
-      console.error(err.message);
-      await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
-    });
+    capturarNoticiasDoUsuario(apelido, 1);
+  })
+  .catch(async (err) => {
+    console.error(err.message);
+    await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
+  });
 
   const modal = document.getElementById("confirmModal");
   const logoutBtn = document.getElementById("logout-btn");

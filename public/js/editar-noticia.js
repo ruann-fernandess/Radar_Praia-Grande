@@ -8,25 +8,22 @@ fetch("/usuario/perfil")
     .then(async (res) => {
         const contentType = res.headers.get("content-type");
         const responseText = await res.text();
-    
+
         if (!res.ok) {
-            if (contentType && contentType.includes("application/json")) {
-                const errorData = JSON.parse(responseText);
-                await exibirAlertaErro("error", "Erro", "Erro desconhecido!")
-                throw new Error(errorData.message || "Erro desconhecido");
-            }
-            await exibirAlertaErro("error", "Erro", "Erro ao carregar perfil!")
-            throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+        if (contentType && contentType.includes("application/json")) {
+            const errorData = JSON.parse(responseText);
+            throw new Error(errorData.message || "Erro desconhecido");
+        }  
+        throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
         }
-    
         return JSON.parse(responseText);
     })
     .then((data) => {
         apelido = data.apelido;
-
+        capturarBairros();
         carregarNoticia();
     })
-    .catch(async(err) => {
+    .catch(async (err) => {
         console.error(err.message);
         await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
     });
@@ -185,8 +182,6 @@ async function capturarBairros() {
         exibirAlertaErro("error", "Erro", res.message);
     }
 }
-
-capturarBairros();
 
 const inputImagens = document.getElementById("imagens");
 const listaImagens = document.getElementById("listaImagens");
@@ -459,19 +454,19 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
     };
 
     try {
-        const res = await fetch('/noticia/editar-noticia', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(noticia),
-        });
+    const res = await fetch('/noticia/editar-noticia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(noticia),
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            await exibirAlertaErro("error", "Erro", "Erro ao editar a notícia!");
-            throw new Error(errorData.message || "Erro ao editar a notícia"); 
-        }
+    if (!res.ok) {
+        await exibirAlertaErro("error", "Erro", "Erro ao editar a notícia!");
+        throw new Error(data.message || "Erro ao editar a notícia");
+    }
+
 
         if (data.statusCode === 200) {
             if (contadorImagens > 0) {

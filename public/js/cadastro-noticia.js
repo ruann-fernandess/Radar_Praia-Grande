@@ -2,29 +2,30 @@ import { exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } 
 
 let apelido = "";
 
-fetch("/usuario/perfil")
-    .then(async (res) => {
-        const contentType = res.headers.get("content-type");
-        const responseText = await res.text();
-    
-        if (!res.ok) {
-            if (contentType && contentType.includes("application/json")) {
-                const errorData = JSON.parse(responseText);
-                await exibirAlertaErro("error", "Erro", "Erro desconhecido!")
-                throw new Error(errorData.message || "Erro desconhecido");
-            }
-            await exibirAlertaErro("error", "Erro", "Erro ao carregar perfil!")
-            throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
-        }
-        return JSON.parse(responseText);
-    })
-    .then((data) => {
-        apelido = data.apelido;
-    })
-    .catch(async (err) => {
-        console.error(err.message);
-        await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
-    });
+ fetch("/usuario/perfil")
+  .then(async (res) => {
+    const contentType = res.headers.get("content-type");
+    const responseText = await res.text();
+
+    if (!res.ok) {
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.message || "Erro desconhecido");
+      }
+      throw new Error("Erro ao carregar perfil. O servidor retornou HTML inesperado.");
+    }
+
+    return JSON.parse(responseText);
+  })
+  .then((data) => {
+    apelido = data.apelido;
+
+    capturarBairros();
+  })
+  .catch(async (err) => {
+    console.error(err.message);
+    await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
+  });
 
 // Adicionando os bairros disponíveis num array
 let arrayBairros = [];
@@ -53,8 +54,6 @@ async function capturarBairros() {
         await exibirAlertaErro("error", "Erro", error.message);
     }
 }
-
-capturarBairros();
 
 const inputImagens = document.getElementById("imagens");
 const listaImagens = document.getElementById("listaImagens");
@@ -375,7 +374,7 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
         }
 
         await exibirAlertaSucesso(data.message);
-        window.location.href = "cadastro-noticia.html";
+        window.location.href = "perfil.html";
     } else {
         await exibirAlertaErro("error", "Erro", "Erro ao cadastrar notícia!");
         console.log(data.message);
