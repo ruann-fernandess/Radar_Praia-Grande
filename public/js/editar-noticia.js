@@ -1,4 +1,4 @@
-import { exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
+import { exibirAlertaConfirmar, exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
 
 let apelido = "";
 let dadosNoticia = "";
@@ -129,7 +129,7 @@ async function carregarNoticia() {
 
         // Adicionando função de apagar notícia
         btnExcluir.addEventListener('click', async () => {
-            const confirmar = confirm('Tem certeza que deseja excluir a notícia?');
+            const confirmar = await exibirAlertaConfirmar('Excluir?', 'Tem certeza que deseja excluir a notícia?');
 
             if (confirmar) {
                 try {

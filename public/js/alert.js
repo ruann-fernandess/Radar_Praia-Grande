@@ -21,6 +21,21 @@ export async function exibirAlertaErro(icon, title, mensagem) {
   });
 }
 
+export async function exibirAlertaConfirmar(titulo, mensagem) {
+  const resultado = await Swal.fire({
+    title: titulo,
+    text: mensagem,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, excluir',
+    cancelButtonText: 'Cancelar',
+    reverseButtons: true,
+  });
+
+  return resultado.isConfirmed;
+}
+
+
 export function exibirAlertaSucesso(title) {
   const Toast = Swal.mixin({
     toast: true,
