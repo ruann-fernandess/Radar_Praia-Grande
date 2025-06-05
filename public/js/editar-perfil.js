@@ -1,4 +1,4 @@
-import { exibirAlertaErroERedirecionar, exibirAlertaErro, exibirAlertaSucesso } from "./alert.js";
+import { exibirAlertaErroERedirecionar, exibirAlertaErro, exibirAlertaSucesso, exibirAlertaConfirmar } from "./alert.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const apelidoSpan = document.getElementById("apelido");
@@ -182,8 +182,7 @@ salvarBtn.addEventListener("click", async () => {
 
 
   apagarBtn.addEventListener("click", async () => {
-    const confirmar = confirm("Tem certeza que deseja apagar seu perfil? Essa ação é irreversível.");
-  
+     const confirmar = await exibirAlertaConfirmar('Excluir?', 'Tem certeza que deseja excluir seu perfil? Essa ação é irreversível.');
     if (!confirmar) return;
   
     try {
