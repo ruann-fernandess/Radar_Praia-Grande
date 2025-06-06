@@ -1,12 +1,135 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página inicial</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Radar Praia Grande</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/inicio.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="left-side"></div>
+      <div class="right-side"></div>
+ 
+      <div class="box">
+        <h1>Radar Praia Grande</h1>
+        <p>
+          Fique por dentro das últimas notícias da Praia Grande. Cadastre-se ou
+          faça login para acompanhar tudo de perto!
+        </p>
+        <div class="buttons">
+          <a href="/cadastro.html" class="btn signup">Cadastro</a>
+          <a href="/login.html" class="btn login">Login</a>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
+ 
+depois, vai no public/css, e cria um arquivo chamado inicio.css, e coloca esse codigo abaixo. fim por enquanto
+ 
+@import url(root.css);
+ 
+body, html {
+  height: 100%;
+  background-color: var(--branco);
+}
+ 
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+ 
+.left-side {
+  flex-basis: 60%;
+  background-color: var(--bege);
+  background-image: url('../imagens/newspaper_collage_texture.jpg');
+  background-size: 160%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+ 
+.right-side {
+  flex-basis: 40%;
+  background: linear-gradient(135deg, var(--marrom-claro), var(--bege-escuro));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+ 
+.box {
+  background: var(--branco);
+  box-shadow: 0 4px 12px rgba(23, 15, 7, 0.1);
+  padding: 2.5rem 3rem;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  z-index: 10;
+  color: var(--preto);
+}
+ 
+.box h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--marrom-escuro);
+}
+ 
+.box p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: var(--preto);
+  line-height: 1.4;
+}
+ 
+.buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+ 
+.btn {
+  flex: 1 1 120px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  font-weight: 600;
+  color: var(--branco);
+  text-decoration: none;
+}
+ 
+.btn.signup {
+  background-color: var(--marrom-escuro);
+}
+ 
+.btn.signup:hover {
+  background-color: var(--preto);
+}
+ 
+.btn.login {
+  background-color: var(--marrom-claro);
+}
+ 
+.btn.login:hover {
+  background-color: var(--preto);
+}
+ 
+.container > .box {
+  position: absolute;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
