@@ -1,0 +1,52 @@
+@import url(root.css);
+
+body {
+  background-color: var(--branco);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bege-escuro);
+  padding: 1rem 2rem;
+  color: var(--branco);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  color: var(--branco);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--bege-claro);
+}
+
+.logout-btn {
+  background-color: var(--marrom-claro);
+  color: var(--branco);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-family: var(--fonte-principal);
+}
+
+.logout-btn:hover {
+  background-color: var(--marrom-escuro);
+}
