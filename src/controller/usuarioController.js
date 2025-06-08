@@ -80,7 +80,6 @@ export async function login(req, res){
 }
 
 export function verificaAutenticacao(req, res, next) {
-    //console.log("🔍 Sessão do usuário:", req.session.user); 
     if (req.session.user) {
         return next();
     } else {
@@ -88,6 +87,15 @@ export function verificaAutenticacao(req, res, next) {
             statusCode: 401, 
             message: "Usuário não autenticado!" 
         });
+    }
+}
+
+//função não está sendo chamada
+export function impedeUsuariosAutenticados(req, res, next) {
+  if (req.session.user) {
+        return res.redirect("/perfil.html");
+    } else {
+        next();
     }
 }
 

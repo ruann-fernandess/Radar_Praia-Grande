@@ -1,3 +1,4 @@
+
 document.getElementById("cadastroForm").addEventListener("submit", async function(event) {
     event.preventDefault();
 

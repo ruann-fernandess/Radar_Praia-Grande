@@ -1,5 +1,5 @@
 import express from "express";
-import { cadastro, login, perfil, verificaAutenticacao, alterarPerfil, apagarPerfil, logout } from "../controller/usuarioController.js";
+import { cadastro, login, perfil, verificaAutenticacao, alterarPerfil, apagarPerfil, logout, impedeUsuariosAutenticados } from "../controller/usuarioController.js";
 
 const router = express.Router();
 
