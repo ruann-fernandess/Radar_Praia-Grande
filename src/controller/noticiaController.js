@@ -1,5 +1,5 @@
 import { deleteImagensNoticia } from "../model/imagemModel.js";
-import { insertNoticia, updateNoticia, deleteNoticia, selectNoticiasDoUsuario, selectNoticiaPorIdEApelido } from "../model/noticiaModel.js";
+import { insertNoticia, updateNoticia, deleteNoticia, selectNoticias, selectNoticiasDoUsuario, selectNoticiaPorIdEApelido } from "../model/noticiaModel.js";
 import { selectBairros } from "../model/bairroModel.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
@@ -22,31 +22,35 @@ export async function analisarDescricao(req, res) {
         
         const prompt = "Analise o seguinte texto: "
              + descricao
-             + " Agora responda apenas com 'true' ou 'false' para cada uma das perguntas abaixo, e então retorne um único valor final que seja a conjunção lógica (AND) dessas respostas.\n\n"
+             + "\nAgora responda apenas com 'true' ou 'false' para cada uma das perguntas abaixo, e então retorne um único valor final baseado nas seguintes regras lógicas:\n\n"
              + "1. Este texto viola alguma lei, regra ou diretriz de comunidade?\n"
-             + "2. Este texto pode ser considerado uma postagem, publicação ou notícia?"
-             + "Por exemplo:\n\n"
-             + "Se a resposta para 1 for true e para 2 for true, retorne true.\n"
-             + "Se a resposta para 1 for false e para 2 for true, retorne false.\n"
-             + "Se a resposta para 1 for false e para 2 for false, retorne false.\n"
+             + "2. Este texto pode ser considerado uma postagem, publicação ou notícia válida? Para ser considerado válido, o texto deve apresentar estrutura mínima, clareza, coesão e transmitir uma informação inteligível e relevante para um leitor comum.\n\n"
+             + "Considere inválidos textos incoerentes, sem sentido, excessivamente curtos, compostos por repetições ou que não expressam nenhuma informação identificável. Nestes casos, a resposta da pergunta 2 deve ser 'false'.\n\n"
+             + "Regras de decisão:\n"
+             + "- Se a resposta para a pergunta 1 for 'true', retorne 'true'.\n"
+             + "- Se a resposta para a pergunta 2 for 'false', retorne 'true'.\n"
+             + "- Caso contrário, retorne 'false'.\n\n"
              + "Retorne somente o resultado final, sem explicações.";
 
         const result = await model.generateContent(prompt);
 
         if (result.response.text().trim() == "true") {
-            return res.status(400).json({ 
-                statusCode: 400, 
+            return res.status(200).json({ 
+                statusCode: 200, 
+                valido: false,
                 message: "A descrição desta notícia é inválida ou viola alguma lei, regra ou diretriz de nossa comunidade. Revise-a e tente novamente."
             });
         } else {
             return res.status(200).json({ 
                 statusCode: 200, 
+                valido: true, 
                 message: "A descrição desta notícia é válida."
             });
         }
     } catch (error) {
         return res.status(500).json({ 
-            statusCode: 500, 
+            statusCode: 500,  
+            valido: false,
             message: "Erro ao validar a descrição desta notícia."
         });
     }
@@ -84,13 +88,15 @@ export async function analisarImagem(req, res) {
         });
 
         if (result.response.text().trim() == "true") {
-            return res.status(400).json({ 
-                statusCode: 400, 
+            return res.status(200).json({ 
+                statusCode: 200,  
+                valido: false,
                 message: "A imagem '" + nome + "' viola alguma regra. Revise-a e tente novamente!"
             });
         } else {
             return res.status(200).json({ 
-                statusCode: 200, 
+                statusCode: 200,  
+                valido: true,
                 message: "A imagem '" + nome + "' é válida."
             });
         }
@@ -98,7 +104,8 @@ export async function analisarImagem(req, res) {
         const nome = req.file.originalname;
 
         res.status(500).json({ 
-            statusCode: 500, 
+            statusCode: 500,  
+            valido: false,
             message: "Erro ao validar a imagem: " + nome
         });
     }
@@ -128,6 +135,26 @@ export async function capturarBairros(req, res) {
     }
 }
 
+export async function capturarNoticias(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+
+    const { noticias, totalNoticias } = await selectNoticias(pagina, 10);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "As notícias foram capturadas com sucesso!",
+      noticias,
+      totalNoticias
+    });
+  } catch (error) {
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao capturar as notícias."
+    });
+  }
+}
+
 export async function capturarNoticiasDoUsuario(req, res) {
   try {
     const { apelido } = req.params;
@@ -155,7 +182,6 @@ export async function capturarNoticiasDoUsuario(req, res) {
     });
   }
 }
-
 
 export async function capturarNoticiaDoUsuario(req, res) {
   try {
