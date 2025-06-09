@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { cadastro, capturarBairros, analisarDescricao, analisarImagem, capturarNoticiasDoUsuario, capturarNoticiaDoUsuario, editarNoticia, apagarNoticia } from "../controller/noticiaController.js";
+import { cadastro, capturarBairros, analisarDescricao, analisarImagem, capturarNoticias, capturarNoticiasDoUsuario, capturarNoticiaDoUsuario, editarNoticia, apagarNoticia } from "../controller/noticiaController.js";
 import { verificaAutenticacao } from "../controller/usuarioController.js";
 const router = express.Router();
 
@@ -13,6 +13,7 @@ router.get("/capturar-bairros", verificaAutenticacao, capturarBairros);
 router.post("/analisar-descricao", verificaAutenticacao, analisarDescricao);
 router.post("/analisar-imagem", verificaAutenticacao, upload.single("imagem"), analisarImagem);
 router.post("/cadastro", verificaAutenticacao, cadastro);
+router.get("/capturar-noticias", verificaAutenticacao, capturarNoticias);
 router.get("/capturar-noticias-usuario/:apelido", verificaAutenticacao, capturarNoticiasDoUsuario);
 router.get("/capturar-noticia-usuario/:idNoticia", verificaAutenticacao,  capturarNoticiaDoUsuario);
 router.post("/editar-noticia", verificaAutenticacao, editarNoticia);
