@@ -5,17 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/navbar.css" />
     <link rel="stylesheet" href="/css/perfil.css">
-
+ 
     <!-- fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap" rel="stylesheet">
-    
-    <!-- bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
+    <nav class="navbar">
+      <div class="logo">Radar Praia Grande</div>
+      <ul class="nav-links">
+        <li><a href="home.html">Feed</a></li>
+        <li><a href="perfil.html">Perfil</a></li>
+        <li><button id="logout-btn" class="logout-btn">Logout</button></li>
+      </ul>
+    </nav>
+ 
     <div class="perfil-container">
         <section class="perfil">
             <div class="perfil-info">
@@ -24,18 +31,17 @@
                 <span id="apelido"></span>
                 <span id="biografia"></span>
             </div>
-
+ 
             <a href="editar-perfil.html" class="editar-btn">Editar perfil</a>
-            <button id="logout-btn">Sair</button>
         </section>
-
+ 
         <section class="noticias">
             <div class="noticias-perfil">
                 <h2>Minhas notícias</h2>
+                <a href="cadastro-noticia.html" class="botao-noticia">Adicionar notícia</a>
+               
                 <div id="noticiasUsuario"></div>
                 <div id="paginacaoNoticias"></div>
-
-                <a href="cadastro-noticia.html" class="botao-noticia">Adicionar notícia</a>
             </div>
         </section>
     </div>
@@ -47,8 +53,9 @@
             <button id="confirmNo">Cancelar</button>
         </div>
     </div>
-
+ 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="/js/modal.js"></script>
     <script type="module" src="/js/perfil.js"></script>
 </body>
 </html>
