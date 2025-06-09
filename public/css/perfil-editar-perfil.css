@@ -1,5 +1,5 @@
 @import url(root.css);
-
+ 
 body{
   background-color: var(--marrom-claro);
   font-family: var(--fonte-principal);
@@ -9,11 +9,11 @@ body{
   background-blend-mode: multiply;
   background-attachment: fixed;
 }
-
+ 
 .perfil, .noticias-perfil {
   background-color: var(--branco);
 }
-
+ 
 .perfil, .noticias {
   display: flex;
   align-items: center;
@@ -25,18 +25,18 @@ body{
   padding-bottom: 2em;
   margin-top: 2em;
 }
-
+ 
 .noticias-perfil {
   width: 100%;
   padding: 2em 2em 1em 2em;
 }
-
+ 
 h2 {
   padding: 0;
   text-align: center;
   margin-bottom: 16px;
 }
-
+ 
 .perfil-info {
   display: flex;
   flex-direction: column;
@@ -44,7 +44,7 @@ h2 {
   width: 100%;
   text-align: center;
 }
-
+ 
 #fotoCapa-text {
   display: block;
   width: 100%;
@@ -52,41 +52,41 @@ h2 {
   overflow: hidden;
   border-radius: 5px; /* opcional para bordas arredondadas */
 }
-
+ 
 #fotoCapa {
   width: 100%;
   height: 100%;
   object-fit: cover; /* preenche e recorta sem distorcer */
   object-position: center; /* centraliza o recorte */
 }
-
+ 
 #fotoPerfil-text {
   width: 200px;
   height: 200px;
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid var(--branco);
-  
+ 
   display: block;
   margin-left: auto;
   margin-right: auto;
-  margin-top: -100px; 
+  margin-top: -100px;
 }
-
+ 
 #fotoPerfil {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
+ 
 #apelido{
     font-size: 2em;
 }
-
+ 
 #biografia{
     font-size: 1em;
 }
-
+ 
 .editar-btn {
   margin-top: 20px;
   padding: 10px 20px;
@@ -100,11 +100,11 @@ h2 {
   border: none;
   border-radius: 100px;
 }
-
+ 
 .editar-btn:hover {
   text-decoration: underline;
 }
-
+ 
 .noticia {
   width: 100%;
   padding: 24px;
@@ -117,26 +117,26 @@ h2 {
   color: var(--preto);
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
-
+ 
 .noticia:hover {
   transform: scale(1.01);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
-
+ 
 .noticia p {
   font-size: 1em;
   line-height: 1.6;
   color: var(--preto);
   margin: 6px 0;
 }
-
+ 
 .noticia .data {
   font-size: 0.9em;
   color: var(--marrom-claro);
   font-style: italic;
   margin-top: 0.5em;
 }
-
+ 
 .noticia img {
   max-width: 100%;
   max-height: 150px;
@@ -147,27 +147,30 @@ h2 {
   object-fit: contain;
   display: block;
 }
-
+ 
 .noticia img:hover {
   transform: scale(1.02);
 }
-
+ 
 .noticia .imagens-container {
-  margin-top: 10px;
+  margin: 20px 0;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
-
+ 
 .noticia .metadados {
   font-size: 0.95em;
   color: #666;
   margin-bottom: 12px;
 }
-
+ 
+.noticia a {
+  margin-top: 14px;
+}
+ 
 .noticia a, .botao-noticia {
   display: inline-block;
-  margin-top: 14px;
   padding: 8px 16px;
   background-color: var(--marrom-escuro);
   color: #fff;
@@ -175,25 +178,25 @@ h2 {
   border-radius: 6px;
   transition: background-color 0.2s ease;
 }
-
+ 
 .noticia a:hover, .botao-noticia:hover {
   background-color: #6b4e36;
 }
-
+ 
 .botao-noticia {
   width: 100%;
   padding: 16px;
   text-align: center;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
 }
-
+ 
 #paginacaoNoticias {
   display: flex;
   justify-content: center;
   margin-top: 2em;
   gap: 10px;
 }
-
+ 
 #paginacaoNoticias button {
   background-color: var(--bege);
   border: none;
@@ -204,12 +207,12 @@ h2 {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
+ 
 #paginacaoNoticias button:hover {
   background-color: var(--bege-escuro);
   color: var(--branco);
 }
-
+ 
 #paginacaoNoticias button.ativo {
   background-color: var(--marrom-claro);
   color: var(--branco);
