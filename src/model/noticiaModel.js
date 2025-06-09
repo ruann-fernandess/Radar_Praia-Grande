@@ -91,6 +91,76 @@ export async function updateNoticia(noticia) {
   }
 }
 
+export async function selectNoticias(pagina, limite) {
+  try {
+    const offset = (pagina - 1) * limite;
+
+    const rows = await db.all(
+      `SELECT 
+        N.idNoticia,
+        N.legenda,
+        datetime(N.dataNoticia, 'localtime') AS dataNoticia, 
+        N.apelido,
+        N.siglaBairro,
+        B.nomeBairro,
+        I.idImagem,
+        I.imagem
+      FROM NOTICIA N
+      JOIN BAIRRO B ON N.siglaBairro = B.siglaBairro
+      LEFT JOIN IMAGEM I ON N.idNoticia = I.idNoticia AND I.identificador = ?
+      ORDER BY N.idNoticia DESC
+      LIMIT ? OFFSET ?`,
+      ["Notícia", limite, offset]
+    );
+
+    // Consulta para contar o total de notícias (sem se preocupar com imagens)
+    const countResult = await db.get(
+      `SELECT COUNT(*) as total FROM NOTICIA`
+    );
+
+    // Utilitário para converter blob em Data URI
+    function blobToDataURI(blobBuffer, mimeType = 'image/jpeg') {
+      if (!blobBuffer) return null;
+      const base64 = blobBuffer.toString('base64');
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    // Agrupar notícias pelo id usando Map
+    const noticiasMap = new Map();
+
+    for (const row of rows) {
+      if (!noticiasMap.has(row.idNoticia)) {
+        noticiasMap.set(row.idNoticia, {
+          idNoticia: row.idNoticia,
+          legenda: row.legenda,
+          dataNoticia: row.dataNoticia,
+          apelido: row.apelido,
+          siglaBairro: row.siglaBairro,
+          nomeBairro: row.nomeBairro,
+          imagens: []
+        });
+      }
+
+      // Se tiver imagem, adiciona ao array de imagens
+      if (row.idImagem && row.imagem) {
+        noticiasMap.get(row.idNoticia).imagens.push({
+          idImagem: row.idImagem,
+          imagem: blobToDataURI(row.imagem),
+        });
+      }
+    }
+
+    return {
+      noticias: Array.from(noticiasMap.values()),
+      totalNoticias: countResult.total
+    };
+
+  } catch (error) {
+    console.error("Erro ao capturar notícias:", error.message);
+    return { noticias: [], totalNoticias: 0 };
+  }
+}
+
 export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
   try {
     const offset = (pagina - 1) * limite;
