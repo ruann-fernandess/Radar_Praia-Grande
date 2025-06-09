@@ -79,7 +79,9 @@ app.get("/login.html", impedeUsuariosAutenticados, (req, res) => {
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/index.html"));
 });
-
+app.get("/home.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/home.html"));
+});
 app.get("/cadastro-noticia.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/cadastro-noticia.html"));
 });
