@@ -4,10 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Notícia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/navbar.css" />
     <link rel="stylesheet" href="/css/cadastro-e-editar-noticia.css">
 </head>
 <body>
+    <nav class="navbar">
+      <div class="logo">Radar Praia Grande</div>
+      <ul class="nav-links">
+        <li><a href="home.html">Feed</a></li>
+        <li><a href="perfil.html">Perfil</a></li>
+        <li><button id="logout-btn" class="logout-btn">Logout</button></li>
+      </ul>
+    </nav>
+
     <div class="loading-container">
         <div class="loading-spinner"></div>
     </div>
@@ -28,13 +41,11 @@
                     <tr>
                         <th scope="col">Imagem</th>
                         <th scope="col">Nome</th>
-                        <th scope="col">Status</th>
                         <th scope="col">Remover</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr id="exemploItemImagem">
-                        <td>--</td>
                         <td>--</td>
                         <td>--</td>
                         <td>--</td>
@@ -57,7 +68,16 @@
         <button id="apagarNoticia">Excluir notícia</button>
     </div>
 
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p>Tem certeza que deseja sair?</p>
+            <button id="confirmYes">Sim</button>
+            <button id="confirmNo">Cancelar</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="/js/modal.js"></script>
     <script type="module" src="/js/editar-noticia.js"></script>
 </body>
 </html>
