@@ -1,7 +1,9 @@
 import { exibirAlertaConfirmar, exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
 
 let apelido = "";
-let dadosNoticia = "";
+let imagensNoticiaAntesEdicao = "";
+let bairroNoticiaAntesEdicao = "";
+let descricaoNoticiaAntesEdicao = "";
 const btnExcluir = document.getElementById('apagarNoticia');
 
 fetch("/usuario/perfil")
@@ -47,7 +49,7 @@ async function carregarNoticia() {
             throw new Error(errorData.message || "Erro ao buscar notícia"); 
         }
 
-        dadosNoticia = await res.json();
+        let dadosNoticia = await res.json();
         dadosNoticia = dadosNoticia.noticia;
 
         // Preencher bairro
@@ -60,6 +62,9 @@ async function carregarNoticia() {
         // Preencher descrição
         let descricao = document.getElementById("descricao");
         descricao.value = dadosNoticia.legenda;
+
+        bairroNoticiaAntesEdicao = dadosNoticia.siglaBairro;
+        descricaoNoticiaAntesEdicao = dadosNoticia.legenda;
 
         if (dadosNoticia.imagens.length > 0) {
             exemploItemImagem.style.display = "none";
@@ -100,9 +105,6 @@ async function carregarNoticia() {
                 tdNomeImagem.title = fileName;
                 tdNomeImagem.textContent = fileName.split('.')[0];
 
-                const tdStatusImagem = document.createElement("td");
-                tdStatusImagem.textContent = "--";
-
                 const tdRemoverImagem = document.createElement("td");
                 const botaoRemoverImagem = document.createElement("button");
                 botaoRemoverImagem.type = "button";
@@ -117,7 +119,6 @@ async function carregarNoticia() {
 
                 trItemImagem.appendChild(tdPreviewImagem);
                 trItemImagem.appendChild(tdNomeImagem);
-                trItemImagem.appendChild(tdStatusImagem);
                 trItemImagem.appendChild(tdRemoverImagem);
 
                 listaImagens.appendChild(trItemImagem);
@@ -126,6 +127,8 @@ async function carregarNoticia() {
             // Atualiza input file com as imagens do banco
             inputImagens.files = dataTransfer.files;
         }
+
+        imagensNoticiaAntesEdicao = inputImagens.files;
 
         // Adicionando função de apagar notícia
         btnExcluir.addEventListener('click', async () => {
@@ -236,9 +239,6 @@ inputImagens.addEventListener("change", async function() {
                 tdNomeImagem.title = arquivoAtual.name;
                 tdNomeImagem.textContent = arquivoAtual.name.split(".")[0];
 
-                const tdStatusImagem = document.createElement("td");
-                tdStatusImagem.textContent = "--";
-
                 const tdRemoverImagem = document.createElement("td");
                 const botaoRemoverImagem = document.createElement("button");
                 botaoRemoverImagem.type = "button";
@@ -254,7 +254,6 @@ inputImagens.addEventListener("change", async function() {
 
                 trItemImagem.appendChild(tdPreviewImagem);
                 trItemImagem.appendChild(tdNomeImagem);
-                trItemImagem.appendChild(tdStatusImagem);
                 trItemImagem.appendChild(tdRemoverImagem);
 
                 listaImagens.appendChild(trItemImagem);
@@ -369,22 +368,29 @@ async function analisarDescricao() {
             body: JSON.stringify({ descricao }),
         });
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            await exibirAlertaErro("error", "Erro", "Erro ao analisar descrição da notícia!");
-            throw new Error(errorData.message || "Erro ao analisar descrição da notícia"); 
+        const data = await res.json();
+            
+        if (data.statusCode != 200) {
+            await exibirAlertaErro("error", "Erro", data.message)
+            return data;
         }
 
-        const data = await res.json();
+        if (data.valido == true) {
+            await exibirAlertaSucesso(data.message);
+        } else {
+            await exibirAlertaErro("error", "Descrição inválida!", data.message);
+        }
         return data;
-
     } catch (error) {
-        await exibirAlertaErro("error", "Erro", "Erro ao analisar descrição!");
+        //talvez o erro certo seja que a descrição não está dentro dos parâmetros
+        await exibirAlertaErro("error", "Erro", "Erro na análise da descrição.")
         return error;
     }
 }
 
 async function analisarImagens() {
+    let validacaoImagem;
+
     for (let i = 0; i < contadorImagens; i++) {
         try {
             const formData = new FormData();
@@ -395,25 +401,29 @@ async function analisarImagens() {
                 body: formData
             });
 
-            if (!res.ok) {
-                const errorData = await res.json();
-                await exibirAlertaErro("error", "Erro", "Erro ao analisar imagem da notícia!");
-                throw new Error(errorData.message || "Erro ao analisar imagem da notícia"); 
-            }
-
             const data = await res.json();
-
-            if (data.statusCode !== 200) {
-                await exibirAlertaErro(data.message);
+            
+            if (data.statusCode != 200) {
+                await exibirAlertaErro("error", "Erro", data.message)
+                return data;
             }
+
+            if (data.valido == true) {
+                await exibirAlertaSucesso(data.message);
+            } else {
+                await exibirAlertaErro("error", "Imagem inválida!", data.message);
+            }
+
+            validacaoImagem = data.valido;
         } catch (error) {
-            await exibirAlertaErro(error.message);
+            await exibirAlertaErro("error", "Erro", error.message);
             return error;
         }
     }
 
     return {
-        statusCode: 200
+        statusCode: 200,
+        valido: validacaoImagem
     };
 }
 
@@ -422,95 +432,129 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
 
   const loadingContainer = document.querySelector(".loading-container");
   const listaBairros = document.getElementById("listaBairros");
-
-  let bairroValido = await verificarBairro();
-  let descricaoValida = await verificarDescricao();
-
-  if (bairroValido && descricaoValida) {
-    loadingContainer.style.display = "flex";
-
-    const resultadoAnalise = await analisarDescricao();
-
-    if (resultadoAnalise.statusCode !== 200) {
-      loadingContainer.style.display = "none";
-      return;
-    }
-
-    if (contadorImagens > 0) {
-      const resultadoImagens = await analisarImagens();
-      if (resultadoImagens.statusCode !== 200) {
-        loadingContainer.style.display = "none";
-        return;
-      }
-    }
+  
+  // Caso nenhuma alteração seja feita o usuário é redirecionado
+  if ((document.getElementById("imagens").files == imagensNoticiaAntesEdicao) && (listaBairros.value == bairroNoticiaAntesEdicao) && (document.getElementById("descricao").value == descricaoNoticiaAntesEdicao)) {
+    window.location.href = "perfil.html";
+  } else {
+    let bairroValido = await verificarBairro();
+    let descricaoValida = await verificarDescricao();
     
-    const urlParams = new URLSearchParams(window.location.search);
-    const idNoticia = urlParams.get('idNoticia');
+    if (bairroValido && descricaoValida) {
+        loadingContainer.style.display = "flex";
+    
+        const resultadoAnalise = await analisarDescricao();
+    
+        if (resultadoAnalise.statusCode !== 200) {
+            await exibirAlertaErro("error", "Erro", resultadoAnalise.message);
+            loadingContainer.style.display = "none";
+            return;
+        }
+    
+        if (resultadoAnalise.valido == true) {
+            let resultadoImagens;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const idNoticia = urlParams.get('idNoticia');
 
-    const noticia = { 
-        ds_noticia: document.getElementById("descricao").value,
-        sg_bairro: listaBairros.value,
-        idNoticia: idNoticia
-    };
-
-    try {
-    const res = await fetch('/noticia/editar-noticia', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(noticia),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-        await exibirAlertaErro("error", "Erro", "Erro ao editar a notícia!");
-        throw new Error(data.message || "Erro ao editar a notícia");
-    }
-
-
-        if (data.statusCode === 200) {
             if (contadorImagens > 0) {
-                // Envia as imagens usando FormData para /upload
-                for (let i = 0; i < arrayImagens.length; i++) {
-                    const formData = new FormData();
-                    formData.append("imagem", arrayImagens[i]); // File
-                    formData.append("idNoticia", idNoticia);
-                    formData.append("apelido", apelido);
-                    formData.append("identificador", "Notícia"); // ex: Noticia-1, Noticia-2, etc
-
-                    try {
-                        const res = await fetch("/imagem/upload", {
-                            method: "POST",
-                            body: formData
-                        });
-
-                        const resultado = await res.json();
-
-                        if (!res.ok) {
-                            console.error(`(${resultado.statusCode}) ${resultado.message}`);
-                            await exibirAlertaErro("error", "Erro", "Uma ou mais imagens não foram enviadas corretamente.");
-                            return;
+                resultadoImagens = await analisarImagens();
+    
+                if (resultadoImagens.statusCode !== 200) {
+                    await exibirAlertaErro("error", "Erro", resultadoImagens.message);
+                    loadingContainer.style.display = "none";
+                    return;
+                }
+    
+                if (resultadoImagens.valido == true) {
+                    const noticia = {
+                        ds_noticia: document.getElementById("descricao").value,
+                        sg_bairro: listaBairros.value,
+                        idNoticia: idNoticia
+                    };
+    
+                    const res = await fetch('/noticia/editar-noticia', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(noticia),
+                    });
+    
+                    // Resultado da edição da notícia
+                    const data = await res.json();
+    
+                    if (data.statusCode === 200) {
+                        if (resultadoImagens.statusCode == 200) {
+                            // Envia as imagens usando FormData para /upload
+                            for (let i = 0; i < arrayImagens.length; i++) {
+                                const formData = new FormData();
+                                formData.append("imagem", arrayImagens[i]);
+                                formData.append("idNoticia", idNoticia);
+                                formData.append("apelido", apelido);
+                                formData.append("identificador", "Notícia");
+    
+                                try {
+                                    const res = await fetch("/imagem/upload", {
+                                        method: "POST",
+                                        body: formData
+                                    });
+    
+                                    const resultado = await res.json();
+    
+                                    if (!res.ok) {
+                                        loadingContainer.style.display = "none";
+                                        await exibirAlertaErro("error", "Erro", "Uma ou mais imagens não foram enviadas corretamente.");
+                                        return;
+                                    }
+    
+                                    await exibirAlertaSucesso(resultado.message);
+                                } catch (erro) {
+                                    loadingContainer.style.display = "none";
+                                    await exibirAlertaErro("error", "Erro", "Erro desconhecido!");
+                                    console.error(erro);
+                                    return;
+                                }
+                            }
+    
+                            await exibirAlertaSucesso(data.message);
+                            window.location.href = "perfil.html";
                         }
-
-                        await exibirAlertaSucesso(resultado.message);
-                    } catch (erro) {
-                        await exibirAlertaErro("error", "Erro", "Erro desconhecido!");
-                        console.error(erro);
-                        return;
+                    } else {
+                        loadingContainer.style.display = "none";
+                        await exibirAlertaErro("error", "Erro", "Erro ao editar notícia!");
+                        console.log(data.message);
                     }
+                } else {
+                    loadingContainer.style.display = "none";
+                    return;
+                }
+            } else {
+                const noticia = {
+                    ds_noticia: document.getElementById("descricao").value,
+                    sg_bairro: listaBairros.value,
+                    idNoticia: idNoticia
+                };
+    
+                const res = await fetch('/noticia/editar-noticia', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(noticia),
+                });
+    
+                // Resultado da edição da notícia
+                const data = await res.json();
+    
+                if (data.statusCode === 200) {
+                    await exibirAlertaSucesso(data.message);
+                    window.location.href = "perfil.html";
+                } else {
+                    loadingContainer.style.display = "none";
+                    await exibirAlertaErro("error", "Erro", "Erro ao editar notícia!");
+                    console.log(data.message);
                 }
             }
-            
-            await exibirAlertaSucesso(data.message);
-            window.location.href = "perfil.html";
         } else {
-            await exibirAlertaErro("error", "Erro", "Erro ao editar notícia!");
-            console.log(data.message);
+            loadingContainer.style.display = "none";
         }
-    } catch (error) {
-        await exibirAlertaErro(error.message);
     }
-
-    loadingContainer.style.display = "none";
   }
 });
