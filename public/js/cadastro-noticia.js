@@ -108,9 +108,6 @@ inputImagens.addEventListener("change", async function () {
                 tdNomeImagem.title = arquivoAtual.name;
                 tdNomeImagem.textContent = arquivoAtual.name.split(".")[0];
 
-                const tdStatusImagem = document.createElement("td");
-                tdStatusImagem.textContent = "--";
-
                 const tdRemoverImagem = document.createElement("td");
                 const botaoRemoverImagem = document.createElement("button");
                 botaoRemoverImagem.type = "button";
@@ -126,7 +123,6 @@ inputImagens.addEventListener("change", async function () {
 
                 trItemImagem.appendChild(tdPreviewImagem);
                 trItemImagem.appendChild(tdNomeImagem);
-                trItemImagem.appendChild(tdStatusImagem);
                 trItemImagem.appendChild(tdRemoverImagem);
 
                 listaImagens.appendChild(trItemImagem);
@@ -244,12 +240,18 @@ async function analisarDescricao() {
             body: JSON.stringify({ descricao }),
         });
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            throw errorData;
+        const data = await res.json();
+            
+        if (data.statusCode != 200) {
+            await exibirAlertaErro("error", "Erro", data.message)
+            return data;
         }
 
-        const data = await res.json();
+        if (data.valido == true) {
+            await exibirAlertaSucesso(data.message);
+        } else {
+            await exibirAlertaErro("error", "Descrição inválida!", data.message);
+        }
         return data;
     } catch (error) {
         //talvez o erro certo seja que a descrição não está dentro dos parâmetros
@@ -259,6 +261,8 @@ async function analisarDescricao() {
 }
 
 async function analisarImagens() {
+    let validacaoImagem;
+
     for (let i = 0; i < contadorImagens; i++) {
         try {
             const formData = new FormData();
@@ -269,19 +273,20 @@ async function analisarImagens() {
                 body: formData
             });
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            //talvez a descrição do erro seja outra
-            await exibirAlertaErro("error", "Erro", "Erro ao analisar imagem!");
-            throw new Error(errorData.message || "Erro ao analisar imagem!"); 
-        }
-
             const data = await res.json();
-
+            
             if (data.statusCode != 200) {
                 await exibirAlertaErro("error", "Erro", data.message)
                 return data;
             }
+
+            if (data.valido == true) {
+                await exibirAlertaSucesso(data.message);
+            } else {
+                await exibirAlertaErro("error", "Imagem inválida!", data.message);
+            }
+
+            validacaoImagem = data.valido;
         } catch (error) {
             await exibirAlertaErro("error", "Erro", error.message);
             return error;
@@ -290,6 +295,7 @@ async function analisarImagens() {
 
     return {
         statusCode: 200,
+        valido: validacaoImagem
     };
 }
 
@@ -299,7 +305,7 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
   const loadingContainer = document.querySelector(".loading-container");
   
   const listaBairros = document.getElementById("listaBairros");
-
+  
   let bairroValido = await verificarBairro();
   let descricaoValida = await verificarDescricao();
 
@@ -309,77 +315,113 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
     const resultadoAnalise = await analisarDescricao();
 
     if (resultadoAnalise.statusCode !== 200) {
-    await exibirAlertaErro("error", "Erro", resultadoAnalise.message);
-      loadingContainer.style.display = "none";
-      return;
-    }
-
-    if (contadorImagens > 0) {
-      const resultadoImagens = await analisarImagens();
-
-      if (resultadoImagens.statusCode !== 200) {
-        await exibirAlertaErro("error", "Erro", resultadoImagens.message);
+        await exibirAlertaErro("error", "Erro", resultadoAnalise.message);
         loadingContainer.style.display = "none";
         return;
-      }
     }
 
-    const noticia = {
-      apelido: apelido,
-      sg_bairro: listaBairros.value,
-      ds_noticia: document.getElementById("descricao").value
-    };
+    if (resultadoAnalise.valido == true) {
+        let resultadoImagens;
 
-    // Envia a notícia
-    const response = await fetch("noticia/cadastro", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(noticia)
-    });
-
-    // Resultado do cadastro da notícia
-    const data = await response.json();
-
-    if (data.statusCode === 200) {
         if (contadorImagens > 0) {
-            // Envia as imagens usando FormData para /upload
-            for (let i = 0; i < arrayImagens.length; i++) {
-                const formData = new FormData();
-                formData.append("imagem", arrayImagens[i]);
-                formData.append("idNoticia", data.idNoticia);
-                formData.append("apelido", apelido);
-                formData.append("identificador", "Notícia");
+            resultadoImagens = await analisarImagens();
 
-                try {
-                    const res = await fetch("/imagem/upload", {
-                        method: "POST",
-                        body: formData
-                    });
+            if (resultadoImagens.statusCode !== 200) {
+                await exibirAlertaErro("error", "Erro", resultadoImagens.message);
+                loadingContainer.style.display = "none";
+                return;
+            }
 
-                    const resultado = await res.json();
+            if (resultadoImagens.valido == true) {
+                const noticia = {
+                    apelido: apelido,
+                    sg_bairro: listaBairros.value,
+                    ds_noticia: document.getElementById("descricao").value
+                };
 
-                    if (!res.ok) {
-                        console.error(`(${resultado.statusCode}) ${resultado.message}`);
-                        await exibirAlertaErro("error", "Erro", "Uma ou mais imagens não foram enviadas corretamente.");
-                        return;
+                // Envia a notícia
+                const response = await fetch("noticia/cadastro", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(noticia)
+                });
+
+                // Resultado do cadastro da notícia
+                const data = await response.json();
+
+                if (data.statusCode === 200) {
+                    if (resultadoImagens.statusCode == 200) {
+                        // Envia as imagens usando FormData para /upload
+                        for (let i = 0; i < arrayImagens.length; i++) {
+                            const formData = new FormData();
+                            formData.append("imagem", arrayImagens[i]);
+                            formData.append("idNoticia", data.idNoticia);
+                            formData.append("apelido", apelido);
+                            formData.append("identificador", "Notícia");
+
+                            try {
+                                const res = await fetch("/imagem/upload", {
+                                    method: "POST",
+                                    body: formData
+                                });
+
+                                const resultado = await res.json();
+
+                                if (!res.ok) {
+                                    loadingContainer.style.display = "none";
+                                    await exibirAlertaErro("error", "Erro", "Uma ou mais imagens não foram enviadas corretamente.");
+                                    return;
+                                }
+
+                                await exibirAlertaSucesso(resultado.message);
+                            } catch (erro) {
+                                loadingContainer.style.display = "none";
+                                await exibirAlertaErro("error", "Erro", "Erro desconhecido!");
+                                console.error(erro);
+                                return;
+                            }
+                        }
+
+                        await exibirAlertaSucesso(data.message);
+                        window.location.href = "perfil.html";
                     }
-
-                    await exibirAlertaSucesso(resultado.message);
-                } catch (erro) {
-                    await exibirAlertaErro("error", "Erro", "Erro desconhecido!");
-                    console.error(erro);
-                    return;
+                } else {
+                    loadingContainer.style.display = "none";
+                    await exibirAlertaErro("error", "Erro", "Erro ao cadastrar notícia!");
+                    console.log(data.message);
                 }
+            } else {
+                loadingContainer.style.display = "none";
+                return;
+            }
+        } else {
+            const noticia = {
+                apelido: apelido,
+                sg_bairro: listaBairros.value,
+                ds_noticia: document.getElementById("descricao").value
+            };
+
+            // Envia a notícia
+            const response = await fetch("noticia/cadastro", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(noticia)
+            });
+
+            // Resultado do cadastro da notícia
+            const data = await response.json();
+
+            if (data.statusCode === 200) {
+                await exibirAlertaSucesso(data.message);
+                window.location.href = "perfil.html";
+            } else {
+                loadingContainer.style.display = "none";
+                await exibirAlertaErro("error", "Erro", "Erro ao cadastrar notícia!");
+                console.log(data.message);
             }
         }
-
-        await exibirAlertaSucesso(data.message);
-        window.location.href = "perfil.html";
     } else {
-        await exibirAlertaErro("error", "Erro", "Erro ao cadastrar notícia!");
-        console.log(data.message);
+        loadingContainer.style.display = "none";
     }
-
-    loadingContainer.style.display = "none";
   }
 });
