@@ -8,7 +8,7 @@ export async function createTableNoticia() {
       await db.exec(
         `CREATE TABLE IF NOT EXISTS NOTICIA ( 
           idNoticia INTEGER PRIMARY KEY AUTOINCREMENT,
-          legenda VARCHAR(200) NOT NULL,
+          legenda VARCHAR(5000) NOT NULL,
           dataNoticia DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
           apelido VARCHAR(15) NOT NULL,
           siglaBairro VARCHAR(3) NOT NULL,
