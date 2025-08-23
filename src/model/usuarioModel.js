@@ -1,5 +1,6 @@
 import { openDb } from "./connect.js";
 import chalk from 'chalk';
+import bcrypt from "bcryptjs";
 
 const db = await openDb();
 
@@ -51,43 +52,67 @@ export async function verificaEmail(email) {
 
 export async function verificaLogin(email, senha) {
   try {
-    const usuario = await db.get(
-      // IP = Imagem perfil
-      // IB = Imagem fotoCapa
-      `SELECT 
-        U.apelido, 
+    // Não é possível verificar a validade da senha durante o SELECT na tabela
+    // Por isso é necessário capturar o e-mail, verificar o hash da senha e somente se ambos forem válidos: puxar os dados do usuário
+    const validacao = await db.get(
+      `SELECT
         U.email, 
-        U.nome, 
-        U.biografia, 
-        datetime(U.dataCriacao, 'localtime') AS dataCriacao, 
-        IP.imagem AS fotoPerfil,
-        IB.imagem AS fotoCapa
-      FROM USUARIO U
-      LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
-      LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
-      WHERE U.email = ? AND U.senha = ?`,
-      [email, senha]
+        U.senha
+      FROM USUARIO U 
+      WHERE U.email = ?`,
+      [email]
     );
 
-    if (!usuario) return null;
-
-    // Função para converter BLOB (Buffer) em data URI base64
-    function blobToDataURI(blobBuffer, mimeType = 'image/jpeg') {
-      if (!blobBuffer) return null;
-      const base64 = blobBuffer.toString('base64');
-      return `data:${mimeType};base64,${base64}`;
+    if (!validacao) {
+      return null;
     }
 
-    // Cria novo objeto com as imagens convertidas
-    return {
-      apelido: usuario.apelido,
-      email: usuario.email,
-      nome: usuario.nome,
-      biografia: usuario.biografia,
-      dataCriacao: usuario.dataCriacao,
-      fotoPerfil: blobToDataURI(usuario.fotoPerfil),
-      fotoCapa: blobToDataURI(usuario.fotoCapa),
-    };
+    // Comparando o hash gerado na tentativa de login com o hash presente no banco de dados
+    const loginValido = bcrypt.compareSync(senha, validacao.senha);
+    
+    if (loginValido) {
+      const usuario = await db.get(
+        // IP = Imagem perfil
+        // IB = Imagem fotoCapa
+        `SELECT 
+          U.apelido, 
+          U.email, 
+          U.nome, 
+          U.biografia, 
+          datetime(U.dataCriacao, 'localtime') AS dataCriacao, 
+          IP.imagem AS fotoPerfil,
+          IB.imagem AS fotoCapa
+        FROM USUARIO U
+        LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
+        LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
+        WHERE U.email = ?`,
+        [email]
+      );
+
+      if (!usuario) {
+        return null;
+      }
+
+      // Função para converter BLOB (Buffer) em data URI base64
+      function blobToDataURI(blobBuffer, mimeType = 'image/jpeg') {
+        if (!blobBuffer) return null;
+        const base64 = blobBuffer.toString('base64');
+        return `data:${mimeType};base64,${base64}`;
+      }
+
+      // Cria novo objeto com as imagens convertidas
+      return {
+        apelido: usuario.apelido,
+        email: usuario.email,
+        nome: usuario.nome,
+        biografia: usuario.biografia,
+        dataCriacao: usuario.dataCriacao,
+        fotoPerfil: blobToDataURI(usuario.fotoPerfil),
+        fotoCapa: blobToDataURI(usuario.fotoCapa),
+      };
+    } else {
+      return null;
+    }
   } catch (error) {
     console.error(chalk.red("Email e senha não coincidem", error.message));
     return null;
@@ -96,6 +121,9 @@ export async function verificaLogin(email, senha) {
 
 export async function insertUsuario(usuario) {
   try {
+    // 10 = quantidade de vezes que o algoritmo vai processar, ou reforçar, a criptografia
+    const hash = bcrypt.hashSync(usuario.senha, 10);
+
     await db.run(
       `INSERT INTO usuario 
                 (apelido, nome, email, senha) 
@@ -104,7 +132,7 @@ export async function insertUsuario(usuario) {
         usuario.apelido,
         usuario.nome,
         usuario.email,
-        usuario.senha,
+        hash,
       ]
     );
 
@@ -174,4 +202,3 @@ export async function deleteUsuario(apelido) {
     console.error(chalk.red("Erro ao apagar o usuário:", error.message));
   }
 }
-

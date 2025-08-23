@@ -46,10 +46,9 @@ export async function cadastro(req, res) {
 export async function login(req, res){
     try{
         const {email, senha} = req.body;
-        const usuarioExiste = await verificaLogin(email, senha)
+        const usuarioExiste = await verificaLogin(email, senha);
  
-        if (usuarioExiste){
-            console.log(req.session)
+        if (usuarioExiste) {
             req.session.user = {
                 apelido: usuarioExiste.apelido,  
                 email: usuarioExiste.email,
