@@ -1,0 +1,23 @@
+@import url(root.css);
+
+.seguir-btn, .denunciar-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: var(--marrom-escuro);
+  color: var(--branco);
+  font-size: 16px;
+  cursor: pointer;
+  font-family: var(--fonte-decoracao);
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  border-radius: 100px;
+}
+
+.seguir-btn:hover, .denunciar-btn:hover {
+  text-decoration: underline;
+}
+
+.seguir-btn.active, .denunciar-btn.active {
+  background-color: var(--preto);
+}

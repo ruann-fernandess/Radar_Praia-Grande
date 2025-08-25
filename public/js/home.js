@@ -1,7 +1,7 @@
 import { exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
- 
+
 let apelido = "";
- 
+
 document.addEventListener("DOMContentLoaded", () => {
  fetch("/usuario/perfil")
   .then(async (res) => {
@@ -73,15 +73,23 @@ async function capturarNoticias(pagina = 1) {
         }
  
         noticiaDiv.appendChild(imagensContainer);
-      } else {
-        noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: "Sem imagens." }));
       }
  
       // Metadados
       const metadados = document.createElement("div");
       metadados.classList.add("metadados");
       metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Bairro: ${noticia.nomeBairro}` }));
-      metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Autor: ${noticia.apelido}` }));
+      if (noticia.apelido == apelido) {
+        metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Autor: ${noticia.apelido}` }));
+      } else {
+        const autorNoticia = Object.assign(document.createElement("p"), { textContent: "Autor: " });
+        const linkPerfilOutroUsuario = Object.assign(document.createElement("a"), { textContent: noticia.apelido });
+        linkPerfilOutroUsuario.style.textDecoration = "underline";
+        linkPerfilOutroUsuario.href = `perfil/${noticia.apelido}`;
+
+        autorNoticia.appendChild(linkPerfilOutroUsuario)
+        metadados.appendChild(autorNoticia);
+      }
  
       const dataFormatada = formatarDataNoticia(noticia.dataNoticia);
       metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Data de criação: ${dataFormatada}` }));

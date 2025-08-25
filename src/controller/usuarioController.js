@@ -1,7 +1,7 @@
 import { deleteImagensUsuario } from "../model/imagemModel.js";
 import { deleteNoticiasUsuario } from "../model/noticiaModel.js";
 import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario } from "../model/usuarioModel.js";
- 
+
 export async function cadastro(req, res) {
     try {
         const { email, apelido } = req.body;
@@ -120,6 +120,39 @@ export async function perfil(req, res) {
         });
     }
 }
+
+export async function perfilOutroUsuario(req, res) {
+  try {
+    const apelidoOutroUsuario = req.params.apelidoOutroUsuario;
+
+    // Busca no banco
+    const outroUsuario = await buscarUsuarioPorApelido(apelidoOutroUsuario);
+
+    if (!outroUsuario) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Usuário não encontrado!"
+      });
+    }
+
+    return res.status(200).json({
+      statusCode: 200,
+      apelido: outroUsuario.apelido,
+      nome: outroUsuario.nome,
+      fotoCapa: outroUsuario.fotoCapa,
+      fotoPerfil: outroUsuario.fotoPerfil,
+      biografia: outroUsuario.biografia,
+      dataCriacao: outroUsuario.dataCriacao
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao carregar perfil!"
+    });
+  }
+}
  
 export async function alterarPerfil(req, res) {
   try {
@@ -150,13 +183,13 @@ export async function alterarPerfil(req, res) {
  
       // Converte BLOB para base64 data URL
       if (usuarioComImagens.fotoPerfil) {
-        usuarioComImagens.fotoPerfil = `data:image/jpeg;base64,${usuarioComImagens.fotoPerfil.toString('base64')}`;
+        usuarioComImagens.fotoPerfil = `${usuarioComImagens.fotoPerfil.toString('base64')}`;
       } else {
         usuarioComImagens.fotoPerfil = null;
       }
  
       if (usuarioComImagens.fotoCapa) {
-        usuarioComImagens.fotoCapa = `data:image/jpeg;base64,${usuarioComImagens.fotoCapa.toString('base64')}`;
+        usuarioComImagens.fotoCapa = `${usuarioComImagens.fotoCapa.toString('base64')}`;
       } else {
         usuarioComImagens.fotoCapa = null;
       }

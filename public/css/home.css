@@ -100,8 +100,8 @@ h2 {
 .noticia a {
   margin-top: 14px;
 }
- 
-.noticia a, .botao-noticia {
+
+.botao-noticia {
   display: inline-block;
   padding: 8px 16px;
   background-color: var(--marrom-escuro);
@@ -111,7 +111,10 @@ h2 {
   transition: background-color 0.2s ease;
 }
  
-.noticia a:hover, .botao-noticia:hover {
+.noticia a {
+  color: #6b4e36;
+}
+.botao-noticia:hover {
   background-color: #6b4e36;
 }
  

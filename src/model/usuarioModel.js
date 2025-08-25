@@ -186,7 +186,27 @@ export async function buscarUsuarioPorApelido(apelido) {
       [apelido]
     );
 
-    return usuario || null;
+    if (!usuario) {
+      return null;
+    }
+
+    // Função para converter BLOB (Buffer) em data URI base64
+    function blobToDataURI(blobBuffer, mimeType = 'image/jpeg') {
+      if (!blobBuffer) return null;
+      const base64 = blobBuffer.toString('base64');
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    // Cria novo objeto com as imagens convertidas
+    return {
+      apelido: usuario.apelido,
+      email: usuario.email,
+      nome: usuario.nome,
+      biografia: usuario.biografia,
+      dataCriacao: usuario.dataCriacao,
+      fotoPerfil: blobToDataURI(usuario.fotoPerfil),
+      fotoCapa: blobToDataURI(usuario.fotoCapa),
+    };
   } catch (error) {
     console.error("Erro ao buscar usuário por apelido:", error.message);
     return null;

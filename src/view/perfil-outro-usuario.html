@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuário</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/perfil.css">
+    <link rel="stylesheet" href="/css/perfil-outro-usuario.css">
+ 
+    <!-- fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+      <div class="logo">Radar Praia Grande</div>
+      <ul class="nav-links">
+        <li><a href="../home.html">Feed</a></li>
+        <li><a href="../perfil.html">Perfil</a></li>
+        <li><button id="logout-btn" class="logout-btn">Logout</button></li>
+      </ul>
+    </nav>
+ 
+    <div class="perfil-container">
+        <section class="perfil">
+            <div class="perfil-info">
+                <span id="fotoCapa-text"><img id="fotoCapa" alt="Foto de Capa"></span>
+                <span id="fotoPerfil-text"><img id="fotoPerfil" alt="Foto de Perfil"></span>
+                <span id="apelido"></span>
+                <span id="biografia"></span>
+            </div>
+ 
+            <a class="seguir-btn">Seguir</a>
+            <a class="denunciar-btn">Denunciar</a>
+        </section>
+ 
+        <section class="noticias">
+            <div class="noticias-perfil">
+                <h2>Notícias</h2>
+               
+                <div id="noticiasUsuario"></div>
+                <div id="paginacaoNoticias"></div>
+            </div>
+        </section>
+    </div>
+ 
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p>Tem certeza que deseja sair?</p>
+            <button id="confirmYes">Sim</button>
+            <button id="confirmNo">Cancelar</button>
+        </div>
+    </div>
+ 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="/js/modal.js"></script>
+    <script type="module" src="/js/perfil-outro-usuario.js"></script>
+</body>
+</html>

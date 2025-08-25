@@ -24,7 +24,8 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { impedeUsuariosAutenticados } from "../controller/usuarioController.js";
+import { impedeUsuariosAutenticados, verificaAutenticacao } from "../controller/usuarioController.js";
+import { buscarUsuarioPorApelido } from "../model/usuarioModel.js";
 
 // Configurações para __dirname com ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -67,6 +68,10 @@ app.get("/index.html", (req, res) => {
     res.redirect("/");
 });
 
+app.get("/", impedeUsuariosAutenticados, (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/index.html"));
+});
+
 app.get("/cadastro.html", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/cadastro.html"));
 });
@@ -76,9 +81,6 @@ app.get("/login.html", impedeUsuariosAutenticados, (req, res) => {
 });
 
 // Rotas públicas sem middleware
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../view/index.html"));
-});
 app.get("/home.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/home.html"));
 });
@@ -110,6 +112,9 @@ app.get("/consultar-noticias.html", (req, res) => {
 });
 app.get("/consultar-comentarios.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/consultar-comentarios.html"));
+});
+app.get("/perfil/:apelidoOutroUsuario", (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/perfil-outro-usuario.html"));
 });
 
 // Importação e uso das rotas especializadas
