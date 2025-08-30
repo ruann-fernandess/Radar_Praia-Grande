@@ -1,6 +1,7 @@
 import { deleteImagensUsuario } from "../model/imagemModel.js";
 import { deleteNoticiasUsuario } from "../model/noticiaModel.js";
 import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario } from "../model/usuarioModel.js";
+import { verificaAmizade, insertAmizade, deleteAmizade } from "../model/amizadeModel.js";
 
 export async function cadastro(req, res) {
     try {
@@ -41,7 +42,6 @@ export async function cadastro(req, res) {
         });
     }
 }
- 
  
 export async function login(req, res){
     try{
@@ -269,4 +269,94 @@ export async function alterarPerfil(req, res) {
             message: 'Erro interno no logout!'
         });
     }
+}
+
+export async function verificaExistenciaAmizade(req, res) {
+  try {
+    const { apelido1, apelido2 } = req.params;
+
+    if (!apelido1 || !apelido2) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetros apelido1 e apelido2 são obrigatórios."
+      });
+    }
+
+    const existeAmizade = await verificaAmizade(apelido1, apelido2);
+    
+    return res.status(200).json({ existeAmizade });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao verificar amizade!"
+    });
+  }
+}
+
+export async function seguirUsuario(req, res) {
+  try {
+    const { apelido1, apelido2 } = req.params;
+
+    if (!apelido1 || !apelido2) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetros apelido1 e apelido2 são obrigatórios."
+      });
+    }
+
+    const existeAmizade = await verificaAmizade(apelido1, apelido2);
+
+    if (existeAmizade == 0) {
+      const seguiuUsuario = await insertAmizade(apelido1, apelido2);
+      return res.status(seguiuUsuario.statusCode).json(seguiuUsuario);
+    }
+
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Você já segue este usuário!"
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao seguir usuário!"
+    });
+  }
+}
+
+export async function deixarDeSeguirUsuario(req, res) {
+  try {
+    const { apelido1, apelido2 } = req.params;
+
+    if (!apelido1 || !apelido2) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetros apelido1 e apelido2 são obrigatórios."
+      });
+    }
+
+    const existeAmizade = await verificaAmizade(apelido1, apelido2);
+
+    if (existeAmizade == 1) {
+      await deleteAmizade(apelido1, apelido2);
+      
+      return res.status(200).json({
+        statusCode: 200,
+        message: "Você deixou de seguir este usuário!"
+      });
+    }
+
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Não foi possível deixar de seguir este usuário!"
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao deixar de seguir usuário!"
+    });
+  }
 }

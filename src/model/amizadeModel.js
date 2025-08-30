@@ -20,4 +20,55 @@ export async function createTableAmizade() {
       console.error(chalk.red("Erro ao criar a tabela AMIZADE:", error.message));
     }
   }
-  
+
+export async function verificaAmizade(apelido1, apelido2) {
+  try {
+    const result = await db.get(
+      `SELECT COUNT(*) AS count
+       FROM amizade
+       WHERE apelido1 = ? AND apelido2 = ?`,
+      [apelido1, apelido2]
+    );
+
+    return result.count; 
+  } catch (error) {
+    return -1; 
+  }
+}
+
+export async function insertAmizade(apelido1, apelido2) {
+  try {
+    await db.run(
+      `INSERT INTO amizade 
+                (apelido1, apelido2) 
+                VALUES (?, ?)`,
+      [
+        apelido1,
+        apelido2
+      ]
+    );
+
+    console.log(chalk.green("Usuário seguido com sucesso!"));
+    return { statusCode: 200, message: "Usuário seguido com sucesso!" };
+  } catch (error) {
+    console.error(chalk.red("Erro ao seguir usuário:", error.message));
+    return { statusCode: 500, message: "Erro ao seguir usuário!"};
+  }
+}
+
+export async function deleteAmizade(apelido1, apelido2) {
+  try {
+    await db.run(
+      `DELETE FROM amizade
+       WHERE apelido1 = ?
+       AND apelido2 = ?`,
+       [
+        apelido1,
+        apelido2
+       ]
+      );
+    console.log(chalk.green(`O usuário '${apelido1}' deixou de seguir o usuário '${apelido2}' com sucesso!`));
+  } catch (error) {
+    console.error(chalk.red("Erro ao deixar de seguir o usuário:", error.message));
+  }
+}

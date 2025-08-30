@@ -46,9 +46,10 @@ async function capturarNoticias(pagina = 1) {
     noticiasLista.innerHTML = "";
     paginacaoNoticias.innerHTML = "";
  
-    // Se o usuário não tiver nenhuma notícia cadastrada
+    // Se não tiver nenhuma notícia cadastrada
     if (data.noticias.length == 0) {
-      document.querySelector(".botao-noticia").style.marginBottom = "0";
+      noticiasLista.style.textAlign = "center";
+      noticiasLista.innerHTML = "Nenhuma notícia foi encontrada.";
       document.getElementById("paginacaoNoticias").style.display = "none";
     }
    

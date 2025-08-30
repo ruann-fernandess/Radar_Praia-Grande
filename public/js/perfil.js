@@ -57,7 +57,8 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
  
     // Se o usuário não tiver nenhuma notícia cadastrada
     if (data.noticias.length == 0) {
-      document.querySelector(".botao-noticia").style.marginBottom = "0";
+      noticiasUsuario.style.textAlign = "center";
+      noticiasUsuario.innerHTML = "Nenhuma notícia foi encontrada.";
       document.getElementById("paginacaoNoticias").style.display = "none";
     }
    
@@ -82,8 +83,6 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
         }
  
         noticiaDiv.appendChild(imagensContainer);
-      } else {
-        noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: "Sem imagens." }));
       }
  
       // Metadados

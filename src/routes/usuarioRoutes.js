@@ -1,5 +1,5 @@
 import express from "express";
-import { cadastro, login, perfil, verificaAutenticacao, alterarPerfil, apagarPerfil, logout, perfilOutroUsuario } from "../controller/usuarioController.js";
+import { cadastro, login, perfil, verificaAutenticacao, alterarPerfil, apagarPerfil, logout, perfilOutroUsuario, verificaExistenciaAmizade, seguirUsuario, deixarDeSeguirUsuario } from "../controller/usuarioController.js";
 
 const router = express.Router();
 
@@ -11,5 +11,8 @@ router.delete("/editar-perfil", verificaAutenticacao, apagarPerfil);
 router.get("/perfil", verificaAutenticacao, perfil);
 router.get("/perfil-outro-usuario/:apelidoOutroUsuario", verificaAutenticacao, perfilOutroUsuario);
 router.get("/logout", logout);
+router.get("/verifica-amizade/:apelido1/:apelido2", verificaAutenticacao, verificaExistenciaAmizade);
+router.get("/seguir-usuario/:apelido1/:apelido2", verificaAutenticacao, seguirUsuario);
+router.get("/deixar-seguir-usuario/:apelido1/:apelido2", verificaAutenticacao, deixarDeSeguirUsuario);
 
 export default router;

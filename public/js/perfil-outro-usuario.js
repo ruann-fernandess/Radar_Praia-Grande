@@ -1,8 +1,14 @@
 import { exibirAlertaErro, exibirAlertaErroERedirecionar} from "./alert.js";
 
+// apelido = apelido1
+// apelidoOutroUsuario = apelido2
 let apelido = "";
 let apelidoOutroUsuario = "";
-// perfil-outro-usuario
+let usuario1SegueUsuario2 = 0;
+let usuario2SegueUsuario1 = 0;
+
+const botaoSeguir = document.querySelector(".seguir-btn");
+const botaoDenunciar = document.querySelector(".denunciar-btn");
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -56,11 +62,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       return JSON.parse(responseText);
     })
-    .then((data) => {
+    .then(async (data) => {
       apelidoSpan.textContent = apelidoOutroUsuario;
       fotoPerfilImg.src = data.fotoPerfil;
       fotoCapaImg.src = data.fotoCapa;
       biografiaSpan.textContent = data.biografia;
+
+      usuario1SegueUsuario2 = await verificaAmizade(apelido, apelidoOutroUsuario);
+      usuario2SegueUsuario1 = await verificaAmizade(apelidoOutroUsuario, apelido);
+
+      if (usuario1SegueUsuario2 > 0) {
+        if (!botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.add("active");
+        }
+        
+        usuario2SegueUsuario1 = await verificaAmizade(apelidoOutroUsuario, apelido);
+
+        if (usuario2SegueUsuario1 == 0) {
+          botaoSeguir.textContent = "Deixar de seguir";
+        } else {
+          botaoSeguir.textContent = "Amigos";
+        }
+      } else {
+        if (botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.remove("active");
+        }
+        botaoSeguir.textContent = "Seguir";
+      }
 
       capturarNoticiasDoUsuario(apelidoOutroUsuario, 1);
     })
@@ -73,7 +101,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         await exibirAlertaErroERedirecionar("error", "Erro", err.message, "../index.html");
       }
     });
+  
+  botaoSeguir.addEventListener("click", async function() {
+    if (usuario1SegueUsuario2 == 0) {
+      const resultado = await seguirUsuario(apelido, apelidoOutroUsuario);
+      if (resultado.statusCode == 200) {
+        usuario1SegueUsuario2 = 1;
+        
+        if (!botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.add("active");
+        }
 
+        if (usuario2SegueUsuario1 == 0) {
+          botaoSeguir.textContent = "Deixar de seguir";
+        } else {
+          botaoSeguir.textContent = "Amigos";
+        }
+      } else {
+        await exibirAlertaErro("error", "Erro", resultado.message);
+      }
+    } else {
+      const resultado = await deixarDeSeguirUsuario(apelido, apelidoOutroUsuario);
+      if (resultado.statusCode == 200) {
+        usuario1SegueUsuario2 = 0;
+        
+        if (botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.remove("active");
+        }
+        botaoSeguir.textContent = "Seguir";
+      } else {
+        await exibirAlertaErro("error", "Erro", resultado.message);
+      }
+    }
+  });
 });
  
 async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
@@ -117,8 +177,6 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
           }
   
           noticiaDiv.appendChild(imagensContainer);
-        } else {
-          noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: "Sem imagens." }));
         }
   
         // Metadados
@@ -179,4 +237,76 @@ function formatarDataNoticia(dataString) {
  
   // Exemplo: "27 de maio de 2025, 12:08"
   return `${parseInt(dia)} de ${meses[parseInt(mes) - 1]} de ${ano}, ${horaStr}:${minuto}`;
+}
+
+async function verificaAmizade(apelido1, apelido2) {
+  try {
+    const res = await fetch(`/usuario/verifica-amizade/${encodeURIComponent(apelido1)}/${encodeURIComponent(apelido2)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao verificar amizade!");
+      throw new Error(errorData.message || "Erro ao verificar amizade");
+    }
+
+    const data = await res.json();
+    return data.existeAmizade; // true ou false
+
+  } catch (error) {
+    console.error("Erro na requisição de amizade:", error);
+    return null;
+  }
+}
+
+async function seguirUsuario(apelido1, apelido2) {
+  try {
+    const res = await fetch(`/usuario/seguir-usuario/${encodeURIComponent(apelido1)}/${encodeURIComponent(apelido2)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao seguir usuário!");
+      throw new Error(errorData.message || "Erro ao seguir usuário");
+    }
+
+    const data = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Erro ao seguir usuário:", error);
+    return null;
+  }
+}
+
+async function deixarDeSeguirUsuario(apelido1, apelido2) {
+  try {
+    const res = await fetch(`/usuario/deixar-seguir-usuario/${encodeURIComponent(apelido1)}/${encodeURIComponent(apelido2)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao deixar de seguir!");
+      throw new Error(errorData.message || "Erro ao deixar de seguir");
+    }
+
+    const data = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Erro ao deixar de seguir:", error);
+    return null;
+  }
 }

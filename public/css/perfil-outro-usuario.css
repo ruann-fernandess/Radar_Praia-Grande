@@ -3,7 +3,6 @@
 .seguir-btn, .denunciar-btn {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: var(--marrom-escuro);
   color: var(--branco);
   font-size: 16px;
   cursor: pointer;
@@ -14,10 +13,22 @@
   border-radius: 100px;
 }
 
+.seguir-btn {
+  background-color: var(--marrom-escuro);
+}
+
+.denunciar-btn {
+  background-color: rgb(23, 15, 7);
+}
+
 .seguir-btn:hover, .denunciar-btn:hover {
   text-decoration: underline;
 }
 
-.seguir-btn.active, .denunciar-btn.active {
+.seguir-btn.active {
   background-color: var(--preto);
+}
+
+.denunciar-btn.active {
+  background-color: rgb(12, 8, 4);
 }
