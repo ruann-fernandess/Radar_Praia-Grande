@@ -3,10 +3,10 @@ document.getElementById("cadastroForm").addEventListener("submit", async functio
     event.preventDefault();
 
     const usuario = {
-        apelido: document.getElementById("apelido").value,
-        nome: document.getElementById("nome").value,
-        email: document.getElementById("email").value,
-        senha: document.getElementById("senha").value
+        apelido: document.getElementById("apelido").value.trim().replaceAll(" ", ""),
+        nome: document.getElementById("nome").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        senha: document.getElementById("senha").value.trim()
     };
 
     const erroMensagem = document.getElementById("erroMensagem");

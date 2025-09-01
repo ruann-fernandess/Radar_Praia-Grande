@@ -72,3 +72,53 @@ export async function deleteAmizade(apelido1, apelido2) {
     console.error(chalk.red("Erro ao deixar de seguir o usuário:", error.message));
   }
 }
+
+export async function contaSeguidores(apelido) {
+  try {
+    const result = await db.get(
+      `SELECT COUNT(*) AS count
+       FROM amizade
+       WHERE apelido1 = ?`,
+      [apelido]
+    );
+
+    console.log(chalk.green("Contagem de seguidores realizada com sucesso!"));
+    return {
+      statusCode: 200,
+      message: "Contagem de seguidores realizada com sucesso!",
+      quantidadeSeguidores: result.count
+    };
+  } catch (error) {
+    console.error(chalk.red("Erro ao contar seguidores do usuário:", error.message));
+    return {
+      statusCode: 500,
+      message: "Erro ao contar seguidores do usuário!",
+      quantidadeSeguidores: 0
+    };
+  }
+}
+
+export async function contaSeguindo(apelido) {
+  try {
+    const result = await db.get(
+      `SELECT COUNT(*) AS count
+       FROM amizade
+       WHERE apelido2 = ?`,
+      [apelido]
+    );
+
+    console.log(chalk.green("Contagem de seguindo realizada com sucesso!"));
+    return {
+      statusCode: 200,
+      message: "Contagem de seguindo realizada com sucesso!",
+      quantidadeSeguindo: result.count
+    };
+  } catch (error) {
+    console.error(chalk.red("Erro ao contar seguindo do usuário:", error.message));
+    return {
+      statusCode: 500,
+      message: "Erro ao contar seguindo do usuário!",
+      quantidadeSeguindo: 0
+    };
+  }
+}

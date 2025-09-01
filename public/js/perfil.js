@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const fotoPerfilImg = document.getElementById("fotoPerfil");
   const fotoCapaImg = document.getElementById("fotoCapa");
   const biografiaSpan = document.getElementById("biografia");
+  const quantidadeSeguidores = document.getElementById("quantidadeSeguindo");
+  const quantidadeSeguindo = document.getElementById("quantidadeSeguidores");
  
  fetch("/usuario/perfil")
   .then(async (res) => {
@@ -23,13 +25,15 @@ document.addEventListener("DOMContentLoaded", () => {
  
     return JSON.parse(responseText);
   })
-  .then((data) => {
+  .then(async (data) => {
     apelido = data.apelido;
     apelidoSpan.textContent = data.apelido;
     fotoPerfilImg.src = data.fotoPerfil;
     fotoCapaImg.src = data.fotoCapa;
     biografiaSpan.textContent = data.biografia;
- 
+    quantidadeSeguidores.textContent = await contarSeguidores(apelido);
+    quantidadeSeguindo.textContent = await contarSeguindo(apelido);
+
     capturarNoticiasDoUsuario(apelido, 1);
   })
   .catch(async (err) => {
@@ -149,4 +153,61 @@ function formatarDataNoticia(dataString) {
  
   // Exemplo: "27 de maio de 2025, 12:08"
   return `${parseInt(dia)} de ${meses[parseInt(mes) - 1]} de ${ano}, ${horaStr}:${minuto}`;
+}
+
+async function contarSeguidores(apelido) {
+  try {
+    const res = await fetch(`/usuario/contar-seguidores/${encodeURIComponent(apelido)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao contar seguidores!");
+      throw new Error(errorData.message || "Erro ao contar seguidores!");
+    }
+
+    const data = await res.json();
+
+    if (data.statusCode != 200) {
+      await exibirAlertaErro("error", "Erro", data.message);
+      return 0;
+    } else {
+      return data.quantidadeSeguidores;
+    }
+  } catch (error) {
+    console.error("Erro ao contar seguidores:", error);
+    return 0;
+  }
+}
+
+async function contarSeguindo(apelido) {
+  try {
+    const res = await fetch(`/usuario/contar-seguindo/${encodeURIComponent(apelido)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao contar seguindo!");
+      throw new Error(errorData.message || "Erro ao contar seguindo!");
+    }
+
+    const data = await res.json();
+    if (data.statusCode != 200) {
+      await exibirAlertaErro("error", "Erro", data.message);
+      return 0;
+    } else {
+      return data.quantidadeSeguindo;
+    }
+  } catch (error) {
+    console.error("Erro ao contar seguindo:", error);
+    return 0;
+  }
 }

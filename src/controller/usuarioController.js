@@ -1,7 +1,7 @@
 import { deleteImagensUsuario } from "../model/imagemModel.js";
 import { deleteNoticiasUsuario } from "../model/noticiaModel.js";
 import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario } from "../model/usuarioModel.js";
-import { verificaAmizade, insertAmizade, deleteAmizade } from "../model/amizadeModel.js";
+import { verificaAmizade, insertAmizade, deleteAmizade, contaSeguidores, contaSeguindo } from "../model/amizadeModel.js";
 
 export async function cadastro(req, res) {
     try {
@@ -213,7 +213,6 @@ export async function alterarPerfil(req, res) {
   }
 }
  
- 
   export async function apagarPerfil(req, res) {
     try {
       const usuario = req.session.user;
@@ -282,10 +281,18 @@ export async function verificaExistenciaAmizade(req, res) {
       });
     }
 
-    const existeAmizade = await verificaAmizade(apelido1, apelido2);
-    
-    return res.status(200).json({ existeAmizade });
+    const usuario1Existe = await verificaApelidoUsuario(apelido1);
+    const usuario2Existe = await verificaApelidoUsuario(apelido2);
 
+    if (usuario1Existe > 0 && usuario2Existe > 0) {
+      const existeAmizade = await verificaAmizade(apelido1, apelido2);
+      return res.status(200).json({ existeAmizade });
+    } else {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "Os usuários fornecidos não são válidos!"
+      });
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -306,17 +313,27 @@ export async function seguirUsuario(req, res) {
       });
     }
 
-    const existeAmizade = await verificaAmizade(apelido1, apelido2);
+    const usuario1Existe = await verificaApelidoUsuario(apelido1);
+    const usuario2Existe = await verificaApelidoUsuario(apelido2);
 
-    if (existeAmizade == 0) {
-      const seguiuUsuario = await insertAmizade(apelido1, apelido2);
-      return res.status(seguiuUsuario.statusCode).json(seguiuUsuario);
+    if (usuario1Existe > 0 && usuario2Existe > 0) {
+      const existeAmizade = await verificaAmizade(apelido1, apelido2);
+      
+      if (existeAmizade == 0) {
+        const seguiuUsuario = await insertAmizade(apelido1, apelido2);
+        return res.status(seguiuUsuario.statusCode).json(seguiuUsuario);
+      } else {
+        return res.status(500).json({
+          statusCode: 500,
+          message: "Você já segue este usuário!"
+        });
+      }
+    } else {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "Os usuários fornecidos não são válidos!"
+      });
     }
-
-    return res.status(500).json({
-      statusCode: 500,
-      message: "Você já segue este usuário!"
-    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -337,26 +354,104 @@ export async function deixarDeSeguirUsuario(req, res) {
       });
     }
 
-    const existeAmizade = await verificaAmizade(apelido1, apelido2);
+    const usuario1Existe = await verificaApelidoUsuario(apelido1);
+    const usuario2Existe = await verificaApelidoUsuario(apelido2);
 
-    if (existeAmizade == 1) {
-      await deleteAmizade(apelido1, apelido2);
+    if (usuario1Existe > 0 && usuario2Existe > 0) {
+      const existeAmizade = await verificaAmizade(apelido1, apelido2);
       
-      return res.status(200).json({
-        statusCode: 200,
-        message: "Você deixou de seguir este usuário!"
+      if (existeAmizade == 1) {
+        await deleteAmizade(apelido1, apelido2);
+        
+        return res.status(200).json({
+          statusCode: 200,
+          message: "Você deixou de seguir este usuário!"
+        });
+      } else {
+        return res.status(500).json({
+          statusCode: 500,
+          message: "Não foi possível deixar de seguir este usuário!"
+        });
+      }
+    } else {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "Os usuários fornecidos não são válidos!"
       });
     }
-
-    return res.status(500).json({
-      statusCode: 500,
-      message: "Não foi possível deixar de seguir este usuário!"
-    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       statusCode: 500,
       message: "Erro ao deixar de seguir usuário!"
+    });
+  }
+}
+
+export async function contarSeguidores(req, res) {
+  try {
+    const { apelido } = req.params;
+
+    if (!apelido) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetros apelido é obrigatório.",
+        quantidadeSeguidores: 0
+      });
+    }
+
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
+
+    if (usuarioExiste > 0) {
+      const quantidadeSeguidores = await contaSeguidores(apelido);
+      return res.status(quantidadeSeguidores.statusCode).json(quantidadeSeguidores);
+    } else {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "O usuário fornecido não é válido!",
+        quantidadeSeguidores: 0
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao contar a quantidade de seguidores!",
+      quantidadeSeguidores: 0
+    });
+  }
+}
+
+export async function contarSeguindo(req, res) {
+  try {
+    const { apelido } = req.params;
+
+    if (!apelido) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetros apelido é obrigatório.",
+        quantidadeSeguindo: 0
+      });
+    }
+
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
+
+    if (usuarioExiste > 0) {
+      const quantidadeSeguindo = await contaSeguindo(apelido);
+      return res.status(quantidadeSeguindo.statusCode).json(quantidadeSeguindo);
+    } else {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "O usuário fornecido não é válido!",
+        quantidadeSeguindo: 0
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao contar a quantidade de seguindo!",
+      quantidadeSeguindo: 0
     });
   }
 }

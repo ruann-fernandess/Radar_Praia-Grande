@@ -36,6 +36,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fotoPerfilImg = document.getElementById("fotoPerfil");
   const fotoCapaImg = document.getElementById("fotoCapa");
   const biografiaSpan = document.getElementById("biografia");
+  const quantidadeSeguidores = document.getElementById("quantidadeSeguindo");
+  const quantidadeSeguindo = document.getElementById("quantidadeSeguidores");
 
   // Capturando o apelido do perfil que esta sendo visitado
   const caminhoURL = window.location.pathname;
@@ -67,6 +69,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       fotoPerfilImg.src = data.fotoPerfil;
       fotoCapaImg.src = data.fotoCapa;
       biografiaSpan.textContent = data.biografia;
+      quantidadeSeguidores.textContent = await contarSeguidores(apelidoOutroUsuario);
+      quantidadeSeguindo.textContent = await contarSeguindo(apelidoOutroUsuario);
 
       usuario1SegueUsuario2 = await verificaAmizade(apelido, apelidoOutroUsuario);
       usuario2SegueUsuario1 = await verificaAmizade(apelidoOutroUsuario, apelido);
@@ -117,6 +121,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
           botaoSeguir.textContent = "Amigos";
         }
+        
+        document.getElementById("quantidadeSeguidores").textContent = parseInt(document.getElementById("quantidadeSeguidores").textContent) + 1;
       } else {
         await exibirAlertaErro("error", "Erro", resultado.message);
       }
@@ -129,6 +135,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           botaoSeguir.classList.remove("active");
         }
         botaoSeguir.textContent = "Seguir";
+        
+        document.getElementById("quantidadeSeguidores").textContent = parseInt(document.getElementById("quantidadeSeguidores").textContent) - 1;
       } else {
         await exibirAlertaErro("error", "Erro", resultado.message);
       }
@@ -308,5 +316,62 @@ async function deixarDeSeguirUsuario(apelido1, apelido2) {
   } catch (error) {
     console.error("Erro ao deixar de seguir:", error);
     return null;
+  }
+}
+
+async function contarSeguidores(apelido) {
+  try {
+    const res = await fetch(`/usuario/contar-seguidores/${encodeURIComponent(apelido)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao contar seguidores!");
+      throw new Error(errorData.message || "Erro ao contar seguidores!");
+    }
+
+    const data = await res.json();
+
+    if (data.statusCode != 200) {
+      await exibirAlertaErro("error", "Erro", data.message);
+      return 0;
+    } else {
+      return data.quantidadeSeguidores;
+    }
+  } catch (error) {
+    console.error("Erro ao contar seguidores:", error);
+    return 0;
+  }
+}
+
+async function contarSeguindo(apelido) {
+  try {
+    const res = await fetch(`/usuario/contar-seguindo/${encodeURIComponent(apelido)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao contar seguindo!");
+      throw new Error(errorData.message || "Erro ao contar seguindo!");
+    }
+
+    const data = await res.json();
+    if (data.statusCode != 200) {
+      await exibirAlertaErro("error", "Erro", data.message);
+      return 0;
+    } else {
+      return data.quantidadeSeguindo;
+    }
+  } catch (error) {
+    console.error("Erro ao contar seguindo:", error);
+    return 0;
   }
 }
