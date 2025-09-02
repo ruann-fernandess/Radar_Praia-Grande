@@ -1,6 +1,6 @@
 @import url(root.css);
 
-.seguir-btn, .denunciar-btn {
+.seguir-btn, .denunciar-perfil-btn {
   margin-top: 20px;
   padding: 10px 20px;
   color: var(--branco);
@@ -17,11 +17,11 @@
   background-color: var(--marrom-escuro);
 }
 
-.denunciar-btn {
-  background-color: rgb(23, 15, 7);
+.denunciar-perfil-btn {
+  background-color: var(--vermelho-escuro);
 }
 
-.seguir-btn:hover, .denunciar-btn:hover {
+.seguir-btn:hover, .denunciar-perfil-btn:hover {
   text-decoration: underline;
 }
 
@@ -29,6 +29,33 @@
   background-color: var(--preto);
 }
 
+.seguir-btn:hover {
+  background-color: #6b4e36;
+}
+
+.denunciar-perfil-btn.active {
+  background-color: rgb(12, 8, 4);
+}
+
+.denunciar-btn {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 0.95em;
+  background-color: var(--vermelho-escuro);
+  padding: 8px 16px;
+  margin-top: 6px;
+  margin-right: 12px;
+  color: #fff;
+  text-decoration: none;
+  border: 0;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
 .denunciar-btn.active {
   background-color: rgb(12, 8, 4);
+}
+
+.denunciar-btn:hover {
+  text-decoration: underline;
 }

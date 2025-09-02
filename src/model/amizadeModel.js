@@ -73,6 +73,23 @@ export async function deleteAmizade(apelido1, apelido2) {
   }
 }
 
+export async function deleteTodasAmizadesPorApelido(apelido) {
+  try {
+    await db.run(
+      `DELETE FROM amizade
+       WHERE apelido1 = ?
+       OR apelido2 = ?`,
+       [
+        apelido,
+        apelido
+       ]
+      );
+    console.log(chalk.green(`Todas as amizades do usuário '${apelido}' foram deletadas com sucesso!`));
+  } catch (error) {
+    console.error(chalk.red("Erro ao deletar amizades do usuário:", error.message));
+  }
+}
+
 export async function contaSeguidores(apelido) {
   try {
     const result = await db.get(

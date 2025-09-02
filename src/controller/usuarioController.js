@@ -1,7 +1,8 @@
 import { deleteImagensUsuario } from "../model/imagemModel.js";
-import { deleteNoticiasUsuario } from "../model/noticiaModel.js";
+import { deleteNoticiasUsuario, selectIdsNoticiasPorApelido } from "../model/noticiaModel.js";
 import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario } from "../model/usuarioModel.js";
-import { verificaAmizade, insertAmizade, deleteAmizade, contaSeguidores, contaSeguindo } from "../model/amizadeModel.js";
+import { verificaAmizade, insertAmizade, deleteAmizade, contaSeguidores, contaSeguindo, deleteTodasAmizadesPorApelido } from "../model/amizadeModel.js";
+import { deleteTodasCurtidasNoticia, deleteTodasCurtidasNoticiaPorApelido } from "../model/curtidaNoticiaModel.js";
 
 export async function cadastro(req, res) {
     try {
@@ -217,8 +218,14 @@ export async function alterarPerfil(req, res) {
     try {
       const usuario = req.session.user;
  
-      await deleteImagensUsuario(usuario.apelido);
+      const arrayIdsNoticias = await selectIdsNoticiasPorApelido(usuario.apelido);
+      for (let i = 0; i < arrayIdsNoticias.length; i++) {
+        await deleteTodasCurtidasNoticia(arrayIdsNoticias[i]);
+      }
+      await deleteTodasAmizadesPorApelido(usuario.apelido);
+      await deleteTodasCurtidasNoticiaPorApelido(usuario.apelido);
       await deleteNoticiasUsuario(usuario.apelido);
+      await deleteImagensUsuario(usuario.apelido);
       await deleteUsuario(usuario.apelido);
  
       req.session.destroy((err) => {

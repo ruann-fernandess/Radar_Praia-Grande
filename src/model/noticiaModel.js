@@ -291,6 +291,28 @@ export async function selectNoticiaPorIdEApelido(idNoticia, apelido) {
   }
 }
 
+export async function selectIdsNoticiasPorApelido(apelido) {
+  try {
+    const rows = await db.all(
+      `SELECT 
+        N.idNoticia
+      FROM NOTICIA N
+      WHERE N.apelido = ?`,
+      [apelido]
+    );
+
+    if (!rows || rows.length === 0) {
+      return [];
+    }
+
+    const arrayIdsNoticias = rows.map(row => row.idNoticia);
+    return arrayIdsNoticias;
+  } catch (error) {
+    console.error("Erro ao capturar IDs de notícias por apelido:", error.message);
+    return [];
+  }
+}
+
 export async function deleteNoticia(idNoticia) {
   try {
     await db.run(
@@ -310,5 +332,20 @@ export async function deleteNoticiasUsuario(apelido) {
     console.log(chalk.green(`Notícias de ${apelido} apagadas com sucesso!`));
   } catch (error) {
     console.error(chalk.red(`Erro ao apagar notícias: '${error.message}'`));
+  }
+}
+
+export async function verificaNoticia(idNoticia) {
+  try {
+    const result = await db.get(
+      `SELECT COUNT(*) AS count
+       FROM noticia
+       WHERE idNoticia = ?`,
+      [idNoticia]
+    );
+
+    return result.count; 
+  } catch (error) {
+    return -1; 
   }
 }

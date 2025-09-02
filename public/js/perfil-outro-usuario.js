@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         botaoSeguir.textContent = "Seguir";
       }
 
-      capturarNoticiasDoUsuario(apelidoOutroUsuario, 1);
+      capturarNoticiasDoUsuario(1);
     })
     .catch(async (err) => {
       console.error(err.message);
@@ -144,9 +144,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
  
-async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
+async function capturarNoticiasDoUsuario(pagina = 1) {
   try {
-    const res = await fetch(`/noticia/capturar-noticias-usuario/${encodeURIComponent(apelido)}?pagina=${pagina}`);
+    const res = await fetch(`/noticia/capturar-noticias-usuario/${encodeURIComponent(apelidoOutroUsuario)}?pagina=${pagina}`);
             if (!res.ok) {
             const errorData = await res.json();
             await exibirAlertaErro("error", "Erro", "Erro ao buscar notícias!");
@@ -196,6 +196,58 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
         const dataFormatada = formatarDataNoticia(noticia.dataNoticia);
         metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Data de criação: ${dataFormatada}` }));
   
+        // Curtidas
+        const botaoCurtir = document.createElement("button");
+        botaoCurtir.classList.add("curtir-btn");
+        
+        let usuarioCurtiuEstaNoticia = await verificarCurtidaNoticia(noticia.idNoticia, apelido);
+
+        if (usuarioCurtiuEstaNoticia > 0) {
+          botaoCurtir.classList.add("active");
+          botaoCurtir.textContent = "Remover curtida";
+        } else {
+          botaoCurtir.textContent = "Curtir";
+        }
+
+        const curtidas = document.createElement("span");
+        const quantidadeCurtidas = document.createElement("b");
+        quantidadeCurtidas.textContent = await contarCurtidasNoticia(noticia.idNoticia);
+
+        curtidas.appendChild(quantidadeCurtidas);
+        curtidas.appendChild(document.createTextNode(" curtidas"));
+        curtidas.appendChild(document.createElement("br"));
+
+        botaoCurtir.addEventListener("click", function() {
+          curtirOuDescurtirNoticia(noticia.idNoticia, quantidadeCurtidas, botaoCurtir);
+        });
+
+        metadados.appendChild(botaoCurtir);
+        metadados.appendChild(curtidas);
+
+        // Comentários
+        const botaoComentarios = document.createElement("button");
+        botaoComentarios.classList.add("comentarios-btn");
+        botaoComentarios.textContent = "Exibir comentários";
+
+        const comentarios = document.createElement("span");
+
+        const quantidadeComentarios = document.createElement("b");
+        quantidadeComentarios.id = "quantidadeComentarios";
+        quantidadeComentarios.textContent = "0";
+
+        comentarios.appendChild(quantidadeComentarios);
+        comentarios.appendChild(document.createTextNode(" comentários"));
+        comentarios.appendChild(document.createElement("br"));
+        
+        metadados.appendChild(botaoComentarios);
+        metadados.appendChild(comentarios);
+
+        // Denúncias
+        const botaoDenunciar = document.createElement("button");
+        botaoDenunciar.classList.add("denunciar-btn");
+        botaoDenunciar.textContent = "Denunciar";
+        metadados.appendChild(botaoDenunciar);
+
         noticiaDiv.appendChild(metadados);
   
         noticiasUsuario.appendChild(noticiaDiv);
@@ -221,7 +273,7 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
           btn.classList.add("ativo");
           btn.disabled = true;
   
-          capturarNoticiasDoUsuario(apelido, i);
+          capturarNoticiasDoUsuario(i);
         };
   
         paginacaoNoticias.appendChild(btn);
@@ -373,5 +425,129 @@ async function contarSeguindo(apelido) {
   } catch (error) {
     console.error("Erro ao contar seguindo:", error);
     return 0;
+  }
+}
+
+async function verificarCurtidaNoticia(idNoticia, apelido) {
+  try {
+    const res = await fetch('/noticia/verifica-curtida-noticia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idNoticia, apelido }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao verificar curtida de notícia!");
+      throw new Error(data.message || "Erro ao verificar curtida de notícia");
+    }
+
+    return data.existeCurtidaNoticia;
+
+  } catch (error) {
+    await exibirAlertaErro("error", "Erro", "Erro ao verificar curtida da notícia!");
+    console.error('Erro na requisição: ' + error.message);
+  }
+}
+
+async function contarCurtidasNoticia(idNoticia) {
+  try {
+    const res = await fetch('/noticia/contar-curtidas-noticia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idNoticia }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao contar curtidas da notícia!");
+      throw new Error(data.message || "Erro ao contar curtidas da notícia");
+    }
+
+    return data.quantidadeCurtidasNoticia;
+
+  } catch (error) {
+    await exibirAlertaErro("error", "Erro", "Erro ao contar curtidas da notícia!");
+    console.error('Erro na requisição: ' + error.message);
+  }
+}
+
+async function curtirOuDescurtirNoticia(idNoticia, quantidadeCurtidas, botaoCurtir) {
+  let usuarioCurtiuEstaNoticia = await verificarCurtidaNoticia(idNoticia, apelido);
+
+  if (usuarioCurtiuEstaNoticia > 0) {
+    const resultado = await removerCurtidaNoticia(idNoticia);
+
+    if (resultado.statusCode == 200) {
+      if (botaoCurtir.classList.contains("active")) {
+        botaoCurtir.classList.remove("active");
+      }
+
+      botaoCurtir.textContent = "Curtir";
+      quantidadeCurtidas.textContent = parseInt(quantidadeCurtidas.textContent) - 1;
+    } else {
+      await exibirAlertaErro("error", "Erro", resultado.message);
+    }
+  } else {
+    const resultado = await curtirNoticia(idNoticia);
+
+    if (resultado.statusCode == 200) {
+      if (!botaoCurtir.classList.contains("active")) {
+        botaoCurtir.classList.add("active");
+      }
+
+      botaoCurtir.textContent = "Remover curtida";
+      quantidadeCurtidas.textContent = parseInt(quantidadeCurtidas.textContent) + 1;
+    } else {
+      await exibirAlertaErro("error", "Erro", resultado.message);
+    }
+  }
+}
+
+async function curtirNoticia(idNoticia) {
+  try {
+    const res = await fetch('/noticia/curtir-noticia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idNoticia, apelido }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao curtir notícia!");
+      throw new Error(data.message || "Erro ao curtir notícia");
+    }
+
+    return data;
+
+  } catch (error) {
+    await exibirAlertaErro("error", "Erro", "Erro ao curtir notícia!");
+    console.error('Erro na requisição: ' + error.message);
+  }
+}
+
+async function removerCurtidaNoticia(idNoticia) {
+  try {
+    const res = await fetch('/noticia/remover-curtida-noticia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idNoticia, apelido }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao remover curtida da notícia!");
+      throw new Error(data.message || "Erro ao remover curtida da notícia");
+    }
+
+    return data;
+
+  } catch (error) {
+    await exibirAlertaErro("error", "Erro", "Erro ao remover curtida da notícia!");
+    console.error('Erro na requisição: ' + error.message);
   }
 }

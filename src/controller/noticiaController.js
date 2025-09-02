@@ -1,6 +1,8 @@
 import { deleteImagensNoticia } from "../model/imagemModel.js";
-import { insertNoticia, updateNoticia, deleteNoticia, selectNoticias, selectNoticiasDoUsuario, selectNoticiaPorIdEApelido } from "../model/noticiaModel.js";
+import { insertNoticia, updateNoticia, deleteNoticia, selectNoticias, selectNoticiasDoUsuario, selectNoticiaPorIdEApelido, verificaNoticia } from "../model/noticiaModel.js";
 import { selectBairros } from "../model/bairroModel.js";
+import { insertCurtidaNoticia, deleteCurtidaNoticia, deleteTodasCurtidasNoticia, verificaCurtidaNoticia, contaCurtidasNoticia } from "../model/curtidaNoticiaModel.js";
+import { verificaApelidoUsuario } from "../model/usuarioModel.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 dotenv.config();
@@ -18,8 +20,14 @@ export async function analisarDescricao(req, res) {
     try {
         const { descricao } = req.body;
         
+        if (!descricao) {
+          return res.status(400).json({ 
+            statusCode: 400, 
+            message: "Nenhuma bairro foi encontrada!" 
+          });
+        }
+
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        
         const prompt = "Analise o seguinte texto: "
              + descricao
              + "\nAgora responda apenas com 'true' ou 'false' para cada uma das perguntas abaixo, e então retorne um único valor final baseado nas seguintes regras lógicas:\n\n"
@@ -186,18 +194,23 @@ export async function capturarNoticiasDoUsuario(req, res) {
 export async function capturarNoticiaDoUsuario(req, res) {
   try {
     const apelido = req.session.user.apelido;
-
     const idNoticia = req.params.idNoticia;
 
     if (!apelido) {
       return res.status(401).json({
         statusCode: 401,
-        message: "Usuário não autenticado.",
+        message: "Usuário não autenticado."
+      });
+    }
+
+    if (!idNoticia) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "O ID da notícia é obrigatório."
       });
     }
 
     const noticia = await selectNoticiaPorIdEApelido(idNoticia, apelido);
-
     if (!noticia) {
       return res.status(404).json({
         statusCode: 404,
@@ -238,14 +251,29 @@ export async function cadastro(req, res) {
 export async function editarNoticia(req, res) {
     try {
         const noticia = req.body;
-        await deleteImagensNoticia(noticia.idNoticia);
+        if (!noticia) {
+          return res.status(400).json({
+            statusCode: 400,
+            message: "Notícia é obrigatória."
+          });
+        }
         
-        const resultado = await updateNoticia(noticia);
+        const noticiaExiste = await verificaNoticia(noticia.idNoticia);
+        if (noticiaExiste > 0) {
+          await deleteImagensNoticia(noticia.idNoticia);
 
-        res.status(resultado.statusCode).json({
-            statusCode: resultado.statusCode,
-            message: resultado.message
-        });
+          const resultado = await updateNoticia(noticia);
+
+          res.status(resultado.statusCode).json({
+              statusCode: resultado.statusCode,
+              message: resultado.message
+          });
+        } else {
+          return res.status(404).json({
+            statusCode: 404,
+            message: "A notícia não foi encontrada!"
+          });
+        }
     } catch (error) {
         res.status(500).json({ 
             statusCode: 500, 
@@ -257,7 +285,6 @@ export async function editarNoticia(req, res) {
 export async function apagarNoticia(req, res) {
   try {
     const { idNoticia } = req.body;
-
     if (!idNoticia) {
       return res.status(400).json({ 
         statusCode: 400, 
@@ -265,17 +292,169 @@ export async function apagarNoticia(req, res) {
       });
     }
 
-    await deleteImagensNoticia(idNoticia);
-    const resultado = await deleteNoticia(idNoticia);
+    const noticiaExiste = await verificaNoticia(idNoticia);
+    if (noticiaExiste > 0) {
+      await deleteImagensNoticia(idNoticia);
+      await deleteTodasCurtidasNoticia(idNoticia);
+      const resultado = await deleteNoticia(idNoticia);
 
-    res.status(resultado.statusCode).json({
-      statusCode: resultado.statusCode,
-      message: resultado.message
-    });
+      res.status(resultado.statusCode).json({
+        statusCode: resultado.statusCode,
+        message: resultado.message
+      });
+    } else {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "A notícia não foi encontrada!"
+      });
+    }
   } catch (error) {
     res.status(500).json({ 
       statusCode: 500, 
       message: "Erro ao apagar notícia!"
+    });
+  }
+}
+
+export async function curtirNoticia(req, res) {
+  try {
+    const { idNoticia, apelido } = req.body;
+    if (!idNoticia) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "ID da notícia é obrigatório." 
+      });
+    }
+    if (!apelido) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "Apelido é obrigatório." 
+      });
+    }
+
+    const noticiaExiste = await verificaNoticia(idNoticia);
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
+    if (noticiaExiste > 0 && usuarioExiste > 0) {
+      const resultado = await insertCurtidaNoticia(idNoticia, apelido);
+
+      return res.status(resultado.statusCode).json({
+        statusCode: resultado.statusCode,
+        message: resultado.message
+      });
+    } else {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Notícia ou apelido não encontrados!"
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      statusCode: 500, 
+      message: "Erro ao curtir notícia!"
+    });
+  }
+}
+
+export async function removerCurtidaNoticia(req, res) {
+  try {
+    const { idNoticia, apelido } = req.body;
+    if (!idNoticia) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "ID da notícia é obrigatório." 
+      });
+    }
+    if (!apelido) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "Apelido é obrigatório." 
+      });
+    }
+
+    const noticiaExiste = await verificaNoticia(idNoticia);
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
+    if (noticiaExiste > 0 && usuarioExiste > 0) {
+      await deleteCurtidaNoticia(idNoticia, apelido);
+
+      return res.status(200).json({
+        statusCode: 200,
+        message: "Curtida da notícia removida com sucesso!"
+      });
+    } else {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Notícia ou apelido não encontrados!"
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      statusCode: 500, 
+      message: "Erro ao remover curtida da notícia!"
+    });
+  }
+}
+
+export async function verificaExistenciaCurtidaNoticia(req, res) {
+  try {
+    const { idNoticia, apelido } = req.body;
+    if (!idNoticia) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "ID da notícia é obrigatório."
+      });
+    }
+    if (!apelido) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "Apelido é obrigatório." 
+      });
+    }
+  
+    const noticiaExiste = await verificaNoticia(idNoticia);
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
+    if (noticiaExiste > 0 && usuarioExiste > 0) {
+      const existeCurtidaNoticia = await verificaCurtidaNoticia(idNoticia, apelido);
+      return res.status(200).json({ existeCurtidaNoticia });
+    } else {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Notícia ou apelido não encontrados!"
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      statusCode: 500, 
+      message: "Erro ao verificar curtida da notícia!"
+    });
+  }
+}
+
+export async function contarCurtidasNoticia(req, res) {
+  try {
+    const { idNoticia } = req.body;
+    if (!idNoticia) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "ID da notícia é obrigatório.",
+        quantidadeCurtidasNoticia: 0
+      });
+    }
+
+    const noticiaExiste = await verificaNoticia(idNoticia);
+    if (noticiaExiste > 0) {
+      const quantidadeCurtidasNoticia = await contaCurtidasNoticia(idNoticia);
+      return res.status(quantidadeCurtidasNoticia.statusCode).json(quantidadeCurtidasNoticia);
+    } else {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Notícia não encontrada!"
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      statusCode: 500, 
+      message: "Erro ao contar a quantidade de curtidas da notícia!",
+      quantidadeCurtidasNoticia: 0
     });
   }
 }

@@ -20,3 +20,110 @@ export async function createTableCurtidaNoticia() {
     console.error(chalk.red("Erro ao criar a tabela CURTIDA_NOTICIA:", error.message));
   }
 }
+
+export async function insertCurtidaNoticia(idNoticia, apelido) {
+  try {
+    await db.run(
+      `INSERT INTO curtida_noticia 
+                (idNoticia, apelido) 
+                VALUES (?, ?)`,
+      [
+        idNoticia,
+        apelido
+      ]
+    );
+
+    console.log(chalk.green("Notícia curtida com sucesso!"));
+    return { statusCode: 200, message: "Notícia curtida com sucesso!" };
+  } catch (error) {
+    console.error(chalk.red("Erro ao curtir notícia:", error.message));
+    return { statusCode: 500, message: "Erro ao curtir notícia!"};
+  }
+}
+
+export async function deleteCurtidaNoticia(idNoticia, apelido) {
+  try {
+    await db.run(
+      `DELETE FROM curtida_noticia
+       WHERE idNoticia = ?
+       AND apelido = ?`,
+       [
+        idNoticia,
+        apelido
+       ]
+      );
+    console.log(chalk.green(`O usuário '${apelido}' removeu a curtida com sucesso!`));
+  } catch (error) {
+    console.error(chalk.red("Erro ao remover curtida:", error.message));
+  }
+}
+
+export async function deleteTodasCurtidasNoticia(idNoticia) {
+  try {
+    await db.run(
+      `DELETE FROM curtida_noticia
+       WHERE idNoticia = ? `,
+       [
+        idNoticia
+       ]
+      );
+    console.log(chalk.green(`Todas as curtidas da notícia '${idNoticia}' foram removidas com sucesso!`));
+  } catch (error) {
+    console.error(chalk.red("Erro ao remover curtidas:", error.message));
+  }
+}
+
+export async function deleteTodasCurtidasNoticiaPorApelido(apelido) {
+  try {
+    await db.run(
+      `DELETE FROM curtida_noticia
+       WHERE apelido = ? `,
+       [
+        apelido
+       ]
+      );
+    console.log(chalk.green(`Todas as curtidas do usuário '${apelido}' foram removidas com sucesso!`));
+  } catch (error) {
+    console.error(chalk.red("Erro ao remover curtidas:", error.message));
+  }
+}
+
+export async function verificaCurtidaNoticia(idNoticia, apelido) {
+  try {
+    const result = await db.get(
+      `SELECT COUNT(*) AS count
+       FROM curtida_noticia
+       WHERE idNoticia = ? AND apelido = ?`,
+      [idNoticia, apelido]
+    );
+
+    return result.count;
+  } catch (error) {
+    return -1; 
+  }
+}
+
+export async function contaCurtidasNoticia(idNoticia) {
+  try {
+    const result = await db.get(
+      `SELECT COUNT(*) AS count
+       FROM curtida_noticia
+       WHERE idNoticia = ?`,
+      [idNoticia]
+    );
+
+    console.log(chalk.green("Contagem de curtidas da notícia realizada com sucesso!"));
+    return {
+      statusCode: 200,
+      message: "Contagem de curtidas da notícia realizada com sucesso!",
+      quantidadeCurtidasNoticia: result.count
+    };
+  } catch (error) {
+    console.error(chalk.red("Erro ao contar curtidas da notícia:", error.message));
+    return {
+      statusCode: 500,
+      message: "Erro ao contar curtidas da notícia!",
+      quantidadeCurtidasNoticia: 0
+    };
+  }
+}
