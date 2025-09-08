@@ -56,6 +56,31 @@
             <button id="confirmNo">Cancelar</button>
         </div>
     </div>
+
+    <div id="comentariosModal" class="modal">
+        <div class="modal-content">
+            <p>Comentários</p>
+            <button id="adicionarComentario">Adicionar comentário</button>
+            <div id="listaComentarios"></div>
+        </div>
+    </div>
+
+    <div id="adicionarComentarioModal" class="modal">
+        <div class="modal-content">
+          <p>Adicionar comentário</p>
+          <textarea id="descricaoComentario" placeholder="Digite um comentário.."></textarea>
+          <button id="confirmarComentario">Confirmar</button>
+        </div>
+    </div>
+    
+    <div id="editarComentarioModal" class="modal">
+        <div class="modal-content">
+          <p>Editar comentário</p>
+          <textarea id="descricaoEditarComentario" placeholder="Digite um comentário.."></textarea>
+          <button id="confirmarEditarComentario">Confirmar</button>
+          <button id="confirmarExcluirComentario">Excluir comentário</button>
+        </div>
+    </div>
  
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="/js/modal.js"></script>

@@ -3,6 +3,8 @@ import { deleteNoticiasUsuario, selectIdsNoticiasPorApelido } from "../model/not
 import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario } from "../model/usuarioModel.js";
 import { verificaAmizade, insertAmizade, deleteAmizade, contaSeguidores, contaSeguindo, deleteTodasAmizadesPorApelido } from "../model/amizadeModel.js";
 import { deleteTodasCurtidasNoticia, deleteTodasCurtidasNoticiaPorApelido } from "../model/curtidaNoticiaModel.js";
+import { deleteTodosComentariosPorApelido, deleteComentariosNoticiaPorAutorDaNoticia } from "../model/comentarioModel.js";
+import { deleteTodasCurtidasComentarioNoticiaPorApelido, deleteCurtidasComentariosNoticiaPorAutorDaNoticia } from "../model/curtidaComentarioModel.js";
 
 export async function cadastro(req, res) {
     try {
@@ -224,6 +226,10 @@ export async function alterarPerfil(req, res) {
       }
       await deleteTodasAmizadesPorApelido(usuario.apelido);
       await deleteTodasCurtidasNoticiaPorApelido(usuario.apelido);
+      await deleteTodasCurtidasComentarioNoticiaPorApelido(usuario.apelido);
+      await deleteCurtidasComentariosNoticiaPorAutorDaNoticia(usuario.apelido);
+      await deleteTodosComentariosPorApelido(usuario.apelido);
+      await deleteComentariosNoticiaPorAutorDaNoticia(usuario.apelido);
       await deleteNoticiasUsuario(usuario.apelido);
       await deleteImagensUsuario(usuario.apelido);
       await deleteUsuario(usuario.apelido);

@@ -37,7 +37,7 @@ h2 {
   margin-bottom: 16px;
 }
  
-.noticia {
+.noticia, .comentario {
   width: 100%;
   padding: 24px;
   margin-bottom: 1.5em;
@@ -50,7 +50,7 @@ h2 {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
  
-.noticia:hover {
+.noticia:hover, .comentario:hover {
   transform: scale(1.01);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
@@ -101,7 +101,7 @@ h2 {
   margin-top: 6px;
 }
 
-.botao-noticia, .curtir-btn, .comentarios-btn, .editar-noticia, .denunciar-btn {
+.botao-noticia, .curtir-btn, .comentarios-btn, .editar-noticia, .denunciar-btn, .editar-comentario {
   display: inline-block;
   cursor: pointer;
   padding: 8px 16px;
@@ -112,7 +112,7 @@ h2 {
   transition: background-color 0.2s ease;
 }
 
-.curtir-btn, .comentarios-btn, .denunciar-btn {
+.curtir-btn, .comentarios-btn, .denunciar-btn, .editar-comentario {
   margin-top: 6px;
   margin-right: 12px;
 }
@@ -121,7 +121,7 @@ h2 {
   background-color: var(--preto);
 }
 
-.botao-noticia, .curtir-btn, .comentarios-btn, .editar-noticia {
+.botao-noticia, .curtir-btn, .comentarios-btn, .editar-noticia, .editar-comentario {
   font-size: 0.95em;
   background-color: var(--marrom-escuro);
 }
@@ -135,11 +135,11 @@ h2 {
   background-color: rgb(12, 8, 4);
 }
  
-.noticia a:not(.editar-noticia) {
+.noticia a:not(.editar-noticia, .editar-comentario) {
   color: #6b4e36;
 }
 
-.botao-noticia:hover, .curtir-btn:hover, .comentarios-btn:hover, .editar-noticia:hover {
+.botao-noticia:hover, .curtir-btn:hover, .comentarios-btn:hover, .editar-noticia:hover, .editar-comentario:hover {
   text-decoration: underline;
   background-color: #6b4e36;
 }
@@ -187,4 +187,38 @@ h2 {
 
 span {
   color: var(--preto);
+}
+
+.comentario {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+}
+
+.comentario header {
+  display: flex;
+  text-align: left;
+}
+
+.comentario header a {
+  color: #6b4e36;
+}
+
+.comentario header .lado-esquerdo {
+  margin-right: 15px;
+}
+
+.comentario header .lado-esquerdo img {
+  width: 54px;
+  height: 52px;
+  border: 2px solid var(--branco);
+  border-radius: 50%;
+}
+
+.comentario main {
+  margin-top: 12px;
+  margin-bottom: 10px;
+}
+
+.comentario footer {
+  text-align: left;
 }

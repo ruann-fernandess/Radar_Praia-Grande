@@ -274,6 +274,8 @@ async function analisarImagens() {
             });
 
             const data = await res.json();
+
+            console.log(JSON.stringify(data));
             
             if (data.statusCode != 200) {
                 await exibirAlertaErro("error", "Erro", data.message)

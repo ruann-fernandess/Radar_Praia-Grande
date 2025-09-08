@@ -213,7 +213,6 @@ export async function buscarUsuarioPorApelido(apelido) {
   }
 }
 
-
 export async function deleteUsuario(apelido) {
   try {
     await db.run(`DELETE FROM USUARIO WHERE apelido = ?`, [apelido]);

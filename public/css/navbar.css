@@ -1,9 +1,9 @@
 @import url(root.css);
- 
+
 body {
   background-color: var(--branco);
 }
- 
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -12,12 +12,12 @@ body {
   padding: 1rem 2rem;
   color: var(--branco);
 }
- 
+
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
 }
- 
+
 .nav-links {
   list-style: none;
   display: flex;
@@ -26,22 +26,22 @@ body {
   margin: 0;
   padding: 0;
 }
- 
+
 .nav-links li {
   display: flex;
   align-items: center;
 }
- 
+
 .nav-links a {
   color: var(--branco);
   text-decoration: none;
   transition: color 0.3s ease;
 }
- 
+
 .nav-links a:hover {
   color: var(--bege-claro);
 }
- 
+
 .logout-btn {
   background-color: var(--marrom-claro);
   color: var(--branco);
@@ -52,11 +52,11 @@ body {
   transition: background 0.3s ease;
   font-family: var(--fonte-principal);
 }
- 
+
 .logout-btn:hover {
   background-color: var(--marrom-escuro);
 }
- 
+
 .modal {
   display: none;
   position: fixed;
@@ -68,7 +68,7 @@ body {
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.5);
 }
- 
+
 .modal-content {
   background-color: var(--branco);
   margin: 15% auto;
@@ -78,8 +78,20 @@ body {
   color: var(--marrom-escuro);
   font-size: 2em;
 }
- 
-.modal-content button {
+
+#comentariosModal .modal-content {
+  width: 950px;
+  padding: 20px 30px;
+  margin: 7% auto;
+}
+
+#comentariosModal .modal-content p,
+#adicionarComentarioModal .modal-content p,
+#editarComentarioModal .modal-content p {
+  text-align: left;
+}
+
+.modal-content button:not(.curtir-btn, .denunciar-btn) {
   margin: 10px;
   padding: 8px 16px;
   cursor: pointer;
@@ -89,7 +101,61 @@ body {
   color: (--preto);
   background-color: var(--marrom-claro);
 }
- 
-.modal-content button:hover {
-background-color: var(--marrom-escuro);
+
+#adicionarComentarioModal .modal-content,
+#editarComentarioModal .modal-content {
+  width: 800px;
+  padding: 20px 30px;
+  margin: 10% auto;
+}
+
+#comentariosModal .modal-content button:not(.curtir-btn, .denunciar-btn),
+#adicionarComentarioModal .modal-content button,
+#editarComentarioModal .modal-content button {
+  width: 100%;
+  margin: 10px 0;
+  color: var(--branco);
+}
+
+#editarComentarioModal .modal-content button#confirmarEditarComentario {
+  margin-bottom: 6px;
+}
+#editarComentarioModal .modal-content button#confirmarExcluirComentario {
+  margin-top: 0;
+}
+
+textarea {
+  width: 100%;
+  height: 200px;
+  resize: none;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  color: #000;
+  background-color: #fff;
+  font-family: inherit;
+}
+
+textarea::placeholder {
+  color: #888;
+}
+
+#comentariosModal .modal-content #listaComentarios {
+  color: var(--preto);
+  font-size: 17px;
+}
+
+.modal-content button:hover:not(.curtir-btn, .denunciar-btn) {
+  background-color: var(--marrom-escuro);
+}
+
+#confirmarExcluirComentario {
+  background-color: rgb(23, 15, 7);
+}
+
+#confirmarExcluirComentario:hover {
+  background-color: rgb(12, 8, 4);
 }
