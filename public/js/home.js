@@ -756,7 +756,6 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
     comentario.appendChild(comentarioMain);
     comentario.appendChild(comentarioRodape);
 
-    //alert("Pag: " + paginaComentarios + " | Qntdd Comen: " + comentariosNoticia.comentarios.length + " | Total Comen: " + quantidadeComentarios.textContent);
     // Se for o último elemento da página
     if (i === comentariosNoticia.comentarios.length - 1) {
       const observer = new IntersectionObserver((entries, observerRef) => {
