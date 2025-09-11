@@ -63,8 +63,10 @@ export async function updateComentarioNoticia(comentarioEditado, idComentario) {
   }
 }
 
-export async function selectComentariosPorNoticia(idNoticia) {
+export async function selectComentariosPorNoticia(idNoticia, paginaComentarios, limite) {
   try {
+    const offset = (paginaComentarios - 1) * limite;
+
     const rows = await db.all(
       `SELECT 
         C.idComentario, 
@@ -75,33 +77,33 @@ export async function selectComentariosPorNoticia(idNoticia) {
       FROM COMENTARIO C
       INNER JOIN USUARIO U ON C.apelido = U.apelido
       LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
-      WHERE C.idNoticia = ?`,
-      [idNoticia]
+      WHERE C.idNoticia = ?
+      ORDER BY C.idComentario DESC
+      LIMIT ? OFFSET ?`,
+      [idNoticia, limite, offset]
     );
 
-    if (rows.length === 0) {
-      return [];
-    }
-
-    // Função para converter BLOB (Buffer) em data URI base64
-    function blobToDataURI(blobBuffer, mimeType = 'image/jpeg') {
+    function blobToDataURI(blobBuffer, mimeType = "image/jpeg") {
       if (!blobBuffer) return null;
-      const base64 = blobBuffer.toString('base64');
+      const base64 = blobBuffer.toString("base64");
       return `data:${mimeType};base64,${base64}`;
     }
 
-    // Converte todos os registros
-    return rows.map(comentario => ({
+    const comentarios = rows.map(comentario => ({
       idComentario: comentario.idComentario,
       comentario: comentario.comentario,
       dataComentario: comentario.dataComentario,
       apelido: comentario.apelido,
-      fotoPerfil: blobToDataURI(comentario.fotoPerfil),
+      fotoPerfil: blobToDataURI(comentario.fotoPerfil)
     }));
+
+    return {
+      comentarios
+    };
 
   } catch (error) {
     console.error("Erro ao capturar comentários da notícia:", error.message);
-    return [];
+    return { comentarios: [] };
   }
 }
 

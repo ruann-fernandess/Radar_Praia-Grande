@@ -543,8 +543,10 @@ export async function comentarNoticia(req, res) {
 
 export async function capturarComentariosNoticia(req, res) {
   try {
-    const { idNoticia } = req.params;
-    
+    const { idNoticia, paginaComentarios } = req.params;
+    const paginaNum = Math.max(1, parseInt(paginaComentarios || "1", 10));
+    const limite = 10; //quantidade de comentários por página
+
     if (!idNoticia) {
       return res.status(400).json({
         statusCode: 400,
@@ -552,17 +554,18 @@ export async function capturarComentariosNoticia(req, res) {
       });
     }
 
-    const comentariosNoticia = await selectComentariosPorNoticia(idNoticia);
+    const { comentarios } = await selectComentariosPorNoticia(idNoticia, paginaNum, limite);
+
     res.status(200).json({
-      statusCode: 200, 
+      statusCode: 200,
       message: "Os comentários foram capturados com sucesso!",
-      comentariosNoticia: comentariosNoticia
+      comentarios
     });
   } catch (error) {
-    res.status(500).json({ 
-      statusCode: 500, 
+    res.status(500).json({
+      statusCode: 500,
       message: "Erro ao capturar os comentários!",
-      comentariosNoticia: 0
+      comentarios: []
     });
   }
 }

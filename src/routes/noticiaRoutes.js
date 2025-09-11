@@ -24,8 +24,7 @@ router.post("/verifica-curtida-noticia", verificaAutenticacao, verificaExistenci
 router.post("/contar-curtidas-noticia", verificaAutenticacao, contarCurtidasNoticia);
 router.post("/contar-comentarios-noticia", verificaAutenticacao, contarComentariosNoticia);
 router.post("/comentar-noticia", verificaAutenticacao, comentarNoticia);
-router.get("/capturar-comentarios-noticia/:idNoticia", verificaAutenticacao, capturarComentariosNoticia);
-// capturar-comentarios
+router.get("/capturar-comentarios-noticia/:idNoticia/:paginaComentarios", verificaAutenticacao, capturarComentariosNoticia);
 router.post("/verifica-curtida-comentario-noticia", verificaAutenticacao, verificaExistenciaCurtidaComentarioNoticia);
 router.post("/contar-curtidas-comentario-noticia", verificaAutenticacao, contarCurtidasComentarioNoticia);
 router.post("/curtir-comentario-noticia", verificaAutenticacao, curtirComentarioNoticia);
