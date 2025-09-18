@@ -1,0 +1,106 @@
+@import url('root.css');
+@import url('home.css');
+
+#filtros {
+    text-align: center;
+    margin-bottom: 1.5em;
+}
+
+#filtros input[type="radio"] {
+    margin-right: 6px;
+}
+
+#filtros #filtroUsuarios {
+    margin-left: 33px;
+}
+
+input[type="radio"] {
+  accent-color: var(--preto);
+}
+
+#paginacaoUsuarios {
+  display: flex;
+  justify-content: center;
+  margin-top: 2em;
+  gap: 10px;
+}
+ 
+#paginacaoUsuarios button {
+  background-color: var(--bege);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  color: var(--preto);
+  font-family: var(--fonte-principal);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+ 
+#paginacaoUsuarios button:hover {
+  background-color: var(--bege-escuro);
+  color: var(--branco);
+}
+ 
+#paginacaoUsuarios button.ativo {
+  background-color: var(--marrom-claro);
+  color: var(--branco);
+  font-weight: bold;
+  cursor: default;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+}
+
+.usuario:not(:last-child) {
+  margin-bottom: 0.60em;
+}
+
+#usuariosLista.active {
+  padding: 1.2em;
+  border: 1px solid var(--bege);
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.usuario a {
+  color: #6b4e36;
+  margin-top: -4px;
+}
+
+.usuario img {
+  width: 54px;
+  height: 52px;
+  margin-right: 14px;
+  border: 2px solid var(--branco);
+  border-radius: 50%;
+}
+
+.seguir-btn {
+  padding: 10px 20px;
+  color: var(--branco);
+  font-size: 16px;
+  cursor: pointer;
+  font-family: var(--fonte-decoracao);
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: auto;
+  border: none;
+  border-radius: 100px;
+  background-color: var(--marrom-escuro);
+}
+
+.seguir-btn:hover {
+  text-decoration: underline;
+}
+
+.seguir-btn.active {
+  background-color: var(--preto);
+}
+
+.seguir-btn:hover {
+  background-color: #6b4e36;
+}

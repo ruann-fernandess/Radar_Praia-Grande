@@ -86,8 +86,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           botaoSeguir.classList.add("active");
         }
         
-        usuario2SegueUsuario1 = await verificaAmizade(apelidoOutroUsuario, apelido);
-
         if (usuario2SegueUsuario1 == 0) {
           botaoSeguir.textContent = "Deixar de seguir";
         } else {
@@ -1004,3 +1002,11 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
     document.getElementById("listaComentarios").appendChild(comentario);
   }
 }
+
+const barraDePesquisa = document.getElementById("barraDePesquisa");
+
+barraDePesquisa.addEventListener("keydown", function(event) {
+  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
+    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
+  }
+});

@@ -4,9 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados da Pesquisa</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/resultados-pesquisa.css" />
 </head>
 <body>
+    <nav class="navbar">
+        <div class="logo">Radar Praia Grande</div>
+        <input type="text" id="barraDePesquisa" placeholder="Pesquise..">
+        <ul class="nav-links">
+            <li><a href="home.html">Feed</a></li>
+            <li><a href="perfil.html">Perfil</a></li>
+            <li><button id="logout-btn" class="logout-btn">Logout</button></li>
+        </ul>
+    </nav>
 
+    <div class="noticias-container">
+        <section class="noticias">
+            <div class="noticias-lista">
+                <h2>Resultados da pesquisa</h2>
+                <div id="filtros">
+                    <input type="radio" id="filtroNoticias" name="filtroPesquisa" value="noticia" checked />
+                    <label for="filtroNoticias">Notícias</label>
+                    <input type="radio" id="filtroUsuarios" name="filtroPesquisa" value="usuario" />
+                    <label for="filtroUsuarios">Usuários</label>
+                </div>
+                
+                <div id="noticiasLista"></div>
+                <div id="paginacaoNoticias"></div>
+                <div id="usuariosLista"></div>
+                <div id="paginacaoUsuarios"></div>
+            </div>
+        </section>
+    </div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p>Tem certeza que deseja sair?</p>
+            <button id="confirmYes">Sim</button>
+            <button id="confirmNo">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="comentariosModal" class="modal">
+        <div class="modal-content">
+            <p>Comentários</p>
+            <button id="adicionarComentario">Adicionar comentário</button>
+            <div id="listaComentarios"></div>
+        </div>
+    </div>
+
+    <div id="adicionarComentarioModal" class="modal">
+        <div class="modal-content">
+          <p>Adicionar comentário</p>
+          <textarea id="descricaoComentario" placeholder="Digite um comentário.."></textarea>
+          <button id="confirmarComentario">Confirmar</button>
+        </div>
+    </div>
+    
+    <div id="editarComentarioModal" class="modal">
+        <div class="modal-content">
+          <p>Editar comentário</p>
+          <textarea id="descricaoEditarComentario" placeholder="Digite um comentário.."></textarea>
+          <button id="confirmarEditarComentario">Confirmar</button>
+          <button id="confirmarExcluirComentario">Excluir comentário</button>
+        </div>
+    </div>
+ 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="/js/modal.js"></script>
+    <script type="module" src="/js/resultados-pesquisa.js"></script>
 </body>
 </html>

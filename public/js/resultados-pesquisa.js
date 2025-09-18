@@ -1,21 +1,24 @@
-import { exibirAlertaErro, exibirAlertaErroERedirecionar} from "./alert.js";
+import { exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
 import { exibirModal, esconderModal } from "./modal.js";
- 
+
 let apelido = "";
 let paginaComentarios = 0;
-
 const modalComentarios = document.getElementById("comentariosModal");
 const modalAdicionarComentario = document.getElementById("adicionarComentarioModal");
 const modalEditarComentario = document.getElementById("editarComentarioModal");
- 
+
+const barraDePesquisa = document.getElementById("barraDePesquisa");
+const urlParams = new URLSearchParams(window.location.search);
+const busca = urlParams.get("busca");
+barraDePesquisa.value = busca;
+
+barraDePesquisa.addEventListener("keydown", function(event) {
+  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
+    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
-  const apelidoSpan = document.getElementById("apelido");
-  const fotoPerfilImg = document.getElementById("fotoPerfil");
-  const fotoCapaImg = document.getElementById("fotoCapa");
-  const biografiaSpan = document.getElementById("biografia");
-  const quantidadeSeguidores = document.getElementById("quantidadeSeguindo");
-  const quantidadeSeguindo = document.getElementById("quantidadeSeguidores");
- 
  fetch("/usuario/perfil")
   .then(async (res) => {
     const contentType = res.headers.get("content-type");
@@ -31,45 +34,49 @@ document.addEventListener("DOMContentLoaded", () => {
  
     return JSON.parse(responseText);
   })
-  .then(async (data) => {
+  .then((data) => {
     apelido = data.apelido;
-    apelidoSpan.textContent = data.apelido;
-    fotoPerfilImg.src = data.fotoPerfil;
-    fotoCapaImg.src = data.fotoCapa;
-    biografiaSpan.textContent = data.biografia;
-    quantidadeSeguidores.textContent = await contarSeguidores(apelido);
-    quantidadeSeguindo.textContent = await contarSeguindo(apelido);
 
-    capturarNoticiasDoUsuario(apelido, 1);
+    pesquisarNoticias(busca, 1);
+    pesquisarUsuarios(busca, 1);
   })
   .catch(async (err) => {
     console.error(err.message);
     await exibirAlertaErroERedirecionar("error", "Erro", err.message, "/login.html");
   });
+
+  atualizarFiltroResultadosPesquisa("noticia");
+
+  document.getElementsByName("filtroPesquisa").forEach(filtro => {
+    filtro.addEventListener("change", function() {
+      if (this.checked) {
+        atualizarFiltroResultadosPesquisa(this.value);
+      }
+    });
+  });
 });
  
-async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
+async function pesquisarNoticias(busca, pagina = 1) {
   try {
-    const res = await fetch(`/noticia/capturar-noticias-usuario/${encodeURIComponent(apelido)}?pagina=${pagina}`);
-            if (!res.ok) {
-            const errorData = await res.json();
-            await exibirAlertaErro("error", "Erro", "Erro ao buscar notícias!");
-            throw new Error(errorData.message || "Erro ao buscar notícias");
-        }
+    const res = await fetch(`/noticia/pesquisar-noticias?busca=${encodeURIComponent(busca)}&pagina=${pagina}`);
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao pesquisar notícias!");
+      throw new Error(errorData.message || "Erro ao pesquisar notícias");
+    }
  
     const data = await res.json();
  
-    const noticiasUsuario = document.getElementById("noticiasUsuario");
+    const noticiasLista = document.getElementById("noticiasLista");
     const paginacaoNoticias = document.getElementById("paginacaoNoticias");
  
-    noticiasUsuario.innerHTML = "";
+    noticiasLista.innerHTML = "";
     paginacaoNoticias.innerHTML = "";
  
-    // Se o usuário não tiver nenhuma notícia cadastrada
+    // Se não tiver nenhuma notícia cadastrada
     if (data.noticias.length == 0) {
-      noticiasUsuario.style.textAlign = "center";
-      noticiasUsuario.innerHTML = "Nenhuma notícia foi encontrada.";
-      document.getElementById("paginacaoNoticias").style.display = "none";
+      noticiasLista.style.textAlign = "center";
+      noticiasLista.innerHTML = "Nenhuma notícia foi encontrada.";
     }
    
     for (const noticia of data.noticias) {
@@ -99,7 +106,17 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
       const metadados = document.createElement("div");
       metadados.classList.add("metadados");
       metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Bairro: ${noticia.nomeBairro}` }));
-      metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Autor: ${noticia.apelido}` }));
+      if (noticia.apelido == apelido) {
+        metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Autor: ${noticia.apelido}` }));
+      } else {
+        const autorNoticia = Object.assign(document.createElement("p"), { textContent: "Autor: " });
+        const linkPerfilOutroUsuario = Object.assign(document.createElement("a"), { textContent: noticia.apelido });
+        linkPerfilOutroUsuario.style.textDecoration = "underline";
+        linkPerfilOutroUsuario.href = `perfil/${noticia.apelido}`;
+
+        autorNoticia.appendChild(linkPerfilOutroUsuario)
+        metadados.appendChild(autorNoticia);
+      }
  
       const dataFormatada = formatarDataNoticia(noticia.dataNoticia);
       metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Data de criação: ${dataFormatada}` }));
@@ -137,37 +154,36 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
       botaoComentarios.textContent = "Exibir comentários";
 
       const comentarios = document.createElement("span");
-
       const quantidadeComentarios = document.createElement("b");
       quantidadeComentarios.textContent = await contarComentariosNoticia(noticia.idNoticia);
 
       botaoComentarios.addEventListener("click", async (e) => {
         document.getElementById("listaComentarios").innerHTML = "";
         exibirModal(modalComentarios, e);
-      
+
         if (await contarComentariosNoticia(noticia.idNoticia) == 0) {
           document.getElementById("listaComentarios").innerHTML = "<p>Esta notícia não possui nenhum comentário.</p>";
         } else {
           paginaComentarios = 1;
           await exibirComentariosNoticia(noticia.idNoticia, quantidadeComentarios);
         }
-      
+
         document.getElementById("adicionarComentario").onclick = () => {
           exibirModal(modalAdicionarComentario, e);
         };
-      
+
         document.getElementById("confirmarComentario").onclick = async () => {
           let comentario = document.getElementById("descricaoComentario");
           if (comentario.value.trim().length > 0) {
             document.getElementById("confirmarComentario").disabled = true;
             document.getElementById("descricaoComentario").disabled = true;
-      
+
             await comentarNoticia(comentario.value.trim(), noticia.idNoticia);
-                  
+            
             document.getElementById("listaComentarios").innerHTML = "";
             paginaComentarios = 1;
             await exibirComentariosNoticia(noticia.idNoticia, quantidadeComentarios);
-                  
+            
             esconderModal(modalAdicionarComentario);
             document.getElementById("confirmarComentario").disabled = false;
             document.getElementById("descricaoComentario").disabled = false;
@@ -183,15 +199,25 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
       
       metadados.appendChild(botaoComentarios);
       metadados.appendChild(comentarios);
- 
-      // Link editar
-      const linkEditar = document.createElement("a");
-      linkEditar.classList.add("editar-noticia");
-      linkEditar.href = `editar-noticia.html?idNoticia=${encodeURIComponent(noticia.idNoticia)}`;
-      linkEditar.textContent = "Editar notícia";
-      metadados.appendChild(linkEditar);
+
+      if (noticia.apelido == apelido) {
+        // Link editar
+        const linkEditar = document.createElement("a");
+        linkEditar.classList.add("editar-noticia");
+        linkEditar.href = `editar-noticia.html?idNoticia=${encodeURIComponent(noticia.idNoticia)}`;
+        linkEditar.textContent = "Editar notícia";
+        metadados.appendChild(linkEditar);
+      } else {
+        // Denúncias
+        const botaoDenunciar = document.createElement("button");
+        botaoDenunciar.classList.add("denunciar-btn");
+        botaoDenunciar.textContent = "Denunciar";
+        metadados.appendChild(botaoDenunciar);
+      }
+
       noticiaDiv.appendChild(metadados);
-      noticiasUsuario.appendChild(noticiaDiv);
+ 
+      noticiasLista.appendChild(noticiaDiv);
     }
  
     // Paginação
@@ -214,7 +240,7 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
         btn.classList.add("ativo");
         btn.disabled = true;
  
-        capturarNoticiasDoUsuario(apelido, i);
+        pesquisarNoticias(busca, i);
       };
  
       paginacaoNoticias.appendChild(btn);
@@ -237,63 +263,6 @@ function formatarDataNoticia(dataString) {
   const [horaStr, minuto] = hora.split(':');
  
   return `${parseInt(dia)} de ${meses[parseInt(mes) - 1]} de ${ano}, ${horaStr}:${minuto}`;
-}
-
-async function contarSeguidores(apelido) {
-  try {
-    const res = await fetch(`/usuario/contar-seguidores/${encodeURIComponent(apelido)}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      await exibirAlertaErro("error", "Erro", "Erro ao contar seguidores!");
-      throw new Error(errorData.message || "Erro ao contar seguidores!");
-    }
-
-    const data = await res.json();
-
-    if (data.statusCode != 200) {
-      await exibirAlertaErro("error", "Erro", data.message);
-      return 0;
-    } else {
-      return data.quantidadeSeguidores;
-    }
-  } catch (error) {
-    console.error("Erro ao contar seguidores:", error);
-    return 0;
-  }
-}
-
-async function contarSeguindo(apelido) {
-  try {
-    const res = await fetch(`/usuario/contar-seguindo/${encodeURIComponent(apelido)}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      await exibirAlertaErro("error", "Erro", "Erro ao contar seguindo!");
-      throw new Error(errorData.message || "Erro ao contar seguindo!");
-    }
-
-    const data = await res.json();
-    if (data.statusCode != 200) {
-      await exibirAlertaErro("error", "Erro", data.message);
-      return 0;
-    } else {
-      return data.quantidadeSeguindo;
-    }
-  } catch (error) {
-    console.error("Erro ao contar seguindo:", error);
-    return 0;
-  }
 }
 
 async function verificarCurtidaNoticia(idNoticia, apelido) {
@@ -662,9 +631,10 @@ async function apagarComentarioNoticia(idComentario) {
 
 async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
   const comentariosNoticia = await capturarComentariosNoticia(idNoticia, paginaComentarios);
-
+  
   for (let i = 0; i < comentariosNoticia.comentarios.length; i++) {
     const comentarioNoticia = comentariosNoticia.comentarios[i];
+
     const comentario = document.createElement("div");
     comentario.classList.add("comentario");
 
@@ -769,6 +739,7 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
           textoComentario.textContent = comentarioEditado;
         }
       }
+
       document.getElementById("confirmarExcluirComentario").onclick = async () => {
         const idComentarioAtual = document.getElementById("confirmarExcluirComentario").dataset.idComentario;
         document.getElementById("confirmarExcluirComentario").disabled = true;
@@ -801,7 +772,7 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
       botaoDenunciarComentario.textContent = "Denunciar";
       comentarioRodape.appendChild(botaoDenunciarComentario);
     }
-            
+
     comentario.appendChild(comentarioCabecalho);
     comentario.appendChild(comentarioMain);
     comentario.appendChild(comentarioRodape);
@@ -830,14 +801,193 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
       observer.observe(comentario);
     }
 
+
     document.getElementById("listaComentarios").appendChild(comentario);
   }
 }
 
-const barraDePesquisa = document.getElementById("barraDePesquisa");
-
-barraDePesquisa.addEventListener("keydown", function(event) {
-  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
-    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
+async function atualizarFiltroResultadosPesquisa(filtroPesquisa) {
+  if (filtroPesquisa == "noticia") {
+    document.getElementById("noticiasLista").style.display = "block";
+    document.getElementById("paginacaoNoticias").style.display = "flex";
+    
+    document.getElementById("usuariosLista").style.display = "none";
+    document.getElementById("paginacaoUsuarios").style.display = "none";
+  } else {
+    document.getElementById("noticiasLista").style.display = "none";
+    document.getElementById("paginacaoNoticias").style.display = "none";
+    
+    document.getElementById("usuariosLista").style.display = "block";
+    document.getElementById("paginacaoUsuarios").style.display = "flex";
   }
-});
+}
+
+async function pesquisarUsuarios(busca, pagina = 1) {
+  try {
+    const res = await fetch(`/usuario/pesquisar-usuarios?busca=${encodeURIComponent(busca)}&pagina=${pagina}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao pesquisar usuários!");
+      throw new Error(data.message || "Erro ao pesquisar usuários");
+    }
+
+    const usuariosLista = document.getElementById("usuariosLista");
+    const paginacaoUsuarios = document.getElementById("paginacaoUsuarios");
+
+    usuariosLista.innerHTML = "";
+    paginacaoUsuarios.innerHTML = "";
+
+    // Se não tiver nenhuma notícia cadastrada
+    if (!data.usuarios || data.usuarios.length === 0) {
+      usuariosLista.style.textAlign = "center";
+      usuariosLista.innerHTML = "Nenhum usuário foi encontrado.";
+    } else {
+      usuariosLista.classList.add("active");
+    }
+
+    // Percorre as notícias e renderiza
+    for (const usuario of data.usuarios) {
+      let usuario1SegueUsuario2 = usuario.usuario1SegueUsuario2;
+      let usuario2SegueUsuario1 = usuario.usuario2SegueUsuario1;
+
+      const usuarioDiv = document.createElement("div");
+      usuarioDiv.classList.add("usuario");
+ 
+      usuarioDiv.appendChild(Object.assign(document.createElement("img"), { src: usuario.fotoPerfil }));
+      usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `perfil/${usuario.apelido}`, textContent: usuario.apelido }));
+      
+      const botaoSeguir = document.createElement("button");
+      botaoSeguir.classList.add("seguir-btn");
+
+      if (usuario1SegueUsuario2 > 0) {
+        if (!botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.add("active");
+        }
+        
+        if (usuario2SegueUsuario1 == 0) {
+          botaoSeguir.textContent = "Deixar de seguir";
+        } else {
+          botaoSeguir.textContent = "Amigos";
+        }
+      } else {
+        if (botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.remove("active");
+        }
+        botaoSeguir.textContent = "Seguir";
+      }
+
+      botaoSeguir.addEventListener("click", async function() {
+        if (usuario1SegueUsuario2 == 0) {
+          const resultado = await seguirUsuario(apelido, usuario.apelido);
+          if (resultado.statusCode == 200) {
+            usuario1SegueUsuario2 = 1;
+              
+            if (!botaoSeguir.classList.contains("active")) {
+              botaoSeguir.classList.add("active");
+            }
+      
+            if (usuario2SegueUsuario1 == 0) {
+              botaoSeguir.textContent = "Deixar de seguir";
+            } else {
+              botaoSeguir.textContent = "Amigos";
+            }
+          } else {
+            await exibirAlertaErro("error", "Erro", resultado.message);
+          }
+        } else {
+          const resultado = await deixarDeSeguirUsuario(apelido, usuario.apelido);
+          if (resultado.statusCode == 200) {
+            usuario1SegueUsuario2 = 0;
+              
+            if (botaoSeguir.classList.contains("active")) {
+              botaoSeguir.classList.remove("active");
+            }
+            botaoSeguir.textContent = "Seguir";
+          } else {
+            await exibirAlertaErro("error", "Erro", resultado.message);
+          }
+        }
+      });
+        
+      usuarioDiv.appendChild(botaoSeguir);
+      usuariosLista.appendChild(usuarioDiv);
+    }
+
+    // Paginação
+    const totalPaginas = Math.ceil(data.totalUsuarios / 10);
+    for (let i = 1; i <= totalPaginas; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+ 
+      if (i === pagina) {
+        btn.disabled = true;
+        btn.classList.add("ativo");
+      }
+     
+      btn.onclick = () => {
+        document.querySelectorAll("#paginacaoUsuarios button").forEach(b => {
+          b.classList.remove("ativo");
+          b.disabled = false;
+        });
+ 
+        btn.classList.add("ativo");
+        btn.disabled = true;
+ 
+        pesquisarUsuarios(busca, i);
+      };
+ 
+      paginacaoUsuarios.appendChild(btn);
+    }
+  } catch (error) {
+    await exibirAlertaErro(error.message);
+  }
+}
+
+async function seguirUsuario(apelido1, apelido2) {
+  try {
+    const res = await fetch(`/usuario/seguir-usuario/${encodeURIComponent(apelido1)}/${encodeURIComponent(apelido2)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao seguir usuário!");
+      throw new Error(errorData.message || "Erro ao seguir usuário");
+    }
+
+    const data = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Erro ao seguir usuário:", error);
+    return null;
+  }
+}
+
+async function deixarDeSeguirUsuario(apelido1, apelido2) {
+  try {
+    const res = await fetch(`/usuario/deixar-seguir-usuario/${encodeURIComponent(apelido1)}/${encodeURIComponent(apelido2)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao deixar de seguir!");
+      throw new Error(errorData.message || "Erro ao deixar de seguir");
+    }
+
+    const data = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Erro ao deixar de seguir:", error);
+    return null;
+  }
+}

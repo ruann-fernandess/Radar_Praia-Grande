@@ -1,6 +1,7 @@
 import { openDb } from "./connect.js";
 import chalk from 'chalk';
 import bcrypt from "bcryptjs";
+import { verificaAmizade } from "../model/amizadeModel.js";
 
 const db = await openDb();
 
@@ -219,5 +220,59 @@ export async function deleteUsuario(apelido) {
     console.log(chalk.green(`Usuário '${apelido}' apagado com sucesso!`));
   } catch (error) {
     console.error(chalk.red("Erro ao apagar o usuário:", error.message));
+  }
+}
+
+export async function selectUsuariosPesquisados(apelido, busca, pagina, limite) {
+  try {
+    const offset = (pagina - 1) * limite;
+
+    const rows = await db.all(
+      `SELECT 
+        U.apelido, 
+        IP.imagem AS fotoPerfil
+      FROM USUARIO U
+      LEFT JOIN IMAGEM IP 
+        ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
+      WHERE U.apelido LIKE ? 
+        AND NOT U.apelido = ?
+      ORDER BY U.dataCriacao DESC 
+      LIMIT ? OFFSET ?`,
+      [`${busca}%`, apelido, limite, offset]
+    );
+
+    const countResult = await db.get(
+      `SELECT COUNT(*) as total
+       FROM USUARIO 
+       WHERE apelido LIKE ?
+         AND NOT apelido = ?`,
+      [`${busca}%`, apelido]
+    );
+
+    // Função para converter BLOB (Buffer) em data URI base64
+    function blobToDataURI(blobBuffer, mimeType = "image/jpeg") {
+      if (!blobBuffer) return null;
+      const base64 = blobBuffer.toString("base64");
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    // Aguarda todos os mapeamentos
+    const usuarios = await Promise.all(
+      rows.map(async usuario => ({
+        apelido: usuario.apelido,
+        fotoPerfil: blobToDataURI(usuario.fotoPerfil),
+        usuario1SegueUsuario2: await verificaAmizade(apelido, usuario.apelido),
+        usuario2SegueUsuario1: await verificaAmizade(usuario.apelido, apelido)
+      }))
+    );
+
+    return {
+      usuarios,
+      totalUsuarios: countResult.total
+    };
+
+  } catch (error) {
+    console.error("Erro ao pesquisar usuários:", error.message);
+    return { usuarios: [], totalUsuarios: 0 };
   }
 }

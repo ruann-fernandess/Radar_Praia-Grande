@@ -159,3 +159,17 @@ textarea::placeholder {
 #confirmarExcluirComentario:hover {
   background-color: rgb(12, 8, 4);
 }
+
+#barraDePesquisa {
+  width: 30%;
+  padding: 10px 20px;
+  font-size: 17px;
+  color: var(--branco);
+  border: 0;
+  border-radius: 3px;
+  background-color: var(--marrom-claro);
+}
+
+#barraDePesquisa::placeholder {
+  color: var(--branco);
+}

@@ -1,5 +1,5 @@
 import { deleteImagensNoticia } from "../model/imagemModel.js";
-import { insertNoticia, updateNoticia, deleteNoticia, selectNoticias, selectNoticiasDoUsuario, selectNoticiaPorIdEApelido, verificaNoticia } from "../model/noticiaModel.js";
+import { insertNoticia, updateNoticia, deleteNoticia, selectNoticias, selectNoticiasDoUsuario, selectNoticiaPorIdEApelido, verificaNoticia, selectNoticiasPesquisadas } from "../model/noticiaModel.js";
 import { selectBairros } from "../model/bairroModel.js";
 import { insertCurtidaNoticia, deleteCurtidaNoticia, deleteTodasCurtidasNoticia, verificaCurtidaNoticia, contaCurtidasNoticia } from "../model/curtidaNoticiaModel.js";
 import { contaComentariosNoticia } from "../model/comentarioModel.js";
@@ -784,6 +784,27 @@ export async function apagarComentarioNoticia(req, res) {
     res.status(500).json({ 
       statusCode: 500, 
       message: "Erro ao apagar comentário da notícia!"
+    });
+  }
+}
+
+export async function pesquisarNoticias(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+    const busca = req.query.busca;
+
+    const { noticias, totalNoticias } = await selectNoticiasPesquisadas(busca, pagina, 10);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "As notícias foram pesquisadas com sucesso!",
+      noticias,
+      totalNoticias
+    });
+  } catch (error) {
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao pesquisar as notícias."
     });
   }
 }

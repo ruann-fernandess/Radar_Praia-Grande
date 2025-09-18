@@ -1,5 +1,5 @@
 import express from "express";
-import { cadastro, login, perfil, verificaAutenticacao, alterarPerfil, apagarPerfil, logout, perfilOutroUsuario, verificaExistenciaAmizade, seguirUsuario, deixarDeSeguirUsuario, contarSeguidores, contarSeguindo } from "../controller/usuarioController.js";
+import { cadastro, login, perfil, verificaAutenticacao, alterarPerfil, apagarPerfil, logout, perfilOutroUsuario, verificaExistenciaAmizade, seguirUsuario, deixarDeSeguirUsuario, contarSeguidores, contarSeguindo, pesquisarUsuarios } from "../controller/usuarioController.js";
 
 const router = express.Router();
 
@@ -16,5 +16,6 @@ router.get("/seguir-usuario/:apelido1/:apelido2", verificaAutenticacao, seguirUs
 router.get("/deixar-seguir-usuario/:apelido1/:apelido2", verificaAutenticacao, deixarDeSeguirUsuario);
 router.get("/contar-seguidores/:apelido", verificaAutenticacao, contarSeguidores);
 router.get("/contar-seguindo/:apelido", verificaAutenticacao, contarSeguindo);
+router.get("/pesquisar-usuarios", verificaAutenticacao, pesquisarUsuarios);
 
 export default router;

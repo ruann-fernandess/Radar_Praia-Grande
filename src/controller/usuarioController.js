@@ -1,6 +1,6 @@
 import { deleteImagensUsuario } from "../model/imagemModel.js";
 import { deleteNoticiasUsuario, selectIdsNoticiasPorApelido } from "../model/noticiaModel.js";
-import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario } from "../model/usuarioModel.js";
+import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario, selectUsuariosPesquisados } from "../model/usuarioModel.js";
 import { verificaAmizade, insertAmizade, deleteAmizade, contaSeguidores, contaSeguindo, deleteTodasAmizadesPorApelido } from "../model/amizadeModel.js";
 import { deleteTodasCurtidasNoticia, deleteTodasCurtidasNoticiaPorApelido } from "../model/curtidaNoticiaModel.js";
 import { deleteTodosComentariosPorApelido, deleteComentariosNoticiaPorAutorDaNoticia } from "../model/comentarioModel.js";
@@ -465,6 +465,28 @@ export async function contarSeguindo(req, res) {
       statusCode: 500,
       message: "Erro ao contar a quantidade de seguindo!",
       quantidadeSeguindo: 0
+    });
+  }
+}
+
+export async function pesquisarUsuarios(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+    const busca = req.query.busca;
+    const apelido = req.session.user.apelido;
+
+    const { usuarios, totalUsuarios } = await selectUsuariosPesquisados(apelido, busca, pagina, 10);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "Os usuários foram pesquisados com sucesso!",
+      usuarios,
+      totalUsuarios
+    });
+  } catch (error) {
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao pesquisar os usuários."
     });
   }
 }

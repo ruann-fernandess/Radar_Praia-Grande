@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { cadastro, capturarBairros, analisarDescricao, analisarImagem, capturarNoticias, capturarNoticiasDoUsuario, capturarNoticiaDoUsuario, editarNoticia, apagarNoticia, curtirNoticia, removerCurtidaNoticia, verificaExistenciaCurtidaNoticia, contarCurtidasNoticia, contarComentariosNoticia, comentarNoticia, capturarComentariosNoticia, verificaExistenciaCurtidaComentarioNoticia, contarCurtidasComentarioNoticia, curtirComentarioNoticia, removerCurtidaComentarioNoticia, editarComentarioNoticia, apagarComentarioNoticia } from "../controller/noticiaController.js";
+import { cadastro, capturarBairros, analisarDescricao, analisarImagem, capturarNoticias, capturarNoticiasDoUsuario, capturarNoticiaDoUsuario, editarNoticia, apagarNoticia, curtirNoticia, removerCurtidaNoticia, verificaExistenciaCurtidaNoticia, contarCurtidasNoticia, contarComentariosNoticia, comentarNoticia, capturarComentariosNoticia, verificaExistenciaCurtidaComentarioNoticia, contarCurtidasComentarioNoticia, curtirComentarioNoticia, removerCurtidaComentarioNoticia, editarComentarioNoticia, apagarComentarioNoticia, pesquisarNoticias } from "../controller/noticiaController.js";
 import { verificaAutenticacao } from "../controller/usuarioController.js";
 const router = express.Router();
 
@@ -31,5 +31,6 @@ router.post("/curtir-comentario-noticia", verificaAutenticacao, curtirComentario
 router.post("/remover-curtida-comentario-noticia", verificaAutenticacao, removerCurtidaComentarioNoticia);
 router.post("/editar-comentario-noticia", verificaAutenticacao, editarComentarioNoticia);
 router.post("/apagar-comentario-noticia", verificaAutenticacao, apagarComentarioNoticia);
+router.get("/pesquisar-noticias", verificaAutenticacao, pesquisarNoticias);
 
 export default router;

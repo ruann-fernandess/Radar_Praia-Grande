@@ -207,3 +207,11 @@ salvarBtn.addEventListener("click", async () => {
     }
   });
 });
+
+const barraDePesquisa = document.getElementById("barraDePesquisa");
+
+barraDePesquisa.addEventListener("keydown", function(event) {
+  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
+    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
+  }
+});

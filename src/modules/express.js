@@ -80,7 +80,7 @@ app.get("/login.html", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/login.html"));
 });
 
-// Rotas públicas sem middleware
+// Rotas que provavelmente precisam de autenticação — adicione middleware verificaAutenticacao no router específico
 app.get("/home.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/home.html"));
 });
@@ -93,8 +93,6 @@ app.get("/editar-noticia.html", (req, res) => {
 app.get("/resultados-pesquisa.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/resultados-pesquisa.html"));
 });
-
-// Rotas que provavelmente precisam de autenticação — adicione middleware verificaAutenticacao no router específico
 app.get("/editar-perfil.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/editar-perfil.html"));
 });

@@ -219,7 +219,7 @@ async function capturarNoticias(pagina = 1) {
         btn.classList.add("ativo");
         btn.disabled = true;
  
-        capturarNoticiasDoUsuario(apelido, i);
+        capturarNoticias(i);
       };
  
       paginacaoNoticias.appendChild(btn);
@@ -780,7 +780,14 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
       observer.observe(comentario);
     }
 
-
     document.getElementById("listaComentarios").appendChild(comentario);
   }
 }
+
+const barraDePesquisa = document.getElementById("barraDePesquisa");
+
+barraDePesquisa.addEventListener("keydown", function(event) {
+  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
+    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
+  }
+});
