@@ -9,7 +9,7 @@ export async function createTableCurtidaNoticia() {
       `CREATE TABLE IF NOT EXISTS CURTIDA_NOTICIA ( 
         idCurtidaNoticia INTEGER PRIMARY KEY AUTOINCREMENT,
         idNoticia INTEGER NOT NULL,
-        apelido VARCHAR(15) NOT NULL,
+        apelido VARCHAR(30) NOT NULL,
         FOREIGN KEY(idNoticia) REFERENCES NOTICIA(idNoticia),
         FOREIGN KEY(apelido) REFERENCES USUARIO(apelido)
       );`

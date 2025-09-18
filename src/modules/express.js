@@ -6,6 +6,10 @@ import { createTableImagem } from "../model/imagemModel.js";
 import { createTableCurtidaNoticia } from "../model/curtidaNoticiaModel.js";
 import { createTableComentario } from "../model/comentarioModel.js";
 import { createTableCurtidaComentario } from "../model/curtidaComentarioModel.js";
+import { createTableCategoriaDenuncia } from "../model/categoriaDenunciaModel.js";
+import { createTableDenunciaComentario } from "../model/denunciaComentarioModel.js";
+import { createTableDenunciaNoticia } from "../model/denunciaNoticiaModel.js";
+import { createTableDenunciaUsuario } from "../model/denunciaUsuarioModel.js";
 // Criando as tabelas
 await createTableUsuario();
 await createTableAmizade();
@@ -15,6 +19,10 @@ await createTableImagem();
 await createTableCurtidaNoticia();
 await createTableComentario();
 await createTableCurtidaComentario();
+await createTableCategoriaDenuncia();
+await createTableDenunciaComentario();
+await createTableDenunciaNoticia();
+await createTableDenunciaUsuario();
 
 import express from "express";
 import session from "express-session";
@@ -24,8 +32,7 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { impedeUsuariosAutenticados, verificaAutenticacao } from "../controller/usuarioController.js";
-import { buscarUsuarioPorApelido } from "../model/usuarioModel.js";
+import { impedeUsuariosAutenticados } from "../controller/usuarioController.js";
 
 // Configurações para __dirname com ES Modules
 const __filename = fileURLToPath(import.meta.url);

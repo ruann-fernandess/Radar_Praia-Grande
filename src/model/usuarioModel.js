@@ -9,7 +9,7 @@ export async function createTableUsuario() {
   try {
     await db.exec(
       `CREATE TABLE IF NOT EXISTS USUARIO (
-                apelido VARCHAR(15) PRIMARY KEY COLLATE NOCASE,
+                apelido VARCHAR(30) PRIMARY KEY COLLATE NOCASE,
                 nome VARCHAR(100) NOT NULL,
                 email VARCHAR(100) NOT NULL UNIQUE COLLATE NOCASE,
                 senha VARCHAR(100) NOT NULL,

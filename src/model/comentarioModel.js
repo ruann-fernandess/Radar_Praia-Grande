@@ -10,7 +10,7 @@ export async function createTableComentario() {
           comentario VARCHAR(200) NOT NULL,
           dataComentario DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
           idNoticia INTEGER NOT NULL,
-          apelido VARCHAR(15) NOT NULL,
+          apelido VARCHAR(30) NOT NULL,
           FOREIGN KEY(idNoticia) REFERENCES NOTICIA(idNoticia),
           FOREIGN KEY(apelido) REFERENCES USUARIO(apelido)
         );`

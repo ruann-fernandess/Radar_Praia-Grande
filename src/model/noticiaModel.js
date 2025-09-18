@@ -10,7 +10,7 @@ export async function createTableNoticia() {
           idNoticia INTEGER PRIMARY KEY AUTOINCREMENT,
           legenda VARCHAR(5000) NOT NULL,
           dataNoticia DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          apelido VARCHAR(15) NOT NULL,
+          apelido VARCHAR(30) NOT NULL,
           siglaBairro VARCHAR(3) NOT NULL,
           FOREIGN KEY(apelido) REFERENCES USUARIO(apelido),
           FOREIGN KEY(siglaBairro) REFERENCES BAIRRO(siglaBairro)

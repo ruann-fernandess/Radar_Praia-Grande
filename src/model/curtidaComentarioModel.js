@@ -8,7 +8,7 @@ export async function createTableCurtidaComentario() {
         `CREATE TABLE IF NOT EXISTS CURTIDA_COMENTARIO (
           idCurtidaComentario INTEGER PRIMARY KEY AUTOINCREMENT,
           idComentario INTEGER NOT NULL,
-          apelido VARCHAR(15) NOT NULL,
+          apelido VARCHAR(30) NOT NULL,
           FOREIGN KEY(idComentario) REFERENCES COMENTARIO(idComentario),
           FOREIGN KEY(apelido) REFERENCES USUARIO(apelido)
         );`

@@ -9,7 +9,7 @@ export async function createTableImagem() {
       `CREATE TABLE IF NOT EXISTS IMAGEM ( 
         idImagem INTEGER PRIMARY KEY AUTOINCREMENT,
         imagem BLOB NOT NULL,
-        apelido VARCHAR(15),
+        apelido VARCHAR(30),
         idNoticia INTEGER,
         identificador VARCHAR(7) NOT NULL,
         FOREIGN KEY(apelido) REFERENCES USUARIO(apelido),
