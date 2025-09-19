@@ -87,7 +87,10 @@ body {
 
 #comentariosModal .modal-content p,
 #adicionarComentarioModal .modal-content p,
-#editarComentarioModal .modal-content p {
+#editarComentarioModal .modal-content p,
+#denunciarNoticiaModal .modal-content p,
+#denunciarComentarioModal .modal-content p,
+#denunciarUsuarioModal .modal-content p {
   text-align: left;
 }
 
@@ -103,7 +106,10 @@ body {
 }
 
 #adicionarComentarioModal .modal-content,
-#editarComentarioModal .modal-content {
+#editarComentarioModal .modal-content,
+#denunciarNoticiaModal .modal-content,
+#denunciarComentarioModal .modal-content,
+#denunciarUsuarioModal .modal-content {
   width: 800px;
   padding: 20px 30px;
   margin: 10% auto;
@@ -111,7 +117,10 @@ body {
 
 #comentariosModal .modal-content button:not(.curtir-btn, .denunciar-btn),
 #adicionarComentarioModal .modal-content button,
-#editarComentarioModal .modal-content button {
+#editarComentarioModal .modal-content button,
+#denunciarNoticiaModal .modal-content button,
+#denunciarComentarioModal .modal-content button,
+#denunciarUsuarioModal .modal-content button {
   width: 100%;
   margin: 10px 0;
   color: var(--branco);
@@ -139,7 +148,21 @@ textarea {
   font-family: inherit;
 }
 
-textarea::placeholder {
+.listaCategoriaDenuncia {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  color: #000;
+  background-color: #fff;
+  font-family: inherit;
+}
+
+textarea::placeholder, select::placeholder {
   color: #888;
 }
 

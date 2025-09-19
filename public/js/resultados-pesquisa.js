@@ -6,6 +6,8 @@ let paginaComentarios = 0;
 const modalComentarios = document.getElementById("comentariosModal");
 const modalAdicionarComentario = document.getElementById("adicionarComentarioModal");
 const modalEditarComentario = document.getElementById("editarComentarioModal");
+const modalDenunciarNoticia = document.getElementById("denunciarNoticiaModal");
+const modalDenunciarComentario = document.getElementById("denunciarComentarioModal");
 
 const barraDePesquisa = document.getElementById("barraDePesquisa");
 const urlParams = new URLSearchParams(window.location.search);
@@ -39,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     pesquisarNoticias(busca, 1);
     pesquisarUsuarios(busca, 1);
+    capturarCategoriasDenuncia();
   })
   .catch(async (err) => {
     console.error(err.message);
@@ -162,7 +165,7 @@ async function pesquisarNoticias(busca, pagina = 1) {
         exibirModal(modalComentarios, e);
 
         if (await contarComentariosNoticia(noticia.idNoticia) == 0) {
-          document.getElementById("listaComentarios").innerHTML = "<p>Esta notícia não possui nenhum comentário.</p>";
+          document.getElementById("listaComentarios").innerHTML = "<p style='text-align: center;'>Esta notícia não possui nenhum comentário.</p>";
         } else {
           paginaComentarios = 1;
           await exibirComentariosNoticia(noticia.idNoticia, quantidadeComentarios);
@@ -208,11 +211,23 @@ async function pesquisarNoticias(busca, pagina = 1) {
         linkEditar.textContent = "Editar notícia";
         metadados.appendChild(linkEditar);
       } else {
-        // Denúncias
-        const botaoDenunciar = document.createElement("button");
-        botaoDenunciar.classList.add("denunciar-btn");
-        botaoDenunciar.textContent = "Denunciar";
-        metadados.appendChild(botaoDenunciar);
+        let usuarioDenunciouEstaNoticia = await verificarDenunciaNoticia(noticia.idNoticia, apelido);
+        if (usuarioDenunciouEstaNoticia == 0) {
+          // Denúncias
+          const botaoDenunciar = document.createElement("button");
+          botaoDenunciar.classList.add("denunciar-btn", "denunciar-noticia");
+          botaoDenunciar.dataset.idNoticia = noticia.idNoticia;
+          botaoDenunciar.textContent = "Denunciar";
+        
+          botaoDenunciar.onclick = (e) => {
+            // guarda o id da notícia selecionada no botão confirmar
+            document.getElementById("confirmarDenunciaNoticia").dataset.idNoticia = noticia.idNoticia;
+            document.getElementById("descricaoDenunciaNoticia").value = "";
+            exibirModal(modalDenunciarNoticia, e);
+          };
+        
+          metadados.appendChild(botaoDenunciar);
+        }
       }
 
       noticiaDiv.appendChild(metadados);
@@ -749,7 +764,7 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
         await apagarComentarioNoticia(idComentarioAtual);
 
         if (await contarComentariosNoticia(idNoticia) == 0) {
-          document.getElementById("listaComentarios").innerHTML = "<p>Esta notícia não possui nenhum comentário.</p>";
+          document.getElementById("listaComentarios").innerHTML = "<p style='text-align: center;'>Esta notícia não possui nenhum comentário.</p>";
         } else {
           document.getElementById("listaComentarios").innerHTML = "";
           paginaComentarios = 1;
@@ -766,11 +781,23 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
       }
       comentarioRodape.appendChild(linkEditarComentario);
     } else {
-      // Denúncias
-      const botaoDenunciarComentario = document.createElement("button");
-      botaoDenunciarComentario.classList.add("denunciar-btn");
-      botaoDenunciarComentario.textContent = "Denunciar";
-      comentarioRodape.appendChild(botaoDenunciarComentario);
+      let usuarioDenunciouEsteComentario = await verificarDenunciaComentario(comentarioNoticia.idComentario, apelido);
+      if (usuarioDenunciouEsteComentario == 0) {
+        // Denúncias
+        const botaoDenunciarComentario = document.createElement("button");
+        botaoDenunciarComentario.classList.add("denunciar-btn", "denunciar-comentario");
+        botaoDenunciarComentario.dataset.idComentario = comentarioNoticia.idComentario;
+        botaoDenunciarComentario.textContent = "Denunciar";
+      
+        botaoDenunciarComentario.onclick = (e) => {
+          // guarda o id do comentário selecionado no botão confirmar
+          document.getElementById("confirmarDenunciaComentario").dataset.idComentario = comentarioNoticia.idComentario;
+          document.getElementById("descricaoDenunciaComentario").value = "";
+          exibirModal(modalDenunciarComentario, e);
+        };
+      
+        comentarioRodape.appendChild(botaoDenunciarComentario);
+      }
     }
 
     comentario.appendChild(comentarioCabecalho);
@@ -989,5 +1016,181 @@ async function deixarDeSeguirUsuario(apelido1, apelido2) {
   } catch (error) {
     console.error("Erro ao deixar de seguir:", error);
     return null;
+  }
+}
+
+// Adicionando as categorias de denúncia disponíveis num array
+let arrayCategoriasDenuncia = [];
+async function capturarCategoriasDenuncia() {
+    try {
+        const res = await fetch("denuncia/capturar-categorias-denuncia");
+        if (!res.ok) {
+            const errorData = await res.json();
+            await exibirAlertaErro("error", "Erro", "Erro ao buscar categorias de denúncia!");
+            throw new Error(errorData.message || "Erro ao buscar categorias de denúncia"); 
+        }
+
+        const data = await res.json();
+        const listasCategoriasDenuncia = document.querySelectorAll(".listaCategoriaDenuncia");
+
+        for (let i = 0; i < listasCategoriasDenuncia.length; i++) {
+          for (let j = 0; j < data.categoriasDenuncia.length; j++) {
+            let opcaoCategoriaDenuncia = document.createElement("option");
+            opcaoCategoriaDenuncia.value = data.categoriasDenuncia[j].idCategoriaDenuncia;
+            opcaoCategoriaDenuncia.textContent = data.categoriasDenuncia[j].categoria;
+
+            listasCategoriasDenuncia[i].appendChild(opcaoCategoriaDenuncia);
+            if (i == 0) {
+              arrayCategoriasDenuncia.push(data.categoriasDenuncia[j].idCategoriaDenuncia);
+            }
+          }
+        }
+    } catch (error) {
+        await exibirAlertaErro("error", "Erro", error.message);
+    }
+}
+
+document.getElementById("confirmarDenunciaNoticia").onclick = async () => {
+  let idNoticia = document.getElementById("confirmarDenunciaNoticia").dataset.idNoticia;
+  let categoriaDenunciaSelecionada = document.querySelector("#denunciarNoticiaModal .listaCategoriaDenuncia").value;
+  let denuncia = document.getElementById("descricaoDenunciaNoticia");
+
+  if (denuncia.value.trim().length > 0 && await verificarCategoriaDenuncia(categoriaDenunciaSelecionada)) {
+    document.getElementById("confirmarDenunciaNoticia").disabled = true;
+    document.getElementById("descricaoDenunciaNoticia").disabled = true;
+
+    await denunciarNoticia(categoriaDenunciaSelecionada, denuncia.value.trim(), idNoticia);
+    document.querySelector(`.denunciar-noticia[data-id-noticia="${idNoticia}"]`).remove();
+            
+    esconderModal(modalDenunciarNoticia);
+    denuncia.value = "";
+    document.getElementById("confirmarDenunciaNoticia").disabled = false;
+    document.getElementById("descricaoDenunciaNoticia").disabled = false;
+  }
+}
+
+document.getElementById("confirmarDenunciaComentario").onclick = async () => {
+  let idComentario = document.getElementById("confirmarDenunciaComentario").dataset.idComentario;
+  let categoriaDenunciaSelecionada = document.querySelector("#denunciarComentarioModal .listaCategoriaDenuncia").value;
+  let denuncia = document.getElementById("descricaoDenunciaComentario");
+
+  if (denuncia.value.trim().length > 0 && await verificarCategoriaDenuncia(categoriaDenunciaSelecionada)) {
+    document.getElementById("confirmarDenunciaComentario").disabled = true;
+    document.getElementById("descricaoDenunciaComentario").disabled = true;
+
+    await denunciarComentario(categoriaDenunciaSelecionada, denuncia.value.trim(), idComentario);
+    document.querySelector(`.denunciar-comentario[data-id-comentario="${idComentario}"]`).remove();
+            
+    esconderModal(modalDenunciarComentario);
+    denuncia.value = "";
+    document.getElementById("confirmarDenunciaComentario").disabled = false;
+    document.getElementById("descricaoDenunciaComentario").disabled = false;
+  }
+}
+
+// Valida o bairro selecionado
+async function verificarCategoriaDenuncia(categoriaDenunciaSelecionada) {
+  if (categoriaDenunciaSelecionada == "") {
+    await exibirAlertaErro("warning", "Atenção", "Declare a categoria da denúncia.");
+    return false;
+  } else {
+    if (arrayCategoriasDenuncia.indexOf(Number(categoriaDenunciaSelecionada)) >= 0) {
+      return true;
+    } else {
+      await exibirAlertaErro("warning", "Atenção", "Declare uma categoria de denúncia válida.");
+      return false;
+    }
+  }
+}
+
+async function verificarDenunciaNoticia(idNoticia, apelido) {
+  try {
+    const res = await fetch('/denuncia/verifica-denuncia-noticia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idNoticia, apelido }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao verificar denúncia da notícia!");
+      throw new Error(data.message || "Erro ao verificar denúncia da notícia");
+    }
+
+    return data.existeDenunciaNoticia;
+
+  } catch (error) {
+    await exibirAlertaErro("error", "Erro", "Erro ao verificar denúncia da notícia!");
+    console.error('Erro na requisição: ' + error.message);
+  }
+}
+
+async function verificarDenunciaComentario(idComentario, apelido) {
+  try {
+    const res = await fetch('/denuncia/verifica-denuncia-comentario', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idComentario, apelido }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao verificar denúncia de comentário!");
+      throw new Error(data.message || "Erro ao verificar denúncia de comentário");
+    }
+
+    return data.existeDenunciaComentario;
+
+  } catch (error) {
+    await exibirAlertaErro("error", "Erro", "Erro ao verificar denúncia de comentário!");
+    console.error('Erro na requisição: ' + error.message);
+  }
+}
+
+async function denunciarComentario(categoriaDenunciaSelecionada, denuncia, idComentario) {
+  try {
+    const res = await fetch('/denuncia/denunciar-comentario', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ categoriaDenunciaSelecionada, denuncia, idComentario, apelido }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao denunciar comentário!");
+      throw new Error(data.message || "Erro ao denunciar comentário");
+    }
+
+    return data;
+
+  } catch (error) {
+    await exibirAlertaErro("error", "Erro", "Erro ao denunciar comentário!");
+    console.error('Erro na requisição: ' + error.message);
+  }
+}
+
+async function denunciarNoticia(categoriaDenunciaSelecionada, denuncia, idNoticia) {
+  try {
+    const res = await fetch('/denuncia/denunciar-noticia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ categoriaDenunciaSelecionada, denuncia, idNoticia, apelido }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      await exibirAlertaErro("error", "Erro", "Erro ao denunciar notícia!");
+      throw new Error(data.message || "Erro ao denunciar notícia");
+    }
+
+    return data;
+
+  } catch (error) {
+    await exibirAlertaErro("error", "Erro", "Erro ao denunciar notícia!");
+    console.error('Erro na requisição: ' + error.message);
   }
 }

@@ -5,8 +5,11 @@ const confirmNo = document.getElementById("confirmNo");
 
 const modalComentarios = document.getElementById("comentariosModal");
 const modalAdicionarComentario = document.getElementById("adicionarComentarioModal");
-
 const modalEditarComentario = document.getElementById("editarComentarioModal");
+
+const modalDenunciarNoticia = document.getElementById("denunciarNoticiaModal");
+const modalDenunciarComentario = document.getElementById("denunciarComentarioModal");
+const modalDenunciarUsuario = document.getElementById("denunciarUsuarioModal");
 
 export function exibirModal(modal, e) {
   e.preventDefault();
@@ -59,5 +62,14 @@ window.addEventListener("click", (event) => {
   }
   if (event.target === modalEditarComentario) {
     esconderModal(modalEditarComentario);
+  }
+  if (event.target === modalDenunciarNoticia) {
+    esconderModal(modalDenunciarNoticia);
+  }
+  if (event.target === modalDenunciarComentario) {
+    esconderModal(modalDenunciarComentario);
+  }
+  if (event.target === modalDenunciarUsuario) {
+    esconderModal(modalDenunciarUsuario);
   }
 });

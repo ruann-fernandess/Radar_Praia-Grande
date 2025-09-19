@@ -126,9 +126,11 @@ app.get("/perfil/:apelidoOutroUsuario", (req, res) => {
 import usuarioRoutes from "../routes/usuarioRoutes.js";
 import noticiaRoutes from "../routes/noticiaRoutes.js";
 import imagemRoutes from "../routes/imagemRoutes.js";
+import denunciaRoutes from "../routes/denunciaRoutes.js";
 
 app.use("/usuario", usuarioRoutes);
 app.use("/noticia", noticiaRoutes);
 app.use("/imagem", imagemRoutes);
+app.use("/denuncia", denunciaRoutes);
 
 export default app;

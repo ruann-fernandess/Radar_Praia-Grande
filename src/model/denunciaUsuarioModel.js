@@ -27,3 +27,41 @@ export async function createTableDenunciaUsuario() {
     console.error(chalk.red("Erro ao criar a tabela DENUNCIA_USUARIO:", error.message));
   }
 }
+
+export async function verificaDenunciaUsuario(apelidoDenunciado, apelido) {
+  try {
+    const result = await db.get(
+      `SELECT COUNT(*) AS count
+       FROM denuncia_usuario
+       WHERE apelidoDenunciado = ?
+         AND apelido = ?`,
+      [apelidoDenunciado, apelido]
+    );
+
+    return result.count; 
+  } catch (error) {
+    return -1; 
+  }
+}
+
+export async function insertDenunciaUsuario(categoriaDenunciaSelecionada, denuncia, apelidoDenunciado, apelido) {
+  try {
+    await db.run(
+      `INSERT INTO denuncia_usuario 
+                (idCategoriaDenuncia, descricao, apelidoDenunciado, apelido) 
+                VALUES (?, ?, ?, ?)`,
+      [
+        categoriaDenunciaSelecionada,
+        denuncia, 
+        apelidoDenunciado, 
+        apelido
+      ]
+    );
+
+    console.log(chalk.green("Denúncia de usuário inserida com sucesso!"));
+    return { statusCode: 200, message: "Denúncia de usuário inserida com sucesso!" };
+  } catch (error) {
+    console.error(chalk.red("Erro ao inserir denúncia de usuário:", error.message));
+    return { statusCode: 500, message: "Erro ao inserir denúncia de usuário!"};
+  }
+}
