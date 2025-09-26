@@ -8,6 +8,10 @@ let apelidoOutroUsuario = "";
 let usuario1SegueUsuario2 = 0;
 let usuario2SegueUsuario1 = 0;
 let paginaComentarios = 0;
+let paginaSeguidores = 0;
+let paginaSeguindo = 0;
+let totalSeguidores = 0;
+let totalSeguindo = 0;
 
 const modalComentarios = document.getElementById("comentariosModal");
 const modalAdicionarComentario = document.getElementById("adicionarComentarioModal");
@@ -15,6 +19,8 @@ const modalEditarComentario = document.getElementById("editarComentarioModal");
 const modalDenunciarNoticia = document.getElementById("denunciarNoticiaModal");
 const modalDenunciarComentario = document.getElementById("denunciarComentarioModal");
 const modalDenunciarUsuario = document.getElementById("denunciarUsuarioModal");
+const modalSeguidores = document.getElementById("seguidoresModal");
+const modalSeguindo = document.getElementById("seguindoModal");
 
 const botaoSeguir = document.querySelector(".seguir-btn");
 const botaoDenunciarPerfil = document.querySelector(".denunciar-perfil-btn");
@@ -34,6 +40,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const data = JSON.parse(responseText);
+
+    if (data.admin > 0) {
+      window.location.href = "/admin/consultar-usuarios.html";
+    }
+    
     apelido = data.apelido;
   } catch (err) {
     console.error(err.message);
@@ -45,8 +56,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fotoPerfilImg = document.getElementById("fotoPerfil");
   const fotoCapaImg = document.getElementById("fotoCapa");
   const biografiaSpan = document.getElementById("biografia");
-  const quantidadeSeguidores = document.getElementById("quantidadeSeguindo");
-  const quantidadeSeguindo = document.getElementById("quantidadeSeguidores");
+  const quantidadeSeguidores = document.getElementById("quantidadeSeguidores");
+  const quantidadeSeguindo = document.getElementById("quantidadeSeguindo");
 
   // Capturando o apelido do perfil que esta sendo visitado
   const caminhoURL = window.location.pathname;
@@ -74,12 +85,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       return JSON.parse(responseText);
     })
     .then(async (data) => {
+      totalSeguidores = await contarSeguidores(apelidoOutroUsuario);
+      totalSeguindo = await contarSeguindo(apelidoOutroUsuario);
+
       apelidoSpan.textContent = apelidoOutroUsuario;
       fotoPerfilImg.src = data.fotoPerfil;
       fotoCapaImg.src = data.fotoCapa;
       biografiaSpan.textContent = data.biografia;
-      quantidadeSeguidores.textContent = await contarSeguidores(apelidoOutroUsuario);
-      quantidadeSeguindo.textContent = await contarSeguindo(apelidoOutroUsuario);
+      quantidadeSeguidores.textContent = totalSeguidores;
+      quantidadeSeguindo.textContent = totalSeguindo;
 
       usuario1SegueUsuario2 = await verificaAmizade(apelido, apelidoOutroUsuario);
       usuario2SegueUsuario1 = await verificaAmizade(apelidoOutroUsuario, apelido);
@@ -111,6 +125,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         botaoDenunciarPerfil.remove();
       }
 
+      if (totalSeguidores == 0) {
+        document.getElementById("listaSeguidores").innerHTML = "<p>Este perfil não possui nenhum seguidor.</p>";
+      } else {
+        document.getElementById("listaSeguidores").classList.add("active");
+        paginaSeguidores = 1;
+        exibirSeguidores(apelidoOutroUsuario, quantidadeSeguidores); 
+      }
+      if (totalSeguindo == 0) {
+        document.getElementById("listaSeguindo").innerHTML = "<p>Este usuário não está seguindo nenhum perfil.</p>";
+      } else {
+        document.getElementById("listaSeguindo").classList.add("active");
+        paginaSeguindo = 1;
+        exibirSeguindo(apelidoOutroUsuario, quantidadeSeguindo);
+      }
+      
       capturarNoticiasDoUsuario(1);
       capturarCategoriasDenuncia();
     })
@@ -140,7 +169,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           botaoSeguir.textContent = "Amigos";
         }
         
-        document.getElementById("quantidadeSeguidores").textContent = parseInt(document.getElementById("quantidadeSeguidores").textContent) + 1;
+        quantidadeSeguidores.textContent = await contarSeguidores(apelidoOutroUsuario);
       } else {
         await exibirAlertaErro("error", "Erro", resultado.message);
       }
@@ -154,14 +183,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         botaoSeguir.textContent = "Seguir";
         
-        document.getElementById("quantidadeSeguidores").textContent = parseInt(document.getElementById("quantidadeSeguidores").textContent) - 1;
+        quantidadeSeguidores.textContent = await contarSeguidores(apelidoOutroUsuario);
       } else {
         await exibirAlertaErro("error", "Erro", resultado.message);
       }
     }
   });
 });
- 
+
+document.getElementById("seguidores").onclick = (e) => {
+  exibirModal(modalSeguidores, e);
+};
+document.getElementById("seguindo").onclick = (e) => {
+  exibirModal(modalSeguindo, e);
+};
+
 async function capturarNoticiasDoUsuario(pagina = 1) {
   try {
     const res = await fetch(`/noticia/capturar-noticias-usuario/${encodeURIComponent(apelidoOutroUsuario)}?pagina=${pagina}`);
@@ -187,7 +223,7 @@ async function capturarNoticiasDoUsuario(pagina = 1) {
         noticiaDiv.classList.add("noticia");
   
         // Legenda (descrição)
-        noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.legenda }));
+        noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.legenda, style: "margin-bottom: 10px;" }));
   
         // Imagens responsivas
         if (noticia.imagens && noticia.imagens.length > 0) {
@@ -208,6 +244,15 @@ async function capturarNoticiasDoUsuario(pagina = 1) {
         // Metadados
         const metadados = document.createElement("div");
         metadados.classList.add("metadados");
+
+        if (noticia.statusNoticia != "") {
+          if (noticia.statusNoticia == "Aguardando revisão dos administradores") {
+            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.statusNoticia, className: "status-noticia pendente" }));
+          } else {
+            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.statusNoticia, className: "status-noticia aprovada" }));
+          }
+        }
+
         metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Bairro: ${noticia.nomeBairro}` }));
         metadados.appendChild(Object.assign(document.createElement("p"), { textContent: `Autor: ${noticia.apelido}` }));
   
@@ -1287,5 +1332,267 @@ async function denunciarUsuario(categoriaDenunciaSelecionada, denuncia, apelidoD
   } catch (error) {
     await exibirAlertaErro("error", "Erro", "Erro ao denunciar usuário!");
     console.error('Erro na requisição: ' + error.message);
+  }
+}
+
+async function capturarSeguidores(apelido, pagina = 1) {
+  try {
+    const res = await fetch(`/usuario/capturar-seguidores?apelido=${encodeURIComponent(apelido)}&pagina=${pagina}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao capturar seguidores!");
+      throw new Error(errorData.message || "Erro ao capturar seguidores!");
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Erro ao capturar seguidores:", error);
+  }
+}
+
+async function capturarSeguindo(apelido, pagina = 1) {
+  try {
+    const res = await fetch(`/usuario/capturar-seguindo?apelido=${encodeURIComponent(apelido)}&pagina=${pagina}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      await exibirAlertaErro("error", "Erro", "Erro ao capturar seguindo!");
+      throw new Error(errorData.message || "Erro ao capturar seguindo!");
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Erro ao capturar seguindo:", error);
+  }
+}
+
+async function exibirSeguidores(apelidoOutroUsuario, quantidadeSeguidores) {
+  const seguidores = await capturarSeguidores(apelidoOutroUsuario, paginaSeguidores);
+
+  for (let i = 0; i < seguidores.seguidores.length; i++) {
+    const seguidor = seguidores.seguidores[i];
+    let usuario1SegueUsuario2 = seguidor.usuario1SegueUsuario2;
+    let usuario2SegueUsuario1 = seguidor.usuario2SegueUsuario1;
+        
+    const usuarioDiv = document.createElement("div");
+    usuarioDiv.classList.add("usuario");
+         
+    usuarioDiv.appendChild(Object.assign(document.createElement("img"), { src: seguidor.fotoPerfil }));
+    if (seguidor.apelido == apelido) {
+      usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `../perfil.html`, textContent: seguidor.apelido }));
+    } else {
+      usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `perfil/${seguidor.apelido}`, textContent: seguidor.apelido }));
+
+      const botaoSeguir = document.createElement("button");
+      botaoSeguir.classList.add("seguir-btn");
+          
+      if (usuario1SegueUsuario2 > 0) {
+        if (!botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.add("active");
+        }
+                  
+        if (usuario2SegueUsuario1 == 0) {
+          botaoSeguir.textContent = "Deixar de seguir";
+        } else {
+          botaoSeguir.textContent = "Amigos";
+        }
+      } else {
+        if (botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.remove("active");
+        }
+        botaoSeguir.textContent = "Seguir";
+      }
+          
+      botaoSeguir.addEventListener("click", async function() {
+        if (usuario1SegueUsuario2 == 0) {
+          const resultado = await seguirUsuario(apelidoOutroUsuario, seguidor.apelido);
+
+          if (resultado.statusCode == 200) {
+            usuario1SegueUsuario2 = 1;
+                        
+            if (!botaoSeguir.classList.contains("active")) {
+              botaoSeguir.classList.add("active");
+            }
+                
+            if (usuario2SegueUsuario1 == 0) {
+              botaoSeguir.textContent = "Deixar de seguir";
+            } else {
+              botaoSeguir.textContent = "Amigos";
+            }
+            
+            quantidadeSeguidores.textContent = await contarSeguidores(apelidoOutroUsuario);
+          } else {
+            await exibirAlertaErro("error", "Erro", resultado.message);
+          }
+        } else {
+          const resultado = await deixarDeSeguirUsuario(apelidoOutroUsuario, seguidor.apelido);
+
+          if (resultado.statusCode == 200) {
+            totalSeguidores = await contarSeguidores(apelidoOutroUsuario);
+            usuario1SegueUsuario2 = 0;
+            quantidadeSeguidores.textContent = totalSeguidores;
+
+            usuarioDiv.remove();
+            if (totalSeguidores == 0) {
+              document.getElementById("listaSeguidores").classList.remove("active");
+              document.getElementById("listaSeguidores").innerHTML = "<p>Este perfil não possui nenhum seguidor.</p>";
+            }
+          } else {
+            await exibirAlertaErro("error", "Erro", resultado.message);
+          }
+        }
+      });
+
+      usuarioDiv.appendChild(botaoSeguir);
+    }
+
+    // Se for o último elemento da página
+    if (i === seguidores.seguidores.length - 1) {
+      const observer = new IntersectionObserver((entries, observerRef) => {
+        entries.forEach(async entry => {
+          if (entry.isIntersecting && entry.intersectionRatio === 1) {
+            observerRef.unobserve(entry.target);
+
+            // verifica se ainda há seguidores para carregar
+            const totalSeguidores = parseInt(quantidadeSeguidores.textContent, 10); // Total geral
+            const seguidoresAtuais = seguidores.seguidores.length; // Seguidores na página atual
+
+            if ((paginaSeguidores * seguidoresAtuais) < totalSeguidores) {
+              paginaSeguidores++;
+              await exibirSeguidores(apelidoOutroUsuario, quantidadeSeguidores);
+              quantidadeSeguidores.textContent = await contarSeguidores(apelidoOutroUsuario);
+            }
+          }
+        });
+      }, {
+        threshold: 1.0 // Só dispara quando 100% visível
+      });
+
+      observer.observe(usuarioDiv);
+    }
+
+    document.getElementById("listaSeguidores").appendChild(usuarioDiv);
+  }
+}
+
+async function exibirSeguindo(apelidoOutroUsuario, quantidadeSeguindo) {
+  const todosSeguindo = await capturarSeguindo(apelidoOutroUsuario, paginaSeguindo);
+
+  for (let i = 0; i < todosSeguindo.seguindo.length; i++) {
+    const seguindo = todosSeguindo.seguindo[i];
+    let usuario1SegueUsuario2 = seguindo.usuario1SegueUsuario2;
+    let usuario2SegueUsuario1 = seguindo.usuario2SegueUsuario1;
+        
+    const usuarioDiv = document.createElement("div");
+    usuarioDiv.classList.add("usuario");
+         
+    usuarioDiv.appendChild(Object.assign(document.createElement("img"), { src: seguindo.fotoPerfil }));
+    if (seguindo.apelido == apelido) {
+      usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `../perfil.html`, textContent: seguindo.apelido }));
+    } else {
+      usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `perfil/${seguindo.apelido}`, textContent: seguindo.apelido }));
+
+      const botaoSeguir = document.createElement("button");
+      botaoSeguir.classList.add("seguir-btn");
+          
+      if (usuario1SegueUsuario2 > 0) {
+        if (!botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.add("active");
+        }
+                  
+        if (usuario2SegueUsuario1 == 0) {
+          botaoSeguir.textContent = "Deixar de seguir";
+        } else {
+          botaoSeguir.textContent = "Amigos";
+        }
+      } else {
+        if (botaoSeguir.classList.contains("active")) {
+          botaoSeguir.classList.remove("active");
+        }
+        botaoSeguir.textContent = "Seguir";
+      }
+          
+      botaoSeguir.addEventListener("click", async function() {
+        if (usuario1SegueUsuario2 == 0) {
+          const resultado = await seguirUsuario(apelidoOutroUsuario, seguindo.apelido);
+
+          if (resultado.statusCode == 200) {
+            usuario1SegueUsuario2 = 1;
+                        
+            if (!botaoSeguir.classList.contains("active")) {
+              botaoSeguir.classList.add("active");
+            }
+                
+            if (usuario2SegueUsuario1 == 0) {
+              botaoSeguir.textContent = "Deixar de seguir";
+            } else {
+              botaoSeguir.textContent = "Amigos";
+            }
+            
+            quantidadeSeguindo.textContent = await contarSeguindo(apelidoOutroUsuario);
+          } else {
+            await exibirAlertaErro("error", "Erro", resultado.message);
+          }
+        } else {
+          const resultado = await deixarDeSeguirUsuario(apelidoOutroUsuario, seguindo.apelido);
+
+          if (resultado.statusCode == 200) {
+            totalSeguindo = await contarSeguindo(apelidoOutroUsuario);
+            usuario1SegueUsuario2 = 0;
+            quantidadeSeguindo.textContent = totalSeguindo;
+
+            usuarioDiv.remove();
+            if (totalSeguidores == 0) {
+              document.getElementById("listaSeguindo").classList.remove("active");
+              document.getElementById("listaSeguindo").innerHTML = "<p>Este usuário não está seguindo nenhum perfil.</p>";
+            }
+          } else {
+            await exibirAlertaErro("error", "Erro", resultado.message);
+          }
+        }
+      });
+
+      usuarioDiv.appendChild(botaoSeguir);
+    }
+
+    // Se for o último elemento da página
+    if (i === todosSeguindo.seguindo.length - 1) {
+      const observer = new IntersectionObserver((entries, observerRef) => {
+        entries.forEach(async entry => {
+          if (entry.isIntersecting && entry.intersectionRatio === 1) {
+            observerRef.unobserve(entry.target);
+
+            // verifica se ainda há seguindo para carregar
+            const totalSeguindo = parseInt(quantidadeSeguindo.textContent, 10); // Total geral
+            const seguindoAtuais = todosSeguindo.seguindo.length; // Seguindo na página atual
+
+            if ((paginaSeguindo * seguindoAtuais) < totalSeguindo) {
+              paginaSeguindo++;
+              await exibirSeguindo(apelidoOutroUsuario, quantidadeSeguindo);
+              quantidadeSeguindo.textContent = await contarSeguindo(apelidoOutroUsuario);
+            }
+          }
+        });
+      }, {
+        threshold: 1.0 // Só dispara quando 100% visível
+      });
+
+      observer.observe(usuarioDiv);
+    }
+
+    document.getElementById("listaSeguindo").appendChild(usuarioDiv);
   }
 }

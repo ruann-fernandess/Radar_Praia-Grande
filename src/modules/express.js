@@ -74,17 +74,17 @@ app.use(express.static("public"));
 app.get("/index.html", (req, res) => {
     res.redirect("/");
 });
-
 app.get("/", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/index.html"));
 });
-
 app.get("/cadastro.html", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/cadastro.html"));
 });
-
 app.get("/login.html", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/login.html"));
+});
+app.get("/admin/login.html", impedeUsuariosAutenticados, (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/login-admin.html"));
 });
 
 // Rotas que provavelmente precisam de autenticação — adicione middleware verificaAutenticacao no router específico
@@ -106,16 +106,13 @@ app.get("/editar-perfil.html", (req, res) => {
 app.get("/perfil.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/perfil.html"));
 });
-app.get("/admin.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "../view/admin.html"));
-});
-app.get("/consultar-usuarios.html", (req, res) => {
+app.get("/admin/consultar-usuarios.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/consultar-usuarios.html"));
 });
-app.get("/consultar-noticias.html", (req, res) => {
+app.get("/admin/consultar-noticias.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/consultar-noticias.html"));
 });
-app.get("/consultar-comentarios.html", (req, res) => {
+app.get("/admin/consultar-comentarios.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/consultar-comentarios.html"));
 });
 app.get("/perfil/:apelidoOutroUsuario", (req, res) => {
@@ -127,10 +124,12 @@ import usuarioRoutes from "../routes/usuarioRoutes.js";
 import noticiaRoutes from "../routes/noticiaRoutes.js";
 import imagemRoutes from "../routes/imagemRoutes.js";
 import denunciaRoutes from "../routes/denunciaRoutes.js";
+import adminRoutes from "../routes/adminRoutes.js";
 
 app.use("/usuario", usuarioRoutes);
 app.use("/noticia", noticiaRoutes);
 app.use("/imagem", imagemRoutes);
 app.use("/denuncia", denunciaRoutes);
+app.use("/admin", adminRoutes);
 
 export default app;

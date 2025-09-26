@@ -21,6 +21,10 @@ fetch("/usuario/perfil")
         return JSON.parse(responseText);
     })
     .then((data) => {
+        if (data.admin > 0) {
+            window.location.href = "/admin/consultar-usuarios.html";
+        }
+
         apelido = data.apelido;
         capturarBairros();
         carregarNoticia();

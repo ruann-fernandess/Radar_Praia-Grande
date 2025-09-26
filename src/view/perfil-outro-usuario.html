@@ -32,8 +32,8 @@
                 <span id="fotoPerfil-text"><img id="fotoPerfil" alt="Foto de Perfil"></span>
                 <span id="apelido"></span>
                 <span id="biografia"></span>
-                <span><b id="quantidadeSeguidores">0</b> seguidores</span>
-                <span><b id="quantidadeSeguindo">0</b> seguindo</span>
+                <span id="seguidores"><b id="quantidadeSeguidores">0</b> seguidores</span>
+                <span id="seguindo"><b id="quantidadeSeguindo">0</b> seguindo</span>
             </div>
 
             <a class="seguir-btn">Seguir</a>
@@ -55,6 +55,20 @@
             <p>Tem certeza que deseja sair?</p>
             <button id="confirmYes">Sim</button>
             <button id="confirmNo">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="seguidoresModal" class="modal">
+        <div class="modal-content">
+            <p>Seguidores</p>
+            <div id="listaSeguidores"></div>
+        </div>
+    </div>
+    
+    <div id="seguindoModal" class="modal">
+        <div class="modal-content">
+            <p>Seguindo</p>
+            <div id="listaSeguindo"></div>
         </div>
     </div>
 

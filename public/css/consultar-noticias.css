@@ -1,0 +1,37 @@
+@import url('root.css');
+
+body {
+  background-color: var(--marrom-escuro);
+  font-family: var(--fonte-principal);
+  background-image: url('../imagens/white-paper-texture.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
+}
+
+.noticias-lista {
+  background-color: var(--branco);
+}
+ 
+.noticias {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 auto;
+  width: 900px;
+  height: auto;
+  padding-bottom: 2em;
+  margin-top: 2em;
+}
+ 
+.noticias-lista {
+  width: 100%;
+  padding: 2em 2em 1em 2em;
+}
+
+h2 {
+  padding: 0;
+  text-align: center;
+  margin-bottom: 16px;
+}

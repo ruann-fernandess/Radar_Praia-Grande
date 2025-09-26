@@ -125,6 +125,14 @@ h2 {
   color: var(--preto);
   margin: 6px 0;
 }
+
+.noticia p.status-noticia.pendente {
+  color: #C40303;
+}
+
+.noticia p.status-noticia.aprovada {
+  color: #0F7124;
+}
  
 .noticia .data {
   font-size: 0.9em;
@@ -287,4 +295,8 @@ span {
 
 .comentario footer {
   text-align: left;
+}
+
+#seguidores, #seguindo {
+  cursor: pointer;
 }

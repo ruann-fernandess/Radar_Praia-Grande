@@ -3,8 +3,8 @@ document.getElementById("LoginForm").addEventListener("submit", async function(e
     event.preventDefault();
 
     const usuario = {
-        email: document.getElementById("email").value,
-        senha: document.getElementById("senha").value
+        email: document.getElementById("email").value.trim(),
+        senha: document.getElementById("senha").value.trim()
     };
 
     const erroMensagem = document.getElementById("erroMensagem");

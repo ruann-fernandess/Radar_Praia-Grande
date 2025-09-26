@@ -1,7 +1,7 @@
 import { deleteImagensUsuario } from "../model/imagemModel.js";
 import { deleteNoticiasUsuario, selectIdsNoticiasPorApelido } from "../model/noticiaModel.js";
-import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario, selectUsuariosPesquisados } from "../model/usuarioModel.js";
-import { verificaAmizade, insertAmizade, deleteAmizade, contaSeguidores, contaSeguindo, deleteTodasAmizadesPorApelido } from "../model/amizadeModel.js";
+import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario, selectUsuariosPesquisados, verificaLoginAdmin } from "../model/usuarioModel.js";
+import { verificaAmizade, insertAmizade, deleteAmizade, contaSeguidores, contaSeguindo, selectSeguidores, selectSeguindo, deleteTodasAmizadesPorApelido } from "../model/amizadeModel.js";
 import { deleteTodasCurtidasNoticia, deleteTodasCurtidasNoticiaPorApelido } from "../model/curtidaNoticiaModel.js";
 import { deleteTodosComentariosPorApelido, deleteComentariosNoticiaPorAutorDaNoticia } from "../model/comentarioModel.js";
 import { deleteTodasCurtidasComentarioNoticiaPorApelido, deleteCurtidasComentariosNoticiaPorAutorDaNoticia } from "../model/curtidaComentarioModel.js";
@@ -59,7 +59,8 @@ export async function login(req, res){
                 fotoCapa: usuarioExiste.fotoCapa,
                 fotoPerfil: usuarioExiste.fotoPerfil,
                 biografia: usuarioExiste.biografia,
-                dataCriacao: usuarioExiste.dataCriacao
+                dataCriacao: usuarioExiste.dataCriacao,
+                admin: usuarioExiste.admin
             };
  
             return res.status(200).json({
@@ -106,14 +107,15 @@ export async function perfil(req, res) {
         const usuario = req.session.user;
  
         return res.status(200).json({
-            statusCode: 200,
-            apelido: usuario.apelido,
-            email: usuario.email,
-            nome: usuario.nome,
-            fotoCapa: usuario.fotoCapa,
-            fotoPerfil: usuario.fotoPerfil,
-            biografia: usuario.biografia,
-            dataCriacao: usuario.dataCriacao
+          statusCode: 200,
+          apelido: usuario.apelido,
+          email: usuario.email,
+          nome: usuario.nome,
+          fotoCapa: usuario.fotoCapa,
+          fotoPerfil: usuario.fotoPerfil,
+          biografia: usuario.biografia,
+          dataCriacao: usuario.dataCriacao,
+          admin: usuario.admin
         });
  
     } catch (error) {
@@ -401,6 +403,82 @@ export async function deixarDeSeguirUsuario(req, res) {
   }
 }
 
+export async function capturarSeguidores(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+    const apelido = req.query.apelido;
+
+    if (!apelido) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetro apelido é obrigatório.",
+        seguidores: [],
+        totalSeguidores: 0
+      });
+    }
+
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
+
+    if (usuarioExiste > 0) {
+      const seguidores = await selectSeguidores(apelido, pagina, 10);
+      return res.status(seguidores.statusCode).json(seguidores);
+    } else {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "O usuário fornecido não é válido!",
+        seguidores: [],
+        totalSeguidores: 0
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao contar a quantidade de seguidores!",
+      seguidores: [],
+      totalSeguidores: 0
+    });
+  }
+}
+
+export async function capturarSeguindo(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+    const apelido = req.query.apelido;
+
+    if (!apelido) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetro apelido é obrigatório.",
+        seguindo: [],
+        totalSeguindo: 0
+      });
+    }
+
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
+
+    if (usuarioExiste > 0) {
+      const seguindo = await selectSeguindo(apelido, pagina, 10);
+      return res.status(seguindo.statusCode).json(seguindo);
+    } else {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "O usuário fornecido não é válido!",
+        seguindo: [],
+        totalSeguindo: 0
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao contar a quantidade de seguindo!",
+      seguindo: [],
+      totalSeguindo: 0
+    });
+  }
+}
+
 export async function contarSeguidores(req, res) {
   try {
     const { apelido } = req.params;
@@ -475,6 +553,24 @@ export async function pesquisarUsuarios(req, res) {
     const busca = req.query.busca;
     const apelido = req.session.user.apelido;
 
+    if (!busca) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetro busca é obrigatório.",
+        usuarios: [],
+        totalUsuarios: 0
+      });
+    }
+
+    if (!apelido) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetro apelido é obrigatório.",
+        usuarios: [],
+        totalUsuarios: 0
+      });
+    }
+
     const { usuarios, totalUsuarios } = await selectUsuariosPesquisados(apelido, busca, pagina, 10);
 
     res.status(200).json({
@@ -486,7 +582,67 @@ export async function pesquisarUsuarios(req, res) {
   } catch (error) {
     res.status(500).json({
       statusCode: 500,
-      message: "Erro ao pesquisar os usuários."
+      message: "Erro ao pesquisar os usuários.",
+      usuarios: [],
+      totalUsuarios: 0
     });
   }
+}
+
+export async function loginAdmin(req, res){
+    try{
+        const {apelido, nome, senha} = req.body;
+        const adminExiste = await verificaLoginAdmin(apelido, nome, senha);
+ 
+        if (adminExiste) {
+            req.session.user = {
+                apelido: adminExiste.apelido,  
+                email: adminExiste.email,
+                nome: adminExiste.nome,
+                fotoCapa: adminExiste.fotoCapa,
+                fotoPerfil: adminExiste.fotoPerfil,
+                biografia: adminExiste.biografia,
+                dataCriacao: adminExiste.dataCriacao,
+                admin: adminExiste.admin
+            };
+ 
+            return res.status(200).json({
+                statusCode: 200,
+                message: "Login bem-sucedido!",
+                redirect: "/admin/consultar-usuarios.html"
+            });
+        }else{
+            return res.status(400).json({
+                statusCode: 400,
+                message: "Credenciais não coincidem."
+            });
+        }
+    } catch(error){
+        res.status(500).json({
+            statusCode: 500,
+            message: "Erro ao logar admin!"
+        });
+    }
+}
+
+export async function perfilAdmin(req, res) {
+    try {
+        const admin = req.session.user;
+ 
+        return res.status(200).json({
+          statusCode: 200,
+          apelido: admin.apelido,
+          email: admin.email,
+          nome: admin.nome,
+          biografia: admin.biografia,
+          dataCriacao: admin.dataCriacao,
+          admin: admin.admin
+        });
+        
+    } catch (error) {
+        return res.status(500).json({
+            statusCode: 500,
+            message: "Erro ao carregar perfil admin!"
+        });
+    }
 }

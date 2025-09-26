@@ -1,5 +1,6 @@
 import { openDb } from "./connect.js";
 const db = await openDb();
+import { selectStatusDenunciaNoticia } from "./denunciaNoticiaModel.js";
 import chalk from 'chalk';
 
 export async function createTableNoticia() {
@@ -130,6 +131,8 @@ export async function selectNoticias(pagina, limite) {
 
     for (const row of rows) {
       if (!noticiasMap.has(row.idNoticia)) {
+        const statusNoticia = await selectStatusDenunciaNoticia(row.idNoticia);
+
         noticiasMap.set(row.idNoticia, {
           idNoticia: row.idNoticia,
           legenda: row.legenda,
@@ -137,7 +140,8 @@ export async function selectNoticias(pagina, limite) {
           apelido: row.apelido,
           siglaBairro: row.siglaBairro,
           nomeBairro: row.nomeBairro,
-          imagens: []
+          imagens: [],
+          statusNoticia: statusNoticia.statusNoticia
         });
       }
 
@@ -199,9 +203,11 @@ export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
 
     // Agrupar notícias pelo id usando Map
     const noticiasMap = new Map();
-
+        
     for (const row of rows) {
       if (!noticiasMap.has(row.idNoticia)) {
+        const statusNoticia = await selectStatusDenunciaNoticia(row.idNoticia);
+        
         noticiasMap.set(row.idNoticia, {
           idNoticia: row.idNoticia,
           legenda: row.legenda,
@@ -209,7 +215,8 @@ export async function selectNoticiasDoUsuario(apelido, pagina, limite) {
           apelido: row.apelido,
           siglaBairro: row.siglaBairro,
           nomeBairro: row.nomeBairro,
-          imagens: []
+          imagens: [],
+          statusNoticia: statusNoticia.statusNoticia
         });
       }
 
@@ -393,6 +400,8 @@ export async function selectNoticiasPesquisadas(busca, pagina, limite) {
 
     for (const row of rows) {
       if (!noticiasMap.has(row.idNoticia)) {
+        const statusNoticia = await selectStatusDenunciaNoticia(row.idNoticia);
+
         noticiasMap.set(row.idNoticia, {
           idNoticia: row.idNoticia,
           legenda: row.legenda,
@@ -400,7 +409,8 @@ export async function selectNoticiasPesquisadas(busca, pagina, limite) {
           apelido: row.apelido,
           siglaBairro: row.siglaBairro,
           nomeBairro: row.nomeBairro,
-          imagens: []
+          imagens: [],
+          statusNoticia: statusNoticia.statusNoticia
         });
       }
 

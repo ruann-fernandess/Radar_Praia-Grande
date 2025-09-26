@@ -11,6 +11,9 @@ const modalDenunciarNoticia = document.getElementById("denunciarNoticiaModal");
 const modalDenunciarComentario = document.getElementById("denunciarComentarioModal");
 const modalDenunciarUsuario = document.getElementById("denunciarUsuarioModal");
 
+const modalSeguidores = document.getElementById("seguidoresModal");
+const modalSeguindo = document.getElementById("seguindoModal");
+
 export function exibirModal(modal, e) {
   e.preventDefault();
   modal.style.display = "block";
@@ -71,5 +74,11 @@ window.addEventListener("click", (event) => {
   }
   if (event.target === modalDenunciarUsuario) {
     esconderModal(modalDenunciarUsuario);
+  }
+  if (event.target === modalSeguidores) {
+    esconderModal(modalSeguidores);
+  }
+  if (event.target === modalSeguindo) {
+    esconderModal(modalSeguindo);
   }
 });

@@ -14,7 +14,7 @@ export async function createTableDenunciaUsuario() {
         dataDenuncia DATETIME DEFAULT CURRENT_TIMESTAMP,
         apelidoAdmin VARCHAR(30),
         dataRevisao DATETIME,
-        aprovada BOOLEAN DEFAULT 0,
+        status VARCHAR(50) DEFAULT "Aguardando revisão dos administradores", 
         FOREIGN KEY (apelidoDenunciado) REFERENCES USUARIO(apelido),
         FOREIGN KEY (apelido) REFERENCES USUARIO(apelido),
         FOREIGN KEY (idCategoriaDenuncia) REFERENCES CATEGORIA_DENUNCIA(idCategoriaDenuncia),

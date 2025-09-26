@@ -19,8 +19,37 @@ export async function createTableUsuario() {
             );`
     );
     
+    await db.exec('BEGIN TRANSACTION');
+
+    const result = await db.get(
+      `SELECT 1 
+       FROM USUARIO 
+       WHERE apelido = ? 
+         AND nome = ? 
+         AND email = ? 
+         AND admin = ?`,
+      [
+        "admin",
+        "Admin",
+        "admin@admin.com",
+        1
+      ]
+    );
+
+    if (!result) {
+      const hash = bcrypt.hashSync("admin", 10);
+
+      await db.run(
+        `INSERT INTO USUARIO (apelido, nome, email, senha, admin) VALUES (?, ?, ?, ?, ?)`,
+        ["admin", "Admin", "admin@admin.com", hash, 1]
+      );
+    }
+
+    await db.exec('COMMIT');
+
     console.log(chalk.green("Tabela USUARIO criada com sucesso!"));
   } catch (error) {
+    await db.exec('ROLLBACK');
     console.error(chalk.red("Erro ao criar a tabela USUARIO:", error.message));
   }
 }
@@ -28,8 +57,8 @@ export async function createTableUsuario() {
 export async function verificaApelidoUsuario(apelido) {
   try {
     const result = await db.get(
-      `SELECT COUNT(*) AS count FROM usuario WHERE apelido = ?`,
-      [apelido]
+      `SELECT COUNT(*) AS count FROM usuario WHERE apelido = ? AND admin = ?`,
+      [apelido, 0]
     );
 
     return result.count; 
@@ -41,8 +70,8 @@ export async function verificaApelidoUsuario(apelido) {
 export async function verificaEmail(email) {
   try {
     const result = await db.get(
-      `SELECT COUNT(*) AS count FROM usuario WHERE email = ?`,
-      [email]
+      `SELECT COUNT(*) AS count FROM usuario WHERE email = ? AND admin = ?`,
+      [email, 0]
     );
 
     return result.count; 
@@ -60,8 +89,9 @@ export async function verificaLogin(email, senha) {
         U.email, 
         U.senha
       FROM USUARIO U 
-      WHERE U.email = ?`,
-      [email]
+      WHERE U.email = ? 
+        AND U.admin = ?`,
+      [email, 0]
     );
 
     if (!validacao) {
@@ -82,12 +112,14 @@ export async function verificaLogin(email, senha) {
           U.biografia, 
           datetime(U.dataCriacao, 'localtime') AS dataCriacao, 
           IP.imagem AS fotoPerfil,
-          IB.imagem AS fotoCapa
+          IB.imagem AS fotoCapa, 
+          U.admin 
         FROM USUARIO U
         LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
         LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
-        WHERE U.email = ?`,
-        [email]
+        WHERE U.email = ? 
+          AND U.admin = ?`,
+        [email, 0]
       );
 
       if (!usuario) {
@@ -110,6 +142,7 @@ export async function verificaLogin(email, senha) {
         dataCriacao: usuario.dataCriacao,
         fotoPerfil: blobToDataURI(usuario.fotoPerfil),
         fotoCapa: blobToDataURI(usuario.fotoCapa),
+        admin: usuario.admin
       };
     } else {
       return null;
@@ -183,8 +216,9 @@ export async function buscarUsuarioPorApelido(apelido) {
       FROM USUARIO U
       LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
       LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
-      WHERE U.apelido = ?`,
-      [apelido]
+      WHERE U.apelido = ? 
+        AND U.admin = ?`,
+      [apelido, 0]
     );
 
     if (!usuario) {
@@ -236,17 +270,19 @@ export async function selectUsuariosPesquisados(apelido, busca, pagina, limite) 
         ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
       WHERE U.apelido LIKE ? 
         AND NOT U.apelido = ?
+        AND U.admin = ? 
       ORDER BY U.dataCriacao DESC 
       LIMIT ? OFFSET ?`,
-      [`${busca}%`, apelido, limite, offset]
+      [`${busca}%`, apelido, 0, limite, offset]
     );
 
     const countResult = await db.get(
       `SELECT COUNT(*) as total
        FROM USUARIO 
        WHERE apelido LIKE ?
-         AND NOT apelido = ?`,
-      [`${busca}%`, apelido]
+         AND NOT apelido = ? 
+         AND admin = ?`,
+      [`${busca}%`, apelido, 0]
     );
 
     // Função para converter BLOB (Buffer) em data URI base64
@@ -274,5 +310,66 @@ export async function selectUsuariosPesquisados(apelido, busca, pagina, limite) 
   } catch (error) {
     console.error("Erro ao pesquisar usuários:", error.message);
     return { usuarios: [], totalUsuarios: 0 };
+  }
+}
+
+export async function verificaLoginAdmin(apelido, nome, senha) {
+  try {
+    const validacao = await db.get(
+      `SELECT
+        U.email, 
+        U.senha
+      FROM USUARIO U 
+      WHERE U.apelido = ? 
+        AND U.nome = ? 
+        AND U.admin = ?`,
+      [apelido, nome, 1]
+    );
+
+    if (!validacao) {
+      return null;
+    }
+
+    const loginValido = bcrypt.compareSync(senha, validacao.senha);
+    
+    if (loginValido) {
+      const usuario = await db.get(
+        // IP = Imagem perfil
+        // IB = Imagem fotoCapa
+        `SELECT 
+          U.apelido, 
+          U.email, 
+          U.nome, 
+          U.biografia, 
+          datetime(U.dataCriacao, 'localtime') AS dataCriacao, 
+          U.admin 
+        FROM USUARIO U
+        WHERE U.apelido = ? 
+          AND U.nome = ? 
+          AND U.admin = ?`,
+        [apelido, nome, 1]
+      );
+
+      if (!usuario) {
+        return null;
+      }
+
+      // Cria novo objeto com as imagens convertidas
+      return {
+        apelido: usuario.apelido,
+        email: usuario.email,
+        nome: usuario.nome,
+        biografia: usuario.biografia,
+        dataCriacao: usuario.dataCriacao,
+        fotoPerfil: "-",
+        fotoCapa: "-",
+        admin: usuario.admin
+      };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error(chalk.red("Email e senha não coincidem", error.message));
+    return null;
   }
 }

@@ -3,7 +3,6 @@ import { capturarCategoriasDenuncia, verificaExistenciaDenunciaNoticia, verifica
 import { verificaAutenticacao } from "../controller/usuarioController.js";
 const router = express.Router();
 
-// Definir a rota com Multer para processar uploads
 router.get("/capturar-categorias-denuncia", verificaAutenticacao, capturarCategoriasDenuncia);
 router.post("/verifica-denuncia-noticia", verificaAutenticacao, verificaExistenciaDenunciaNoticia);
 router.post("/verifica-denuncia-comentario", verificaAutenticacao, verificaExistenciaDenunciaComentario);

@@ -59,3 +59,7 @@
 .denunciar-btn:hover {
   text-decoration: underline;
 }
+
+#seguidores, #seguindo {
+  cursor: pointer;
+}

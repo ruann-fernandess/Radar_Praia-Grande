@@ -26,7 +26,7 @@ document.getElementById("cadastroForm").addEventListener("submit", async functio
         const blobfotoPerfil = await (await fetch("/imagens/iconeUsuarioPadrao.jpg")).blob();
 
         const formDatafotoPerfil = new FormData();
-        formDatafotoPerfil.append("imagem", blobfotoPerfil, "iconeUsuarioPadrao.jpg"); // 👈 nome tem que ser "imagem"
+        formDatafotoPerfil.append("imagem", blobfotoPerfil, "iconeUsuarioPadrao.jpg");
         formDatafotoPerfil.append("apelido", usuario.apelido);
         formDatafotoPerfil.append("idNoticia", null);
         formDatafotoPerfil.append("identificador", "Ícone");
@@ -39,7 +39,7 @@ document.getElementById("cadastroForm").addEventListener("submit", async functio
         const blobfotoCapa = await (await fetch("/imagens/bannerUsuarioPadrao.jpg")).blob();
 
         const formDatafotoCapa = new FormData();
-        formDatafotoCapa.append("imagem", blobfotoCapa, "bannerUsuarioPadrao.jpg"); // 👈 nome tem que ser "imagem"
+        formDatafotoCapa.append("imagem", blobfotoCapa, "bannerUsuarioPadrao.jpg");
         formDatafotoCapa.append("apelido", usuario.apelido);
         formDatafotoCapa.append("idNoticia", null);
         formDatafotoCapa.append("identificador", "Banner");
