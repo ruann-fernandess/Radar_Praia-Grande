@@ -30,7 +30,7 @@ export async function analisarDescricao(req, res) {
           });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const prompt = "Analise o seguinte texto: "
              + descricao
              + "\nAgora responda apenas com 'true' ou 'false' para cada uma das perguntas abaixo, e então retorne um único valor final baseado nas seguintes regras lógicas:\n\n"
@@ -59,10 +59,13 @@ export async function analisarDescricao(req, res) {
             });
         }
     } catch (error) {
-        return res.status(500).json({ 
-            statusCode: 500,  
+        console.log(error.statusCode);
+        console.log(error.message);
+        
+        return res.status(error.statusCode).json({ 
+            statusCode: error.statusCode,  
             valido: false,
-            message: "Erro ao validar a descrição desta notícia."
+            message: "Erro ao validar a descrição desta notícia.",
         });
     }
 }
@@ -78,7 +81,7 @@ export async function analisarImagem(req, res) {
         const mimeType = req.file.mimetype;
         const nome = req.file.originalname;
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const result = await model.generateContent({
             contents: [
