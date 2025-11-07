@@ -13,14 +13,30 @@
 </head>
 <body>
     <nav class="navbar">
-      <div class="logo">Radar Praia Grande</div>
-      <input type="text" id="barraDePesquisa" placeholder="Pesquise..">
+      <a href="/home.html" class="logo">Radar Praia Grande</a>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+
+      <button class="menu-toggle" id="menu-toggle">☰</button>
       <ul class="nav-links">
-        <li><a href="home.html">Feed</a></li>
-        <li><a href="perfil.html">Perfil</a></li>
+        <li><a href="/home.html">Feed</a></li>
+        <li><a href="/perfil.html">Perfil</a></li>
         <li><button id="logout-btn" class="logout-btn">Logout</button></li>
       </ul>
     </nav>
+
+    <!-- Fundo escuro da sidebar -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <button class="close-sidebar" id="close-sidebar">×</button>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+      <ul>
+        <li><a href="/home.html">Feed</a></li>
+        <li><a href="/perfil.html">Perfil</a></li>
+        <li><button id="logout-btn-mobile" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
 
     <div class="loading-container">
         <div class="loading-spinner"></div>
@@ -79,6 +95,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="/js/modal.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
     <script type="module" src="/js/editar-noticia.js"></script>
 </body>
 </html>

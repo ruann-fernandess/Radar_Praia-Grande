@@ -54,14 +54,14 @@ document.addEventListener("DOMContentLoaded", () => {
     quantidadeSeguindo.textContent = totalSeguindo;
 
     if (totalSeguidores == 0) {
-      document.getElementById("listaSeguidores").innerHTML = "<p>Você não possui nenhum seguidor.</p>";
+      document.getElementById("listaSeguidores").innerHTML = "<p style='text-align: center;'>Você não possui nenhum seguidor.</p>";
     } else {
       document.getElementById("listaSeguidores").classList.add("active");
       paginaSeguidores = 1;
       exibirSeguidores(apelido, quantidadeSeguidores); 
     }
     if (totalSeguindo == 0) {
-      document.getElementById("listaSeguindo").innerHTML = "<p>Você não está seguindo nenhum perfil.</p>";
+      document.getElementById("listaSeguindo").innerHTML = "<p style='text-align: center;'>Você não está seguindo nenhum perfil.</p>";
     } else {
       document.getElementById("listaSeguindo").classList.add("active");
       paginaSeguindo = 1;
@@ -110,6 +110,14 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
       for (const noticia of data.noticias) {
         const noticiaDiv = document.createElement("div");
         noticiaDiv.classList.add("noticia");
+        noticiaDiv.style.cursor = "pointer";
+        noticiaDiv.addEventListener("click", function(e) {
+          if (e.target.tagName === "BUTTON" || e.target.tagName === "A") {
+            return;
+          }
+
+          window.location.href = "/noticias/" + noticia.apelido + "/" + noticia.idNoticia;
+        });
   
         // Legenda (descrição)
         noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.legenda, style: "margin-bottom: 10px;" }));
@@ -134,11 +142,11 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
         const metadados = document.createElement("div");
         metadados.classList.add("metadados");
 
-        if (noticia.statusNoticia != "") {
-          if (noticia.statusNoticia == "Aguardando revisão dos administradores") {
-            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.statusNoticia, className: "status-noticia pendente" }));
+        if (noticia.status != "null") {
+          if (noticia.status == "Aguardando revisão dos administradores") {
+            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.status, className: "status-noticia pendente" }));
           } else {
-            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.statusNoticia, className: "status-noticia aprovada" }));
+            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.status, className: "status-noticia aprovada" }));
           }
         }
 
@@ -165,7 +173,11 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
         quantidadeCurtidas.textContent = await contarCurtidasNoticia(noticia.idNoticia);
 
         curtidas.appendChild(quantidadeCurtidas);
-        curtidas.appendChild(document.createTextNode(" curtidas"));
+        if (quantidadeCurtidas.textContent == 1) {
+          curtidas.appendChild(document.createTextNode(" curtida"));
+        } else {
+          curtidas.appendChild(document.createTextNode(" curtidas"));
+        }
         curtidas.appendChild(document.createElement("br"));
 
         botaoCurtir.addEventListener("click", function() {
@@ -177,7 +189,7 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
 
         // Comentários
         const botaoComentarios = document.createElement("button");
-        botaoComentarios.classList.add("comentarios-btn");
+        botaoComentarios.classList.add("exibir-comentarios-btn");
         botaoComentarios.textContent = "Exibir comentários";
 
         const comentarios = document.createElement("span");
@@ -222,7 +234,11 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
         });
 
         comentarios.appendChild(quantidadeComentarios);
-        comentarios.appendChild(document.createTextNode(" comentários"));
+        if (quantidadeComentarios.textContent == 1) {
+          comentarios.appendChild(document.createTextNode(" comentário"));
+        } else {
+          comentarios.appendChild(document.createTextNode(" comentários"));
+        }
         comentarios.appendChild(document.createElement("br"));
         
         metadados.appendChild(botaoComentarios);
@@ -231,7 +247,7 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
         // Link editar
         const linkEditar = document.createElement("a");
         linkEditar.classList.add("editar-noticia");
-        linkEditar.href = `editar-noticia.html?idNoticia=${encodeURIComponent(noticia.idNoticia)}`;
+        linkEditar.href = `/editar-noticia.html?idNoticia=${encodeURIComponent(noticia.idNoticia)}`;
         linkEditar.textContent = "Editar notícia";
         metadados.appendChild(linkEditar);
         noticiaDiv.appendChild(metadados);
@@ -267,7 +283,9 @@ async function capturarNoticiasDoUsuario(apelido, pagina = 1) {
  
     console.log(`(${data.statusCode}) ${data.message}`);
   } catch (error) {
-    await exibirAlertaErro(error.message);
+    await exibirAlertaErro("error", "Erro", "Erro ao capturar notícias do usuário!");
+    console.log(error);
+    console.error('Erro na requisição: ' + error.message);
   }
 }
  
@@ -387,6 +405,11 @@ async function curtirOuDescurtirNoticia(idNoticia, quantidadeCurtidas, botaoCurt
 
       botaoCurtir.textContent = "Curtir";
       quantidadeCurtidas.textContent = parseInt(quantidadeCurtidas.textContent) - 1;
+      if (quantidadeCurtidas.textContent == 1) {
+        quantidadeCurtidas.parentNode.childNodes[1].textContent = " curtida";   
+      } else {
+        quantidadeCurtidas.parentNode.childNodes[1].textContent = " curtidas";
+      }
     } else {
       await exibirAlertaErro("error", "Erro", resultado.message);
     }
@@ -400,6 +423,11 @@ async function curtirOuDescurtirNoticia(idNoticia, quantidadeCurtidas, botaoCurt
 
       botaoCurtir.textContent = "Remover curtida";
       quantidadeCurtidas.textContent = parseInt(quantidadeCurtidas.textContent) + 1;
+      if (quantidadeCurtidas.textContent == 1) {
+        quantidadeCurtidas.parentNode.childNodes[1].textContent = " curtida";   
+      } else {
+        quantidadeCurtidas.parentNode.childNodes[1].textContent = " curtidas";
+      }
     } else {
       await exibirAlertaErro("error", "Erro", resultado.message);
     }
@@ -582,6 +610,11 @@ async function curtirOuDescurtirComentarioNoticia(idComentario, quantidadeCurtid
 
       botaoCurtirComentario.textContent = "Curtir";
       quantidadeCurtidasComentario.textContent = parseInt(quantidadeCurtidasComentario.textContent) - 1;
+      if (quantidadeCurtidasComentario.textContent == 1) {
+        quantidadeCurtidasComentario.parentNode.childNodes[1].textContent = " curtida";   
+      } else {
+        quantidadeCurtidasComentario.parentNode.childNodes[1].textContent = " curtidas";
+      }
     } else {
       await exibirAlertaErro("error", "Erro", resultado.message);
     }
@@ -595,6 +628,11 @@ async function curtirOuDescurtirComentarioNoticia(idComentario, quantidadeCurtid
 
       botaoCurtirComentario.textContent = "Remover curtida";
       quantidadeCurtidasComentario.textContent = parseInt(quantidadeCurtidasComentario.textContent) + 1;
+      if (quantidadeCurtidasComentario.textContent == 1) {
+        quantidadeCurtidasComentario.parentNode.childNodes[1].textContent = " curtida";   
+      } else {
+        quantidadeCurtidasComentario.parentNode.childNodes[1].textContent = " curtidas";
+      }
     } else {
       await exibirAlertaErro("error", "Erro", resultado.message);
     }
@@ -721,7 +759,7 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
       const apelidoAutorComentario = document.createElement("a");
       apelidoAutorComentario.textContent = comentarioNoticia.apelido;
       apelidoAutorComentario.style.textDecoration = "underline";
-      apelidoAutorComentario.href = `perfil/${comentarioNoticia.apelido}`;
+      apelidoAutorComentario.href = `/perfil/${comentarioNoticia.apelido}`;
 
       ladoDireitoCabecalho.appendChild(apelidoAutorComentario)
     }
@@ -753,7 +791,11 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
     quantidadeCurtidasComentario.textContent = await contarCurtidasComentarioNoticia(comentarioNoticia.idComentario);
 
     curtidasComentario.appendChild(quantidadeCurtidasComentario);
-    curtidasComentario.appendChild(document.createTextNode(" curtidas"));
+    if (quantidadeCurtidasComentario.textContent == 1) {
+      curtidasComentario.appendChild(document.createTextNode(" curtida"));
+    } else {
+      curtidasComentario.appendChild(document.createTextNode(" curtidas"));
+    }
     curtidasComentario.appendChild(document.createElement("br"));
 
     botaoCurtirComentario.addEventListener("click", function() {
@@ -878,12 +920,26 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
   }
 }
 
-const barraDePesquisa = document.getElementById("barraDePesquisa");
+// Seleciona todas as barras de pesquisa pela classe
+const barrasDePesquisa = document.querySelectorAll(".barraDePesquisa");
 
-barraDePesquisa.addEventListener("keydown", function(event) {
-  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
-    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
-  }
+// Adiciona o evento a cada barra
+barrasDePesquisa.forEach(barra => {
+  // Atualiza a outra barra enquanto digita
+  barra.addEventListener("input", function() {
+    barrasDePesquisa.forEach(outraBarra => {
+      if (outraBarra !== barra) {
+        outraBarra.value = barra.value;
+      }
+    });
+  });
+
+  // Redireciona ao apertar Enter
+  barra.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && barra.value.trim() !== "") {
+      window.location.href = `/resultados-pesquisa.html?busca=${encodeURIComponent(barra.value.trim())}`;
+    }
+  });
 });
 
 // Adicionando as categorias de denúncia disponíveis num array
@@ -919,17 +975,22 @@ async function capturarCategoriasDenuncia() {
 
 document.getElementById("confirmarDenunciaComentario").onclick = async () => {
   let idComentario = document.getElementById("confirmarDenunciaComentario").dataset.idComentario;
-  let categoriaDenunciaSelecionada = document.querySelector("#denunciarComentarioModal .listaCategoriaDenuncia").value;
+  let categoriaDenunciaSelecionada = document.querySelector("#denunciarComentarioModal .listaCategoriaDenuncia");
   let denuncia = document.getElementById("descricaoDenunciaComentario");
 
-  if (denuncia.value.trim().length > 0 && await verificarCategoriaDenuncia(categoriaDenunciaSelecionada)) {
+  if (denuncia.value.trim().length > 0 && await verificarCategoriaDenuncia(categoriaDenunciaSelecionada.value)) {
     document.getElementById("confirmarDenunciaComentario").disabled = true;
     document.getElementById("descricaoDenunciaComentario").disabled = true;
 
-    await denunciarComentario(categoriaDenunciaSelecionada, denuncia.value.trim(), idComentario);
+    await denunciarComentario(categoriaDenunciaSelecionada.value, denuncia.value.trim(), idComentario);
     document.querySelector(`.denunciar-comentario[data-id-comentario="${idComentario}"]`).remove();
-            
+
+    document.getElementById("noticiasUsuario").innerHTML = "";
+    document.getElementById("paginacaoNoticias").innerHTML = "";
+    await capturarNoticiasDoUsuario(apelido, 1);
     esconderModal(modalDenunciarComentario);
+    esconderModal(modalComentarios);
+    categoriaDenunciaSelecionada.value = "";
     denuncia.value = "";
     document.getElementById("confirmarDenunciaComentario").disabled = false;
     document.getElementById("descricaoDenunciaComentario").disabled = false;
@@ -1066,7 +1127,7 @@ async function exibirSeguidores(apelido, quantidadeSeguidores) {
     usuarioDiv.classList.add("usuario");
          
     usuarioDiv.appendChild(Object.assign(document.createElement("img"), { src: seguidor.fotoPerfil }));
-    usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `perfil/${seguidor.apelido}`, textContent: seguidor.apelido }));
+    usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `/perfil/${seguidor.apelido}`, textContent: seguidor.apelido }));
               
     const botaoSeguir = document.createElement("button");
     botaoSeguir.classList.add("seguir-btn");
@@ -1120,7 +1181,7 @@ async function exibirSeguidores(apelido, quantidadeSeguidores) {
           usuarioDiv.remove();
           if (totalSeguidores == 0) {
             document.getElementById("listaSeguidores").classList.remove("active");
-            document.getElementById("listaSeguidores").innerHTML = "<p>Você não possui nenhum seguidor.</p>";
+            document.getElementById("listaSeguidores").innerHTML = "<p style='text-align: center;'>Você não possui nenhum seguidor.</p>";
           }
         } else {
           await exibirAlertaErro("error", "Erro", resultado.message);
@@ -1171,7 +1232,7 @@ async function exibirSeguindo(apelido, quantidadeSeguindo) {
     usuarioDiv.classList.add("usuario");
          
     usuarioDiv.appendChild(Object.assign(document.createElement("img"), { src: seguindo.fotoPerfil }));
-    usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `perfil/${seguindo.apelido}`, textContent: seguindo.apelido }));
+    usuarioDiv.appendChild(Object.assign(document.createElement("a"), { href: `/perfil/${seguindo.apelido}`, textContent: seguindo.apelido }));
               
     const botaoSeguir = document.createElement("button");
     botaoSeguir.classList.add("seguir-btn");
@@ -1225,7 +1286,7 @@ async function exibirSeguindo(apelido, quantidadeSeguindo) {
           usuarioDiv.remove();
           if (totalSeguidores == 0) {
             document.getElementById("listaSeguindo").classList.remove("active");
-            document.getElementById("listaSeguindo").innerHTML = "<p>Você não está seguindo nenhum perfil.</p>";
+            document.getElementById("listaSeguindo").innerHTML = "<p style='text-align: center;'>Você não está seguindo nenhum perfil.</p>";
           }
         } else {
           await exibirAlertaErro("error", "Erro", resultado.message);

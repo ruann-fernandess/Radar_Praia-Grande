@@ -5,6 +5,7 @@ body {
 }
 
 .navbar {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -14,6 +15,8 @@ body {
 }
 
 .logo {
+  color: var(--branco);
+  text-decoration: none;
   font-size: 1.5rem;
   font-weight: bold;
 }
@@ -33,6 +36,7 @@ body {
 }
 
 .nav-links a {
+  cursor: pointer;
   color: var(--branco);
   text-decoration: none;
   transition: color 0.3s ease;
@@ -45,8 +49,8 @@ body {
 .logout-btn {
   background-color: var(--marrom-claro);
   color: var(--branco);
+  font-size: 16px;
   border: none;
-  padding: 0.5rem 1rem;
   border-radius: 5px;
   cursor: pointer;
   transition: background 0.3s ease;
@@ -60,7 +64,7 @@ body {
 .modal {
   display: none;
   position: fixed;
-  z-index: 999;
+  z-index: 3;
   left: 0;
   top: 0;
   width: 100%;
@@ -79,10 +83,18 @@ body {
   font-size: 2em;
 }
 
-#comentariosModal .modal-content {
+#comentariosModal .modal-content,
+#denunciasUsuarioModal .modal-content,
+#denunciasNoticiaModal .modal-content,
+#denunciasComentarioModal .modal-content,
+#noticiaModal .modal-content {
   width: 950px;
   padding: 20px 30px;
   margin: 7% auto;
+}
+
+#logout-btn {
+  padding: 6px 16px;
 }
 
 #comentariosModal .modal-content p,
@@ -92,19 +104,32 @@ body {
 #denunciarComentarioModal .modal-content p,
 #denunciarUsuarioModal .modal-content p,
 #seguidoresModal .modal-content p,
-#seguindoModal .modal-content p {
+#seguindoModal .modal-content p,
+#denunciasUsuarioModal .modal-content p,
+#denunciasNoticiaModal .modal-content p,
+#denunciasComentarioModal .modal-content p,
+#noticiaModal .modal-content p {
   text-align: left;
 }
 
-.modal-content button:not(.curtir-btn, .denunciar-btn) {
+#cadastroLoginModal {
+  z-index: 4;
+}
+.modal-content button:not(.curtir-btn, .denunciar-btn, .aprovar-denuncia-usuario-btn, .ignorar-denuncia-usuario-btn, .aprovar-denuncia-noticia-btn, .ignorar-denuncia-noticia-btn, .aprovar-denuncia-comentario-btn, .ignorar-denuncia-comentario-btn, .exibir-denuncias-btn, .apagar-comentario-btn, .exibir-comentarios-btn, .ativar-noticia-btn, .desativar-noticia-btn),
+#cadastroLoginModal .modal-content a {
   margin: 10px;
   padding: 8px 16px;
   cursor: pointer;
   border: none;
   font-size: 20px;
   font-family: var(--fonte-principal);
-  color: (--preto);
+  color: var(--preto);
   background-color: var(--marrom-claro);
+}
+
+#cadastroLoginModal .modal-content a {
+  color: var(--branco);
+  text-decoration: none;
 }
 
 #adicionarComentarioModal .modal-content,
@@ -113,13 +138,41 @@ body {
 #denunciarComentarioModal .modal-content,
 #denunciarUsuarioModal .modal-content,
 #seguidoresModal .modal-content,
-#seguindoModal .modal-content {
+#seguindoModal .modal-content,
+#cadastroLoginModal .modal-content {
   width: 800px;
   padding: 20px 30px;
   margin: 10% auto;
 }
 
-#comentariosModal .modal-content button:not(.curtir-btn, .denunciar-btn),
+#desativarUsuarioModal .modal-content,
+#ativarUsuarioModal .modal-content,
+#desativarNoticiaModal .modal-content,
+#ativarNoticiaModal .modal-content,
+#excluirComentarioModal .modal-content {
+  width: 550px;
+}
+
+#desativarUsuarioModal .modal-content p,
+#ativarUsuarioModal .modal-content p,
+#desativarNoticiaModal .modal-content p,
+#ativarNoticiaModal .modal-content p,
+#excluirComentarioModal .modal-content p {
+  width: 90%;
+  padding: 0;
+  margin: 30px auto 10px auto;
+  font-weight: bold;
+}
+
+#desativarUsuarioModal .modal-content button,
+#ativarUsuarioModal .modal-content button,
+#desativarNoticiaModal .modal-content button,
+#ativarNoticiaModal .modal-content button,
+#excluirNoticiaModal .modal-content button {
+  margin-bottom: 30px;
+}
+
+#comentariosModal .modal-content button:not(.curtir-btn, .denunciar-btn, .exibir-denuncias-btn, .apagar-comentario-btn, .exibir-comentarios-btn, .ativar-noticia-btn, .desativar-noticia-btn),
 #adicionarComentarioModal .modal-content button,
 #editarComentarioModal .modal-content button,
 #denunciarNoticiaModal .modal-content button,
@@ -174,30 +227,36 @@ select::placeholder {
 
 #comentariosModal .modal-content #listaComentarios,
 #seguidoresModal .modal-content #listaSeguidores,
-#seguindoModal .modal-content #listaSeguindo {
+#seguindoModal .modal-content #listaSeguindo,
+#denunciasUsuarioModal .modal-content #listaDenunciasUsuario,
+#denunciasNoticiaModal .modal-content #listaDenunciasNoticia,
+#denunciasComentarioModal .modal-content #listaDenunciasComentario,
+#noticiaModal .modal-content #listaNoticia {
   color: var(--preto);
   font-size: 17px;
 }
 
 #seguidoresModal .modal-content #listaSeguidores,
-#seguindoModal .modal-content #listaSeguindo {
+#seguindoModal .modal-content #listaSeguindo,
+#noticiaModal .modal-content #listaNoticia {
   margin-top: 10px;
 }
 
-.modal-content button:hover:not(.curtir-btn, .denunciar-btn) {
+.modal-content button:hover:not(.curtir-btn, .denunciar-btn, .aprovar-denuncia-usuario-btn, .ignorar-denuncia-usuario-btn, .exibir-denuncias-btn, .apagar-comentario-btn, .aprovar-denuncia-noticia-btn, .ignorar-denuncia-noticia-btn, .aprovar-denuncia-comentario-btn, .ignorar-denuncia-comentario-btn),
+#cadastroLoginModal .modal-content a:hover {
   background-color: var(--marrom-escuro);
 }
 
-#confirmarExcluirComentario {
+#confirmarExcluirComentario:not(#excluirComentarioModal #confirmarExcluirComentario) {
   background-color: rgb(23, 15, 7);
 }
 
-#confirmarExcluirComentario:hover {
+#confirmarExcluirComentario:not(#excluirComentarioModal #confirmarExcluirComentario):hover {
   background-color: rgb(12, 8, 4);
 }
 
-#barraDePesquisa {
-  width: 30%;
+.barraDePesquisa {
+  width: 32%;
   padding: 10px 20px;
   font-size: 17px;
   color: var(--branco);
@@ -206,7 +265,7 @@ select::placeholder {
   background-color: var(--marrom-claro);
 }
 
-#barraDePesquisa::placeholder {
+.barraDePesquisa::placeholder {
   color: var(--branco);
 }
 
@@ -272,48 +331,151 @@ select::placeholder {
   background-color: #6b4e36;
 }
 
-.dropdown {
-  position: relative;
+#cadastroLoginModal .modal-content {
+  padding: 60px;
 }
 
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
+#cadastroLoginModal .modal-content p {
+  margin-bottom: 20px;
+}
+
+/* Esconde o botão de menu em telas grandes */
+.menu-toggle {
   display: none;
-  /* escondido por padrão */
-  background: white;
-  list-style: none;
-  margin: 10px 0 0 0;
-  padding: 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
-  z-index: 100;
+  color: var(--branco);
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-.dropdown-menu li a {
+.sidebar .barraDePesquisa {
   width: 100%;
-  display: block;
-  padding: 8px 12px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+}
+
+.sidebar li {
+  padding: 15px 0;
+}
+
+.sidebar a {
+  font-size: 1rem;
+}
+
+.sidebar a,
+.sidebar button {
+  color: white;
   text-decoration: none;
-  color: black;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
 }
 
-.dropdown-menu li:nth-child(1) a {
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
+/* Sidebar à direita */
+.sidebar {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: -65%;
+  width: 65%;
+  height: 100%;
+  background-color: var(--marrom-escuro);
+  color: white;
+  transition: right 0.3s ease;
+  padding: 90px 20px 0 20px;
+  z-index: 2;
 }
 
-.dropdown-menu li:nth-child(3) a {
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
+/* Fundo escuro (overlay) */
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2;
 }
 
-.dropdown-menu li a:hover {
-  color: black;
-  background: #eee;
+/* Botão de fechar dentro da sidebar */
+.close-sidebar {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
 }
 
-.dropdown.active .dropdown-menu {
-  display: block;
+/* Responsividade */
+@media (max-width: 1000px) {
+  .modal-content,
+  #adicionarComentarioModal .modal-content, #editarComentarioModal .modal-content, #denunciarNoticiaModal .modal-content, #denunciarComentarioModal .modal-content, #denunciarUsuarioModal .modal-content, #seguidoresModal .modal-content, #seguindoModal .modal-content, #cadastroLoginModal .modal-content,
+  #comentariosModal .modal-content, #denunciasUsuarioModal .modal-content, #denunciasNoticiaModal .modal-content, #denunciasComentarioModal .modal-content, #noticiaModal .modal-content {
+    width: auto;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar .barraDePesquisa {
+    display: none;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+}
+
+@media (max-width: 610px) {
+  .denuncia-usuario header, .denuncia-usuario header .lado-esquerdo, .denuncia-noticia header, .denuncia-noticia header .lado-esquerdo, .denuncia-comentario header, .denuncia-comentario header .lado-esquerdo {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .denuncia-usuario img, .denuncia-noticia img, .denuncia-comentario img {
+    text-align: center;
+    margin: 0 auto !important;
+  }
+
+  .denuncia-usuario header .lado-direito, .denuncia-noticia header .lado-direito, .denuncia-comentario header .lado-direito, .aprovar-denuncia-usuario-btn, .ignorar-denuncia-usuario-btn, .aprovar-denuncia-noticia-btn, .ignorar-denuncia-noticia-btn, .aprovar-denuncia-comentario-btn, .ignorar-denuncia-comentario-btn {
+    width: 100%;
+  }
+
+  .aprovar-denuncia-usuario-btn, .aprovar-denuncia-noticia-btn, .aprovar-denuncia-comentario-btn {
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 575px) {
+  .usuario {
+    flex-direction: column;
+  }
+
+  .usuario img {
+    margin-bottom: 12px;
+    margin-right: 0 !important;
+  }
+
+  .usuario a {
+    margin-bottom: 12px;
+  }
+
+  .usuario .seguir-btn {
+    width: 100%;
+  }
 }

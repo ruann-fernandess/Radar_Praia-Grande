@@ -2,15 +2,28 @@
 document.getElementById("cadastroForm").addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    const usuario = {
-        apelido: document.getElementById("apelido").value.trim().replaceAll(" ", ""),
-        nome: document.getElementById("nome").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        senha: document.getElementById("senha").value.trim()
-    };
+    const apelido = document.getElementById("apelido").value.trim().replaceAll(" ", "");
+    const nome = document.getElementById("nome").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value.trim();
 
     const erroMensagem = document.getElementById("erroMensagem");
-    erroMensagem.textContent = '';  // limpa mensagem antes
+    erroMensagem.textContent = '';  // Limpa mensagem anterior
+
+    const apelidoValido = /^[a-zA-Z0-9._]+$/.test(apelido);
+    const senhaValida = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(senha);
+
+    if (!apelidoValido) {
+        erroMensagem.textContent = "O apelido só pode conter letras, números, pontos e sublinhados.";
+        return;
+    }
+
+    if (!senhaValida) {
+        erroMensagem.textContent = "A senha deve ter pelo menos 8 caracteres, incluindo ao menos uma letra e um número.";
+        return;
+    }
+
+    const usuario = { apelido, nome, email, senha };
 
     const response = await fetch("usuario/cadastro", {
         method: "POST",

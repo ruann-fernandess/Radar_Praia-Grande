@@ -107,8 +107,11 @@ export async function contaCurtidasNoticia(idNoticia) {
   try {
     const result = await db.get(
       `SELECT COUNT(*) AS count
-       FROM curtida_noticia
-       WHERE idNoticia = ?`,
+      FROM CURTIDA_NOTICIA CN
+      INNER JOIN USUARIO U
+        ON CN.apelido = U.apelido
+      WHERE CN.idNoticia = ?
+        AND U.desativado = 0`,
       [idNoticia]
     );
 

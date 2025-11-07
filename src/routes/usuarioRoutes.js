@@ -6,7 +6,7 @@ const router = express.Router();
 router.post("/cadastro", cadastro);
 router.post("/login", login);
 router.get("/editar-perfil", verificaAutenticacao, perfil);
-router.put("/editar-perfil", verificaAutenticacao, alterarPerfil);  // <-- Sem o perfil depois!
+router.put("/editar-perfil", verificaAutenticacao, alterarPerfil);
 router.delete("/editar-perfil", verificaAutenticacao, apagarPerfil);
 router.get("/perfil", verificaAutenticacao, perfil);
 router.get("/perfil-outro-usuario/:apelidoOutroUsuario", verificaAutenticacao, perfilOutroUsuario);

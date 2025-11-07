@@ -13,14 +13,30 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">Radar Praia Grande</div>
-        <input type="text" id="barraDePesquisa" placeholder="Pesquise..">
-        <ul class="nav-links">
-            <li><a href="home.html">Feed</a></li>
-            <li><a href="perfil.html">Perfil</a></li>
-            <li><button id="logout-btn" class="logout-btn">Logout</button></li>
-        </ul>
+      <a href="/home.html" class="logo">Radar Praia Grande</a>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+      <ul class="nav-links">
+        <li><a href="/home.html">Feed</a></li>
+        <li><a href="/perfil.html">Perfil</a></li>
+        <li><button id="logout-btn" class="logout-btn">Logout</button></li>
+      </ul>
     </nav>
+
+    <!-- Fundo escuro da sidebar -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <button class="close-sidebar" id="close-sidebar">×</button>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+      <ul>
+        <li><a href="/home.html">Feed</a></li>
+        <li><a href="/perfil.html">Perfil</a></li>
+        <li><button id="logout-btn-mobile" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
 
     <div class="noticias-container">
         <section class="noticias">
@@ -33,9 +49,9 @@
                     <label for="filtroUsuarios">Usuários</label>
                 </div>
                 
-                <div id="noticiasLista"></div>
+                <div id="listaNoticias"></div>
                 <div id="paginacaoNoticias"></div>
-                <div id="usuariosLista"></div>
+                <div id="listaUsuarios"></div>
                 <div id="paginacaoUsuarios"></div>
             </div>
         </section>
@@ -98,6 +114,7 @@
  
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="/js/modal.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
     <script type="module" src="/js/resultados-pesquisa.js"></script>
 </body>
 </html>

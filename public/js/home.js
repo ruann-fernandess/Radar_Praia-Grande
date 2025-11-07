@@ -52,21 +52,29 @@ async function capturarNoticias(pagina = 1) {
  
     const data = await res.json();
  
-    const noticiasLista = document.getElementById("noticiasLista");
+    const listaNoticias = document.getElementById("listaNoticias");
     const paginacaoNoticias = document.getElementById("paginacaoNoticias");
  
-    noticiasLista.innerHTML = "";
+    listaNoticias.innerHTML = "";
     paginacaoNoticias.innerHTML = "";
  
     // Se não tiver nenhuma notícia cadastrada
     if (data.noticias.length == 0) {
-      noticiasLista.style.textAlign = "center";
-      noticiasLista.innerHTML = "Nenhuma notícia foi encontrada.";
+      listaNoticias.style.textAlign = "center";
+      listaNoticias.innerHTML = "Nenhuma notícia foi encontrada.";
       document.getElementById("paginacaoNoticias").style.display = "none";
     } else {
       for (const noticia of data.noticias) {
         const noticiaDiv = document.createElement("div");
         noticiaDiv.classList.add("noticia");
+        noticiaDiv.style.cursor = "pointer";
+        noticiaDiv.addEventListener("click", function(e) {
+          if (e.target.tagName === "BUTTON" || e.target.tagName === "A") {
+            return;
+          }
+
+          window.location.href = "/noticias/" + noticia.apelido + "/" + noticia.idNoticia;
+        });
   
         // Legenda (descrição)
         noticiaDiv.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.legenda, style: "margin-bottom: 10px;" }));
@@ -91,11 +99,11 @@ async function capturarNoticias(pagina = 1) {
         const metadados = document.createElement("div");
         metadados.classList.add("metadados");
 
-        if (noticia.statusNoticia != "") {
-          if (noticia.statusNoticia == "Aguardando revisão dos administradores") {
-            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.statusNoticia, className: "status-noticia pendente" }));
+        if (noticia.status != "null") {
+          if (noticia.status == "Aguardando revisão dos administradores") {
+            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.status, className: "status-noticia pendente" }));
           } else {
-            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.statusNoticia, className: "status-noticia aprovada" }));
+            metadados.appendChild(Object.assign(document.createElement("p"), { textContent: noticia.status, className: "status-noticia aprovada" }));
           }
         }
 
@@ -106,7 +114,7 @@ async function capturarNoticias(pagina = 1) {
           const autorNoticia = Object.assign(document.createElement("p"), { textContent: "Autor: " });
           const linkPerfilOutroUsuario = Object.assign(document.createElement("a"), { textContent: noticia.apelido });
           linkPerfilOutroUsuario.style.textDecoration = "underline";
-          linkPerfilOutroUsuario.href = `perfil/${noticia.apelido}`;
+          linkPerfilOutroUsuario.href = `/perfil/${noticia.apelido}`;
 
           autorNoticia.appendChild(linkPerfilOutroUsuario)
           metadados.appendChild(autorNoticia);
@@ -132,7 +140,11 @@ async function capturarNoticias(pagina = 1) {
         quantidadeCurtidas.textContent = await contarCurtidasNoticia(noticia.idNoticia);
 
         curtidas.appendChild(quantidadeCurtidas);
-        curtidas.appendChild(document.createTextNode(" curtidas"));
+        if (quantidadeCurtidas.textContent == 1) {
+          curtidas.appendChild(document.createTextNode(" curtida"));
+        } else {
+          curtidas.appendChild(document.createTextNode(" curtidas"));
+        }
         curtidas.appendChild(document.createElement("br"));
 
         botaoCurtir.addEventListener("click", function() {
@@ -144,7 +156,7 @@ async function capturarNoticias(pagina = 1) {
 
         // Comentários
         const botaoComentarios = document.createElement("button");
-        botaoComentarios.classList.add("comentarios-btn");
+        botaoComentarios.classList.add("exibir-comentarios-btn");
         botaoComentarios.textContent = "Exibir comentários";
 
         const comentarios = document.createElement("span");
@@ -188,7 +200,11 @@ async function capturarNoticias(pagina = 1) {
         });
 
         comentarios.appendChild(quantidadeComentarios);
-        comentarios.appendChild(document.createTextNode(" comentários"));
+        if (quantidadeComentarios.textContent == 1) {
+          comentarios.appendChild(document.createTextNode(" comentário"));
+        } else {
+          comentarios.appendChild(document.createTextNode(" comentários"));
+        }
         comentarios.appendChild(document.createElement("br"));
         
         metadados.appendChild(botaoComentarios);
@@ -198,7 +214,7 @@ async function capturarNoticias(pagina = 1) {
           // Link editar
           const linkEditar = document.createElement("a");
           linkEditar.classList.add("editar-noticia");
-          linkEditar.href = `editar-noticia.html?idNoticia=${encodeURIComponent(noticia.idNoticia)}`;
+          linkEditar.href = `/editar-noticia.html?idNoticia=${encodeURIComponent(noticia.idNoticia)}`;
           linkEditar.textContent = "Editar notícia";
           metadados.appendChild(linkEditar);
         } else {
@@ -223,7 +239,7 @@ async function capturarNoticias(pagina = 1) {
 
         noticiaDiv.appendChild(metadados);
   
-        noticiasLista.appendChild(noticiaDiv);
+        listaNoticias.appendChild(noticiaDiv);
       }
     }
  
@@ -255,7 +271,8 @@ async function capturarNoticias(pagina = 1) {
  
     console.log(`(${data.statusCode}) ${data.message}`);
   } catch (error) {
-    await exibirAlertaErro(error.message);
+    await exibirAlertaErro("error", "Erro", "Erro ao capturar notícias!");
+    console.error('Erro na requisição: ' + error.message);
   }
 }
  
@@ -331,6 +348,11 @@ async function curtirOuDescurtirNoticia(idNoticia, quantidadeCurtidas, botaoCurt
 
       botaoCurtir.textContent = "Curtir";
       quantidadeCurtidas.textContent = parseInt(quantidadeCurtidas.textContent) - 1;
+      if (quantidadeCurtidas.textContent == 1) {
+        quantidadeCurtidas.parentNode.childNodes[1].textContent = " curtida";   
+      } else {
+        quantidadeCurtidas.parentNode.childNodes[1].textContent = " curtidas";
+      }
     } else {
       await exibirAlertaErro("error", "Erro", resultado.message);
     }
@@ -344,6 +366,11 @@ async function curtirOuDescurtirNoticia(idNoticia, quantidadeCurtidas, botaoCurt
 
       botaoCurtir.textContent = "Remover curtida";
       quantidadeCurtidas.textContent = parseInt(quantidadeCurtidas.textContent) + 1;
+      if (quantidadeCurtidas.textContent == 1) {
+        quantidadeCurtidas.parentNode.childNodes[1].textContent = " curtida";   
+      } else {
+        quantidadeCurtidas.parentNode.childNodes[1].textContent = " curtidas";
+      }
     } else {
       await exibirAlertaErro("error", "Erro", resultado.message);
     }
@@ -526,6 +553,11 @@ async function curtirOuDescurtirComentarioNoticia(idComentario, quantidadeCurtid
 
       botaoCurtirComentario.textContent = "Curtir";
       quantidadeCurtidasComentario.textContent = parseInt(quantidadeCurtidasComentario.textContent) - 1;
+      if (quantidadeCurtidasComentario.textContent == 1) {
+        quantidadeCurtidasComentario.parentNode.childNodes[1].textContent = " curtida";   
+      } else {
+        quantidadeCurtidasComentario.parentNode.childNodes[1].textContent = " curtidas";
+      }
     } else {
       await exibirAlertaErro("error", "Erro", resultado.message);
     }
@@ -539,6 +571,11 @@ async function curtirOuDescurtirComentarioNoticia(idComentario, quantidadeCurtid
 
       botaoCurtirComentario.textContent = "Remover curtida";
       quantidadeCurtidasComentario.textContent = parseInt(quantidadeCurtidasComentario.textContent) + 1;
+      if (quantidadeCurtidasComentario.textContent == 1) {
+        quantidadeCurtidasComentario.parentNode.childNodes[1].textContent = " curtida";   
+      } else {
+        quantidadeCurtidasComentario.parentNode.childNodes[1].textContent = " curtidas";
+      }
     } else {
       await exibirAlertaErro("error", "Erro", resultado.message);
     }
@@ -666,7 +703,7 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
       const apelidoAutorComentario = document.createElement("a");
       apelidoAutorComentario.textContent = comentarioNoticia.apelido;
       apelidoAutorComentario.style.textDecoration = "underline";
-      apelidoAutorComentario.href = `perfil/${comentarioNoticia.apelido}`;
+      apelidoAutorComentario.href = `/perfil/${comentarioNoticia.apelido}`;
 
       ladoDireitoCabecalho.appendChild(apelidoAutorComentario)
     }
@@ -698,7 +735,11 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
     quantidadeCurtidasComentario.textContent = await contarCurtidasComentarioNoticia(comentarioNoticia.idComentario);
 
     curtidasComentario.appendChild(quantidadeCurtidasComentario);
-    curtidasComentario.appendChild(document.createTextNode(" curtidas"));
+    if (quantidadeCurtidasComentario.textContent == 1) {
+      curtidasComentario.appendChild(document.createTextNode(" curtida"));
+    } else {
+      curtidasComentario.appendChild(document.createTextNode(" curtidas"));
+    }
     curtidasComentario.appendChild(document.createElement("br"));
 
     botaoCurtirComentario.addEventListener("click", function() {
@@ -824,12 +865,26 @@ async function exibirComentariosNoticia(idNoticia, quantidadeComentarios) {
   }
 }
 
-const barraDePesquisa = document.getElementById("barraDePesquisa");
+// Seleciona todas as barras de pesquisa pela classe
+const barrasDePesquisa = document.querySelectorAll(".barraDePesquisa");
 
-barraDePesquisa.addEventListener("keydown", function(event) {
-  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
-    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
-  }
+// Adiciona o evento a cada barra
+barrasDePesquisa.forEach(barra => {
+  // Atualiza a outra barra enquanto digita
+  barra.addEventListener("input", function() {
+    barrasDePesquisa.forEach(outraBarra => {
+      if (outraBarra !== barra) {
+        outraBarra.value = barra.value;
+      }
+    });
+  });
+
+  // Redireciona ao apertar Enter
+  barra.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && barra.value.trim() !== "") {
+      window.location.href = `/resultados-pesquisa.html?busca=${encodeURIComponent(barra.value.trim())}`;
+    }
+  });
 });
 
 // Adicionando as categorias de denúncia disponíveis num array
@@ -865,17 +920,19 @@ async function capturarCategoriasDenuncia() {
 
 document.getElementById("confirmarDenunciaNoticia").onclick = async () => {
   let idNoticia = document.getElementById("confirmarDenunciaNoticia").dataset.idNoticia;
-  let categoriaDenunciaSelecionada = document.querySelector("#denunciarNoticiaModal .listaCategoriaDenuncia").value;
+  let categoriaDenunciaSelecionada = document.querySelector("#denunciarNoticiaModal .listaCategoriaDenuncia");
   let denuncia = document.getElementById("descricaoDenunciaNoticia");
 
-  if (denuncia.value.trim().length > 0 && await verificarCategoriaDenuncia(categoriaDenunciaSelecionada)) {
+  if (denuncia.value.trim().length > 0 && await verificarCategoriaDenuncia(categoriaDenunciaSelecionada.value)) {
     document.getElementById("confirmarDenunciaNoticia").disabled = true;
     document.getElementById("descricaoDenunciaNoticia").disabled = true;
 
-    await denunciarNoticia(categoriaDenunciaSelecionada, denuncia.value.trim(), idNoticia);
+    await denunciarNoticia(categoriaDenunciaSelecionada.value, denuncia.value.trim(), idNoticia);
     document.querySelector(`.denunciar-noticia[data-id-noticia="${idNoticia}"]`).remove();
-            
+    
+    await capturarNoticias(1);
     esconderModal(modalDenunciarNoticia);
+    categoriaDenunciaSelecionada.value = "";
     denuncia.value = "";
     document.getElementById("confirmarDenunciaNoticia").disabled = false;
     document.getElementById("descricaoDenunciaNoticia").disabled = false;
@@ -884,17 +941,20 @@ document.getElementById("confirmarDenunciaNoticia").onclick = async () => {
 
 document.getElementById("confirmarDenunciaComentario").onclick = async () => {
   let idComentario = document.getElementById("confirmarDenunciaComentario").dataset.idComentario;
-  let categoriaDenunciaSelecionada = document.querySelector("#denunciarComentarioModal .listaCategoriaDenuncia").value;
+  let categoriaDenunciaSelecionada = document.querySelector("#denunciarComentarioModal .listaCategoriaDenuncia");
   let denuncia = document.getElementById("descricaoDenunciaComentario");
 
-  if (denuncia.value.trim().length > 0 && await verificarCategoriaDenuncia(categoriaDenunciaSelecionada)) {
+  if (denuncia.value.trim().length > 0 && await verificarCategoriaDenuncia(categoriaDenunciaSelecionada.value)) {
     document.getElementById("confirmarDenunciaComentario").disabled = true;
     document.getElementById("descricaoDenunciaComentario").disabled = true;
 
-    await denunciarComentario(categoriaDenunciaSelecionada, denuncia.value.trim(), idComentario);
+    await denunciarComentario(categoriaDenunciaSelecionada.value, denuncia.value.trim(), idComentario);
     document.querySelector(`.denunciar-comentario[data-id-comentario="${idComentario}"]`).remove();
-            
+    
+    await capturarNoticias(1);
     esconderModal(modalDenunciarComentario);
+    esconderModal(modalComentarios);
+    categoriaDenunciaSelecionada.value = "";
     denuncia.value = "";
     document.getElementById("confirmarDenunciaComentario").disabled = false;
     document.getElementById("descricaoDenunciaComentario").disabled = false;

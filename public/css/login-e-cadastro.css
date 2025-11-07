@@ -21,11 +21,10 @@ body {
 .quadrado {
   background-color: var(--bege);
   background-image: url('../imagens/newspaper_collage_texture.jpg');
-  background-size: 160%;
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-blend-mode: multiply;
-
   padding: 30px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
@@ -107,6 +106,7 @@ button[type="submit"]:hover{
   cursor: pointer;
   font-weight: 700;
   text-decoration: none;
+  text-align: center;
 }
 
 .conta-btn:hover {

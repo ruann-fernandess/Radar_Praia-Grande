@@ -1,13 +1,14 @@
 import { deleteImagensNoticia } from "../model/imagemModel.js";
-import { insertNoticia, updateNoticia, deleteNoticia, selectNoticias, selectNoticiasDoUsuario, selectNoticiaPorIdEApelido, verificaNoticia, selectNoticiasPesquisadas } from "../model/noticiaModel.js";
+import { insertNoticia, updateNoticia, deleteNoticia, selectNoticias, selectNoticiasDoUsuario, selectNoticiaPorIdEApelido, verificaNoticia, selectNoticiasPesquisadas, selectNoticiasPesquisadasAdmin, selectNoticiasAdmin, updateDesativarNoticia, updateAtivarNoticia, selectNoticiaAdmin, selectNoticia } from "../model/noticiaModel.js";
 import { selectBairros } from "../model/bairroModel.js";
 import { insertCurtidaNoticia, deleteCurtidaNoticia, deleteTodasCurtidasNoticia, verificaCurtidaNoticia, contaCurtidasNoticia } from "../model/curtidaNoticiaModel.js";
-import { contaComentariosNoticia } from "../model/comentarioModel.js";
+import { contaComentariosNoticia, selectComentariosAdmin, selectComentariosPesquisadosAdmin } from "../model/comentarioModel.js";
 import { verificaApelidoUsuario } from "../model/usuarioModel.js";
 import { deleteTodosComentariosPorNoticia, insertComentarioNoticia, selectComentariosPorNoticia, verificaComentarioNoticia, updateComentarioNoticia, deleteComentarioNoticia } from "../model/comentarioModel.js";
 import { verificaCurtidaComentarioNoticia, contaCurtidasComentarioNoticia, insertCurtidaComentarioNoticia, deleteCurtidaComentarioNoticia, deleteTodasCurtidasComentarioNoticia, deleteTodasCurtidasComentariosNoticiaPorNoticia } from "../model/curtidaComentarioModel.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
+import { contaDenunciasComentario, deleteTodasDenunciasComentarioPorId } from "../model/denunciaComentarioModel.js";
 dotenv.config();
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -342,7 +343,7 @@ export async function curtirNoticia(req, res) {
 
     const noticiaExiste = await verificaNoticia(idNoticia);
     const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (noticiaExiste > 0 && usuarioExiste > 0) {
+    if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
       const resultado = await insertCurtidaNoticia(idNoticia, apelido);
 
       return res.status(resultado.statusCode).json({
@@ -381,7 +382,7 @@ export async function removerCurtidaNoticia(req, res) {
 
     const noticiaExiste = await verificaNoticia(idNoticia);
     const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (noticiaExiste > 0 && usuarioExiste > 0) {
+    if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
       await deleteCurtidaNoticia(idNoticia, apelido);
 
       return res.status(200).json({
@@ -420,7 +421,7 @@ export async function verificaExistenciaCurtidaNoticia(req, res) {
   
     const noticiaExiste = await verificaNoticia(idNoticia);
     const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (noticiaExiste > 0 && usuarioExiste > 0) {
+    if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
       const existeCurtidaNoticia = await verificaCurtidaNoticia(idNoticia, apelido);
       return res.status(200).json({ existeCurtidaNoticia });
     } else {
@@ -481,7 +482,12 @@ export async function contarComentariosNoticia(req, res) {
 
     const noticiaExiste = await verificaNoticia(idNoticia);
     if (noticiaExiste > 0) {
-      const quantidadeComentariosNoticia = await contaComentariosNoticia(idNoticia);
+      let apelido = "";
+      if (req.session && req.session.user) {
+        apelido = req.session.user.apelido;
+      }
+
+      const quantidadeComentariosNoticia = await contaComentariosNoticia(idNoticia, apelido);
       return res.status(quantidadeComentariosNoticia.statusCode).json(quantidadeComentariosNoticia);
     } else {
       return res.status(404).json({
@@ -523,7 +529,7 @@ export async function comentarNoticia(req, res) {
 
     const noticiaExiste = await verificaNoticia(idNoticia);
     const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (noticiaExiste > 0 && usuarioExiste > 0) {
+    if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
       const resultado = await insertComentarioNoticia(comentario, idNoticia, apelido);
 
       return res.status(resultado.statusCode).json({
@@ -550,6 +556,11 @@ export async function capturarComentariosNoticia(req, res) {
     const paginaNum = Math.max(1, parseInt(paginaComentarios || "1", 10));
     const limite = 10; //quantidade de comentários por página
 
+    let apelido = "";
+    if (req.session && req.session.user) {
+      apelido = req.session.user.apelido;
+    }
+
     if (!idNoticia) {
       return res.status(400).json({
         statusCode: 400,
@@ -557,7 +568,7 @@ export async function capturarComentariosNoticia(req, res) {
       });
     }
 
-    const { comentarios } = await selectComentariosPorNoticia(idNoticia, paginaNum, limite);
+    const { comentarios } = await selectComentariosPorNoticia(idNoticia, paginaNum, limite, apelido);
 
     res.status(200).json({
       statusCode: 200,
@@ -591,8 +602,7 @@ export async function verificaExistenciaCurtidaComentarioNoticia(req, res) {
   
     const comentarioExiste = await verificaComentarioNoticia(idComentario);
     const usuarioExiste = await verificaApelidoUsuario(apelido);
-
-    if (comentarioExiste > 0 && usuarioExiste > 0) {
+    if (comentarioExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
       const existeCurtidaComentarioNoticia = await verificaCurtidaComentarioNoticia(idComentario, apelido);
       return res.status(200).json({ existeCurtidaComentarioNoticia });
     } else {
@@ -658,7 +668,7 @@ export async function curtirComentarioNoticia(req, res) {
 
     const comentarioExiste = await verificaComentarioNoticia(idComentario);
     const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (comentarioExiste > 0 && usuarioExiste > 0) {
+    if (comentarioExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
       const resultado = await insertCurtidaComentarioNoticia(idComentario, apelido);
 
       return res.status(resultado.statusCode).json({
@@ -697,7 +707,7 @@ export async function removerCurtidaComentarioNoticia(req, res) {
 
     const comentarioExiste = await verificaComentarioNoticia(idComentario);
     const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (comentarioExiste > 0 && usuarioExiste > 0) {
+    if (comentarioExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
       await deleteCurtidaComentarioNoticia(idComentario, apelido);
 
       return res.status(200).json({
@@ -771,9 +781,10 @@ export async function apagarComentarioNoticia(req, res) {
 
     if (comentarioExiste > 0) {
       await deleteTodasCurtidasComentarioNoticia(idComentario);
+      await deleteTodasDenunciasComentarioPorId(idComentario);
       await deleteComentarioNoticia(idComentario);
 
-      res.status(200).json({
+      return res.status(200).json({
         statusCode: 200,
         message: "O comentário da notícia foi deletado com sucesso!"
       });
@@ -808,6 +819,255 @@ export async function pesquisarNoticias(req, res) {
     res.status(500).json({
       statusCode: 500,
       message: "Erro ao pesquisar as notícias."
+    });
+  }
+}
+
+export async function capturarNoticiasAdmin(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+
+    const { noticias, totalNoticias } = await selectNoticiasAdmin(pagina, 10);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "As notícias foram capturadas com sucesso!",
+      noticias,
+      totalNoticias
+    });
+  } catch (error) {
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao capturar as notícias.",
+      noticias: [],
+      totalNoticias: 0
+    });
+  }
+}
+
+export async function pesquisarNoticiasAdmin(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+    const busca = req.query.busca;
+
+    const { noticias, totalNoticias } = await selectNoticiasPesquisadasAdmin(busca, pagina, 10);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "As notícias foram pesquisadas com sucesso!",
+      noticias,
+      totalNoticias
+    });
+  } catch (error) {
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao pesquisar as notícias."
+    });
+  }
+}
+
+export async function desativarNoticiaAdmin(req, res) {
+  try {
+    const { idNoticia } = req.body;
+
+    if (!idNoticia) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "ID da notícia é obrigatório!"
+      });
+    }
+
+    // Desativa a notícia do usuário
+    await updateDesativarNoticia(idNoticia);
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Notícia desativada com sucesso!"
+    });
+
+  } catch (error) {
+    console.error("Erro ao desativar notícia:", error.message);
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao desativar notícia!"
+    });
+  }
+}
+
+export async function ativarNoticiaAdmin(req, res) {
+  try {
+    const { idNoticia } = req.body;
+
+    if (!idNoticia) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "ID da notícia é obrigatório!"
+      });
+    }
+
+    // Ativa a notícia do usuário
+    await updateAtivarNoticia(idNoticia);
+    
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Notícia ativada com sucesso!"
+    });
+
+  } catch (error) {
+    console.error("Erro ao ativar notícia:", error.message);
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao ativar notícia!"
+    });
+  }
+}
+
+export async function contarDenunciasComentario(req, res) {
+  try {
+    const { idComentario } = req.params;
+
+    if (!idComentario) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetro idComentario é obrigatório.",
+        quantidadeDenunciasComentario: 0
+      });
+    }
+
+    const comentarioExiste = await verificaComentarioNoticia(idComentario);
+    if (comentarioExiste > 0) {
+      const quantidadeDenunciasComentario = await contaDenunciasComentario(idComentario);
+      return res.status(quantidadeDenunciasComentario.statusCode).json(quantidadeDenunciasComentario);
+    } else {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "O idComentario fornecido não é válido!",
+        quantidadeDenunciasComentario: 0
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao contar a quantidade de denúncias do comentário!",
+      quantidadeDenunciasComentario: 0
+    });
+  }
+}
+
+export async function capturarComentariosAdmin(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+
+    const { comentarios, totalComentarios } = await selectComentariosAdmin(pagina, 10);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "Os comentários foram capturados com sucesso!",
+      comentarios,
+      totalComentarios
+    });
+  } catch (error) {
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao capturar os comentários.",
+      comentarios: [],
+      totalComentarios: 0
+    });
+  }
+}
+
+export async function pesquisarComentariosAdmin(req, res) {
+  try {
+    const pagina = parseInt(req.query.pagina || "1", 10);
+    const busca = req.query.busca;
+
+    const { comentarios, totalComentarios } = await selectComentariosPesquisadosAdmin(busca, pagina, 10);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "Os comentários foram pesquisadas com sucesso!",
+      comentarios,
+      totalComentarios
+    });
+  } catch (error) {
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao pesquisar as comentários."
+    });
+  }
+}
+
+export async function capturarNoticiaAdmin(req, res) {
+  try {
+    const idNoticia = req.query.idNoticia;
+
+    if (!idNoticia) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "O ID da notícia é obrigatório.",
+        noticia: null
+      });
+    }
+    
+    const noticia = await selectNoticiaAdmin(idNoticia);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "A notícia foi capturada com sucesso!",
+      noticia: noticia
+    });
+  } catch (error) {
+    res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao capturar a notícia.",
+      noticia: null
+    });
+  }
+}
+
+export async function capturarNoticia(req, res) {
+  try {
+    const { apelidoAutor, idNoticia } = req.body;
+    if (!apelidoAutor) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "Apelido do autor é obrigatório.",
+        noticia: null
+      });
+    }
+
+    if (!idNoticia) {
+      return res.status(400).json({ 
+        statusCode: 400, 
+        message: "ID da notícia é obrigatório.",
+        noticia: null
+      });
+    }
+
+    const usuarioExiste = await verificaApelidoUsuario(apelidoAutor);
+    const noticiaExiste = await verificaNoticia(idNoticia);
+
+    if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
+      const noticia = await selectNoticia(idNoticia);
+
+      res.status(200).json({
+        statusCode: 200,
+        message: "A notícia foi capturada com sucesso!",
+        noticia: noticia
+      });
+    } else {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Apelido do autor ou notícia não encontrados!",
+        noticia: null
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      statusCode: 500, 
+      message: "Erro ao capturar notícia!",
+      noticia: null
     });
   }
 }

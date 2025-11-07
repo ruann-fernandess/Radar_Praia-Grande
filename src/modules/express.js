@@ -77,17 +77,25 @@ app.get("/index.html", (req, res) => {
 app.get("/", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/index.html"));
 });
+
 app.get("/cadastro.html", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/cadastro.html"));
 });
 app.get("/login.html", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/login.html"));
 });
+
+app.get("/admin/", (req, res) => {
+    res.redirect("/admin/login.html");
+});
+app.get("/admin/login", (req, res) => {
+    res.redirect("/admin/login.html");
+});
 app.get("/admin/login.html", impedeUsuariosAutenticados, (req, res) => {
     res.sendFile(path.join(__dirname, "../view/login-admin.html"));
 });
 
-// Rotas que provavelmente precisam de autenticação — adicione middleware verificaAutenticacao no router específico
+// Rotas que precisam de autenticação
 app.get("/home.html", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/home.html"));
 });
@@ -118,6 +126,19 @@ app.get("/admin/consultar-comentarios.html", (req, res) => {
 app.get("/perfil/:apelidoOutroUsuario", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/perfil-outro-usuario.html"));
 });
+app.get("/noticias/:apelidoAutor/:idNoticia", (req, res) => {
+    res.sendFile(path.join(__dirname, "../view/noticia.html"));
+});
+
+/*
+app.use((req, res, next) => {
+  res.status(404);
+  if (req.accepts("html")) {
+    res.sendFile(path.join(__dirname, "../view/404.html"));
+    return;
+  }
+});
+*/
 
 // Importação e uso das rotas especializadas
 import usuarioRoutes from "../routes/usuarioRoutes.js";
@@ -131,5 +152,9 @@ app.use("/noticia", noticiaRoutes);
 app.use("/imagem", imagemRoutes);
 app.use("/denuncia", denunciaRoutes);
 app.use("/admin", adminRoutes);
+
+app.use(impedeUsuariosAutenticados, (req, res) => {
+  res.sendFile(path.join(__dirname, "../view/erro-404.html"));
+});
 
 export default app;

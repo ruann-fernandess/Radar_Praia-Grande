@@ -15,17 +15,33 @@
 </head>
 <body>
     <nav class="navbar">
-      <div class="logo">Radar Praia Grande</div>
-      <input type="text" id="barraDePesquisa" placeholder="Pesquise..">
+      <a href="/home.html" class="logo">Radar Praia Grande</a>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+
+      <button class="menu-toggle" id="menu-toggle">☰</button>
       <ul class="nav-links">
-        <li><a href="home.html">Feed</a></li>
-        <li><a href="perfil.html">Perfil</a></li>
+        <li><a href="/home.html">Feed</a></li>
+        <li><a href="/perfil.html">Perfil</a></li>
         <li><button id="logout-btn" class="logout-btn">Logout</button></li>
       </ul>
     </nav>
+
+    <!-- Fundo escuro da sidebar -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <button class="close-sidebar" id="close-sidebar">×</button>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+      <ul>
+        <li><a href="/home.html">Feed</a></li>
+        <li><a href="/perfil.html">Perfil</a></li>
+        <li><button id="logout-btn-mobile" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
  
     <div class="perfil-container">
-        <section class="perfil">
+        <section class="perfil" style="margin-bottom: 38px;">
             <div class="perfil-info">
  
             <div class="elemento-edicao">
@@ -61,10 +77,9 @@
                
             </div>
  
- 
             <button class="editar-btn" id="salvar-btn" class="hidden">Salvar Alterações</button>
             <button class="editar-btn" id="apagar-perfil-btn">Apagar perfil</button>
-            <a class="editar-btn" id="parar-editar-btn" href="perfil.html">Parar de editar</a>
+            <a class="editar-btn" id="parar-editar-btn" href="/perfil.html">Parar de editar</a>
         </section>
     </div>
  
@@ -78,6 +93,7 @@
  
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="/js/modal.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
     <script type="module" src="/js/editar-perfil.js"></script>
 </body>
 </html>

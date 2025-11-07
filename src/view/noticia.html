@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Radar Praia Grande</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Young+Serif&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/home.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="/home.html" class="logo">Radar Praia Grande</a>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+      <ul class="nav-links">
+        <li><a>Feed</a></li>
+        <li><a>Perfil</a></li>
+        <li><button id="logout-btn" class="logout-btn">Logout</button></li>
+      </ul>
+    </nav>
+
+    <!-- Fundo escuro da sidebar -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <button class="close-sidebar" id="close-sidebar">×</button>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+      <ul>
+        <li><a>Feed</a></li>
+        <li><a>Perfil</a></li>
+        <li><button id="logout-btn-mobile" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
+ 
+    <div class="noticias-container">
+        <section class="noticias">
+            <div class="noticias-lista">
+                <h2>Notícia</h2>
+            </div>
+        </section>
+    </div>
+ 
+    <div id="comentariosModal" class="modal">
+        <div class="modal-content">
+            <p>Comentários</p>
+            <button id="adicionarComentario">Adicionar comentário</button>
+            <div id="listaComentarios"></div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p>Tem certeza que deseja sair?</p>
+            <button id="confirmYes">Sim</button>
+            <button id="confirmNo">Cancelar</button>
+        </div>
+    </div>
+    
+    <div id="cadastroLoginModal" class="modal">
+        <div class="modal-content">
+            <p>Você precisa fazer <b>Cadastro</b> ou <b>Login</b> para utilizar todos os recursos do site.</p>
+            <a href="/cadastro.html">Cadastrar-se</a>
+            <a href="/login.html">Login</a>
+        </div>
+    </div>
+
+    <div id="adicionarComentarioModal" class="modal">
+        <div class="modal-content">
+          <p>Adicionar comentário</p>
+          <textarea id="descricaoComentario" placeholder="Digite um comentário.."></textarea>
+          <button id="confirmarComentario">Confirmar</button>
+        </div>
+    </div>
+    
+    <div id="editarComentarioModal" class="modal">
+        <div class="modal-content">
+          <p>Editar comentário</p>
+          <textarea id="descricaoEditarComentario" placeholder="Digite um comentário.."></textarea>
+          <button id="confirmarEditarComentario">Confirmar</button>
+          <button id="confirmarExcluirComentario">Excluir comentário</button>
+        </div>
+    </div>
+
+    <div id="denunciarNoticiaModal" class="modal">
+        <div class="modal-content">
+          <p>Denunciar notícia</p>
+          <select class="listaCategoriaDenuncia">
+            <option value="" selected>Selecione uma categoria</option>
+          </select>
+          <textarea id="descricaoDenunciaNoticia" placeholder="Digite a descrição da denúncia.."></textarea>
+          <button id="confirmarDenunciaNoticia">Confirmar</button>
+        </div>
+    </div>
+
+    <div id="denunciarComentarioModal" class="modal">
+        <div class="modal-content">
+          <p>Denunciar comentário</p>
+          <select class="listaCategoriaDenuncia">
+            <option value="" selected>Selecione uma categoria</option>
+          </select>
+          <textarea id="descricaoDenunciaComentario" placeholder="Digite a descrição da denúncia.."></textarea>
+          <button id="confirmarDenunciaComentario">Confirmar</button>
+        </div>
+    </div>
+ 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="/js/modal.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
+    <script type="module" src="/js/noticia.js"></script>
+  </body>
+</html>

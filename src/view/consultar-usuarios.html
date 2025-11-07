@@ -16,31 +16,38 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">Radar Praia Grande</div>
-        <ul class="nav-links">
-            <li><a href="consultar-usuarios.html">Usuários</a></li>
-            <li><a href="consultar-noticias.html">Notícias</a></li>
-            <li><a href="consultar-comentarios.html">Comentários</a></li>
-            
-            <li class="dropdown">
-                <a id="dropdown-link">Denúncias ▾</a>
-                <ul class="dropdown-menu">
-                    <li><a href="denuncias-usuarios.html">Usuários</a></li>
-                    <li><a href="denuncias-noticias.html">Notícias</a></li>
-                    <li><a href="denuncias-comentarios.html">Comentários</a></li>
-                </ul>
-            </li>
-            
-            <li><button id="logout-btn" class="logout-btn">Logout</button></li>
-        </ul>
+      <a href="/admin/consultar-usuarios.html" class="logo">Radar Praia Grande</a>
+
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+      <ul class="nav-links">
+        <li><a href="/admin/consultar-usuarios.html">Usuários</a></li>
+        <li><a href="/admin/consultar-noticias.html">Notícias</a></li>
+        <li><a href="/admin/consultar-comentarios.html">Comentários</a></li>
+        <li><button id="logout-btn" class="logout-btn">Logout</button></li>
+      </ul>
     </nav>
+
+    <!-- Fundo escuro da sidebar -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <button class="close-sidebar" id="close-sidebar">×</button>
+      <ul>
+        <li><a href="/admin/consultar-usuarios.html">Usuários</a></li>
+        <li><a href="/admin/consultar-noticias.html">Notícias</a></li>
+        <li><a href="/admin/consultar-comentarios.html">Comentários</a></li>
+        <li><button id="logout-btn-mobile" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
 
     <div class="usuarios-container">
         <section class="usuarios">
             <div class="usuarios-lista">
                 <h2>Lista de Usuários</h2>
+                <input type="text" id="barraDePesquisa" class="barraDePesquisa" placeholder="Pesquise.." />
                 
-                <div id="usuariosLista"></div>
+                <div id="listaUsuarios"></div>
                 <div id="paginacaoUsuarios"></div>
             </div>
         </section>
@@ -54,7 +61,32 @@
         </div>
     </div>
 
+    <div id="denunciasUsuarioModal" class="modal">
+        <div class="modal-content">
+            <p>Denúncias usuário</p>
+            <div id="listaDenunciasUsuario"></div>
+        </div>
+    </div>
+
+    <div id="desativarUsuarioModal" class="modal">
+        <div class="modal-content">
+            <p>Tem certeza que deseja desativar este usuário?</p>
+            <button id="confirmarDesativarUsuario">Sim</button>
+            <button id="cancelarDesativarUsuario">Cancelar</button>
+        </div>
+    </div>
+    
+    <div id="ativarUsuarioModal" class="modal">
+        <div class="modal-content">
+            <p>Tem certeza que deseja ativar este usuário?</p>
+            <button id="confirmarAtivarUsuario">Sim</button>
+            <button id="cancelarAtivarUsuario">Cancelar</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="/js/modal.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
     <script type="module" src="/js/consultar-usuarios.js"></script>
 </body>
 </html>

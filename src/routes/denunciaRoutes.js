@@ -3,7 +3,7 @@ import { capturarCategoriasDenuncia, verificaExistenciaDenunciaNoticia, verifica
 import { verificaAutenticacao } from "../controller/usuarioController.js";
 const router = express.Router();
 
-router.get("/capturar-categorias-denuncia", verificaAutenticacao, capturarCategoriasDenuncia);
+router.get("/capturar-categorias-denuncia", capturarCategoriasDenuncia);
 router.post("/verifica-denuncia-noticia", verificaAutenticacao, verificaExistenciaDenunciaNoticia);
 router.post("/verifica-denuncia-comentario", verificaAutenticacao, verificaExistenciaDenunciaComentario);
 router.post("/verifica-denuncia-usuario", verificaAutenticacao, verificaExistenciaDenunciaUsuario);

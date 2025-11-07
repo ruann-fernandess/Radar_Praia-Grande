@@ -86,7 +86,7 @@ export async function deleteTodasAmizadesPorApelido(apelido) {
       );
     console.log(chalk.green(`Todas as amizades do usuário '${apelido}' foram deletadas com sucesso!`));
   } catch (error) {
-    console.error(chalk.red("Erro ao deletar amizades do usuário:", error.message));
+    console.error(chalk.red("Erro ao excluir amizades do usuário:", error.message));
   }
 }
 
@@ -98,7 +98,8 @@ export async function contaSeguidores(apelido) {
         INNER JOIN USUARIO U
         ON A.apelido1 = U.apelido 
        WHERE A.apelido2 = ? 
-         AND U.admin = ?;`,
+         AND U.admin = ? 
+         AND U.desativado = 0`,
       [apelido, 0]
     );
 
@@ -126,7 +127,8 @@ export async function contaSeguindo(apelido) {
         INNER JOIN USUARIO U
         ON A.apelido2 = U.apelido 
        WHERE A.apelido1 = ? 
-         AND U.admin = ?;`,
+         AND U.admin = ? 
+         AND U.desativado = 0`,
       [apelido, 0]
     );
 

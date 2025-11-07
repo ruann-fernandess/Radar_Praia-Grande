@@ -1,4 +1,4 @@
-import { exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
+import { exibirAlertaErro, exibirAlertaSucesso, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
 
 let apelido = "";
 
@@ -389,7 +389,7 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
                         }
 
                         await exibirAlertaSucesso(data.message);
-                        window.location.href = "perfil.html";
+                        window.location.href = "/perfil.html";
                     }
                 } else {
                     loadingContainer.style.display = "none";
@@ -419,7 +419,7 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
 
             if (data.statusCode === 200) {
                 await exibirAlertaSucesso(data.message);
-                window.location.href = "perfil.html";
+                window.location.href = "/perfil.html";
             } else {
                 loadingContainer.style.display = "none";
                 await exibirAlertaErro("error", "Erro", "Erro ao cadastrar notícia!");
@@ -432,10 +432,24 @@ document.getElementById("cadastronoticiaForm").addEventListener("submit", async 
   }
 });
 
-const barraDePesquisa = document.getElementById("barraDePesquisa");
+// Seleciona todas as barras de pesquisa pela classe
+const barrasDePesquisa = document.querySelectorAll(".barraDePesquisa");
 
-barraDePesquisa.addEventListener("keydown", function(event) {
-  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
-    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
-  }
+// Adiciona o evento a cada barra
+barrasDePesquisa.forEach(barra => {
+  // Atualiza a outra barra enquanto digita
+  barra.addEventListener("input", function() {
+    barrasDePesquisa.forEach(outraBarra => {
+      if (outraBarra !== barra) {
+        outraBarra.value = barra.value;
+      }
+    });
+  });
+
+  // Redireciona ao apertar Enter
+  barra.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && barra.value.trim() !== "") {
+      window.location.href = `/resultados-pesquisa.html?busca=${encodeURIComponent(barra.value.trim())}`;
+    }
+  });
 });

@@ -57,7 +57,7 @@ input[type="radio"] {
   margin-bottom: 0.60em;
 }
 
-#usuariosLista.active {
+#listaUsuarios.active {
   padding: 1.2em;
   border: 1px solid var(--bege);
   border-radius: 12px;

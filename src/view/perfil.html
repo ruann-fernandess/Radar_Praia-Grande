@@ -15,14 +15,30 @@
 </head>
 <body>
     <nav class="navbar">
-      <div class="logo">Radar Praia Grande</div>
-      <input type="text" id="barraDePesquisa" placeholder="Pesquise..">
+      <a href="/home.html" class="logo">Radar Praia Grande</a>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+
+      <button class="menu-toggle" id="menu-toggle">☰</button>
       <ul class="nav-links">
-        <li><a href="home.html">Feed</a></li>
-        <li><a href="perfil.html">Perfil</a></li>
+        <li><a href="/home.html">Feed</a></li>
+        <li><a href="/perfil.html">Perfil</a></li>
         <li><button id="logout-btn" class="logout-btn">Logout</button></li>
       </ul>
     </nav>
+
+    <!-- Fundo escuro da sidebar -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <button class="close-sidebar" id="close-sidebar">×</button>
+      <input type="text" class="barraDePesquisa" placeholder="Pesquise.." />
+      <ul>
+        <li><a href="/home.html">Feed</a></li>
+        <li><a href="/perfil.html">Perfil</a></li>
+        <li><button id="logout-btn-mobile" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
  
     <div class="perfil-container">
         <section class="perfil">
@@ -35,13 +51,13 @@
                 <span id="seguindo"><b id="quantidadeSeguindo">0</b> seguindo</span>
             </div>
  
-            <a href="editar-perfil.html" class="editar-btn">Editar perfil</a>
+            <a href="/editar-perfil.html" class="editar-btn">Editar perfil</a>
         </section>
  
         <section class="noticias">
             <div class="noticias-perfil">
                 <h2>Minhas notícias</h2>
-                <a href="cadastro-noticia.html" class="botao-noticia">Adicionar notícia</a>
+                <a href="/cadastro-noticia.html" class="botao-noticia">Adicionar notícia</a>
                
                 <div id="noticiasUsuario"></div>
                 <div id="paginacaoNoticias"></div>
@@ -109,6 +125,7 @@
  
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="/js/modal.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
     <script type="module" src="/js/perfil.js"></script>
 </body>
 </html>

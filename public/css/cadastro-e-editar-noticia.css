@@ -4,6 +4,7 @@ body{
     background-color: var(--marrom-claro);
     font-family: var(--fonte-principal);
     background-image: url('../imagens/newspaper_collage_texture.jpg');
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-blend-mode: multiply;
@@ -15,7 +16,7 @@ body{
     padding: 30px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 600px;
+    max-width: 900px;
     min-height: 400px;
     text-align: center;
     display: flex;
@@ -111,16 +112,17 @@ table {
     margin-top: 15px;
     margin-bottom: 15px;
     box-sizing: border-box;
+    table-layout: fixed;
 }
 
 table thead {
-    color: #333;
+    color: var(--preto);
 }
 
 table,
 table th,
 table td {
-    background-color: #f5f5f5;
+    background-color: #fff;
     border: 1px solid #ddd;
 }
 
@@ -164,18 +166,19 @@ table tr td:nth-child(3) {
 }
 
 table td img {
-    width: 175px;
-    max-width: 175px;
+    width: 100%;
+    max-width: 165px;
     height: 76px;
+    object-fit: cover;
     margin-top: 10px;
     margin-bottom: 4px;
 }
 
 table td button {
     padding: 6px 10px;
-    background-color: rgb(23, 15, 7);       /* var(--preto) */
-    color: rgb(237, 224, 212);              /* var(--branco) */
-    border: 1px solid rgb(127, 85, 57);     /* var(--marrom-escuro) */
+    background-color: rgb(23, 15, 7);
+    color: rgb(237, 224, 212);
+    border: 1px solid rgb(127, 85, 57);
     border-radius: 4px;
     font-family: 'Young Serif', serif;
     font-size: 13px;
@@ -225,4 +228,28 @@ textarea {
     100% {
         transform: rotate(360deg);
     }
+}
+
+@media (max-width: 1000px) {  
+  .quadrado {
+    width: auto;
+    margin-left: 1.25em;
+    margin-right: 1.25em;
+  }
+}
+
+@media (max-width: 575px) {
+  .quadrado {
+    padding: 2em 1em 1em 1em;
+    margin-left: 0.75em;
+    margin-right: 0.75em;
+  }
+}
+
+@media (max-width: 425px) {
+  .quadrado {
+    padding: 1em 0.75em 0.75em 0.75em;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+  }
 }

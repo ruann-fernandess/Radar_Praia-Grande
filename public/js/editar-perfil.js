@@ -1,4 +1,4 @@
-import { exibirAlertaErroERedirecionar, exibirAlertaErro, exibirAlertaSucesso, exibirAlertaConfirmar } from "./alert.js";
+import { exibirAlertaErroERedirecionar, exibirAlertaSucesso, exibirAlertaErro, exibirAlertaSucesso, exibirAlertaConfirmar } from "./alert.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const apelidoSpan = document.getElementById("apelido");
@@ -69,36 +69,37 @@ function editarCampo(span, campo, tipo = "text") {
 }
 
 function editarImagem(container, campo, imgElement) {
-  const parent = container.parentElement; // container = fotoPerfil-text ou fotoCapa-text
-  const inputExistente = parent.querySelector("input");
+  const parent = container.parentElement;
+  let input = parent.querySelector("input[type='file']");
 
-  if (inputExistente) {
-    // Remove o input e volta só a imagem
-    inputExistente.remove();
-    delete arquivosEditados[campo];
-    return;
+  // Se o input ainda não existe, cria e adiciona
+  if (!input) {
+    input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.style.display = "none";
+    parent.appendChild(input);
+
+    input.addEventListener("change", () => {
+      const file = input.files[0];
+      if (file) {
+        arquivosEditados[campo] = file;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imgElement.src = e.target.result; // Atualiza a imagem
+        };
+        reader.readAsDataURL(file);
+
+        salvarBtn.classList.remove("hidden");
+      }
+
+      input.value = "";
+    });
   }
 
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.classList.add("input-editar");
-
-  parent.appendChild(input); // Adiciona fora da imagem, mas dentro do .elemento-edicao
-  salvarBtn.classList.remove("hidden");
-
-  input.addEventListener("change", () => {
-    const file = input.files[0];
-    if (file) {
-      arquivosEditados[campo] = file;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        imgElement.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+  // Sempre que clicar no botão, abre o seletor
+  input.click();
 }
 
   document.getElementById("editar-email").addEventListener("click", () => editarCampo(emailSpan, "email"));
@@ -208,10 +209,24 @@ salvarBtn.addEventListener("click", async () => {
   });
 });
 
-const barraDePesquisa = document.getElementById("barraDePesquisa");
+// Seleciona todas as barras de pesquisa pela classe
+const barrasDePesquisa = document.querySelectorAll(".barraDePesquisa");
 
-barraDePesquisa.addEventListener("keydown", function(event) {
-  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
-    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
-  }
+// Adiciona o evento a cada barra
+barrasDePesquisa.forEach(barra => {
+  // Atualiza a outra barra enquanto digita
+  barra.addEventListener("input", function() {
+    barrasDePesquisa.forEach(outraBarra => {
+      if (outraBarra !== barra) {
+        outraBarra.value = barra.value;
+      }
+    });
+  });
+
+  // Redireciona ao apertar Enter
+  barra.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && barra.value.trim() !== "") {
+      window.location.href = `/resultados-pesquisa.html?busca=${encodeURIComponent(barra.value.trim())}`;
+    }
+  });
 });

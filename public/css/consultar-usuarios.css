@@ -4,6 +4,7 @@ body {
   background-color: var(--marrom-escuro);
   font-family: var(--fonte-principal);
   background-image: url('../imagens/white-paper-texture.jpg');
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-blend-mode: multiply;
@@ -12,14 +13,14 @@ body {
 .usuarios-lista {
   background-color: var(--branco);
 }
- 
+
 .usuarios {
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
   margin: 0 auto;
-  width: 900px;
+  max-width: 900px;
   height: auto;
   padding-bottom: 2em;
   margin-top: 2em;
@@ -34,4 +35,241 @@ h2 {
   padding: 0;
   text-align: center;
   margin-bottom: 16px;
+}
+
+.barraDePesquisa {
+  width: 100%;
+  padding: 10px 20px;
+  margin-bottom: 18px;
+  font-size: 17px;
+  color: #000000;
+  border: 1px solid #4B4B4B;
+  border-radius: 3px;
+  background-color: #FFFFFF;
+}
+
+.barraDePesquisa::placeholder {
+  color: #000000;
+}
+
+#paginacaoUsuarios {
+  display: flex;
+  justify-content: center;
+  margin-top: 2em;
+  gap: 10px;
+}
+ 
+#paginacaoUsuarios button {
+  background-color: var(--bege);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  color: var(--preto);
+  font-family: var(--fonte-principal);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+ 
+#paginacaoUsuarios button:hover {
+  background-color: var(--bege-escuro);
+  color: var(--branco);
+}
+ 
+#paginacaoUsuarios button.ativo {
+  background-color: var(--marrom-claro);
+  color: var(--branco);
+  font-weight: bold;
+  cursor: default;
+}
+
+.usuario {
+  display: block;
+  padding: 1.2em;
+  border: 1px solid var(--bege);
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.usuario .cabecalho {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px; 
+}
+
+.usuario:not(:last-child) {
+  margin-bottom: 0.60em;
+}
+
+.usuario a {
+  color: #6b4e36;
+  margin-top: -4px;
+}
+
+.usuario img {
+  width: 54px;
+  height: 52px;
+  margin-right: 14px;
+  border: 2px solid var(--branco);
+  border-radius: 50%;
+}
+
+.exibir-denuncias-btn, .desativar-usuario-btn, .ativar-usuario-btn, .aprovar-denuncia-usuario-btn, .ignorar-denuncia-usuario-btn {
+  display: inline-block;
+  cursor: pointer;
+  padding: 10px 18px;
+  color: #fff;
+  text-decoration: none;
+  border: 0;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.exibir-denuncias-btn, .desativar-usuario-btn, .ativar-usuario-btn, .aprovar-denuncia-usuario-btn {
+  margin-top: 6px;
+  margin-right: 12px;
+}
+
+.exibir-denuncias-btn, .aprovar-denuncia-usuario-btn {
+  background-color: var(--vermelho-escuro);
+}
+
+.desativar-usuario-btn, .ativar-usuario-btn, .ignorar-denuncia-usuario-btn {
+  background-color: rgb(12, 8, 4);
+}
+
+.exibir-denuncias-btn.active, .aprovar-denuncia-usuario-btn.active {
+  background-color: rgb(12, 8, 4);
+}
+
+.exibir-denuncias-btn:hover, .desativar-usuario-btn:hover, .ativar-usuario-btn:hover, .aprovar-denuncia-usuario-btn:hover, .ignorar-denuncia-usuario-btn:hover {
+  text-decoration: underline;
+}
+
+.denuncia-usuario {
+  width: 100%;
+  padding: 24px;
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  background-color: #fff;
+  border: 1px solid var(--bege);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  font-family: var(--fonte-principal);
+  color: var(--preto);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+ 
+.denuncia-usuario:hover {
+  transform: scale(1.01);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.denuncia-usuario main p:nth-child(2) b,
+.denuncia-usuario main p:nth-child(3) b {
+  color: #C40303;
+}
+.denuncia-usuario.aprovada main p:nth-child(2) b,
+.denuncia-usuario.aprovada main p:nth-child(3) b {
+  color: #0F7124;
+}
+
+.denuncia-usuario header {
+  display: flex;
+  text-align: left;
+}
+
+.denuncia-usuario header .lado-esquerdo {
+  margin-right: 15px;
+}
+
+.denuncia-usuario header .lado-esquerdo img {
+  width: 54px;
+  height: 52px;
+  border: 2px solid var(--branco);
+  border-radius: 50%;
+}
+
+.denuncia-usuario main {
+  margin-top: 12px;
+  margin-bottom: 10px;
+}
+
+.denuncia-usuario footer {
+  text-align: left;
+}
+
+@media (max-width: 1000px) {
+  .usuarios-lista {
+    background-color: var(--branco);
+  }
+  
+  .usuarios {
+    margin-left: 1.25em;
+    margin-right: 1.25em;
+  }
+}
+
+@media (max-width: 575px) {
+  .usuarios-lista {
+    padding: 2em 1em 1em 1em;
+  }
+
+  .usuario img {
+    margin-bottom: 12px;
+    margin-right: 14px !important;
+  }
+
+  .usuarios {
+    margin-left: 0.75em;
+    margin-right: 0.75em;
+  }
+
+  .editar-noticia {
+    text-align: center;
+  }
+
+  .exibir-denuncias-btn, .desativar-usuario-btn, .ativar-usuario-btn {
+    width: 100%;
+  }
+
+  .exibir-denuncias-btn, .desativar-usuario-btn, .ativar-usuario-btn {
+    padding: 12px 16px;
+  }
+
+  .exibir-denuncias-btn, .desativar-usuario-btn, .ativar-usuario-btn {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 550px) {
+  .usuario .cabecalho {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .usuario img {
+    text-align: center;
+    margin: 0 auto !important;
+  }
+
+  .usuario .cabecalho div {
+    width: 100%;
+  }
+}
+
+@media (max-width: 425px) {
+  .usuarios-lista {
+    padding: 1em 0.75em 0.75em 0.75em;
+  }
+
+  .usuarios {
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+  }
+
+  .usuario {
+    padding: 18px;
+  }
 }

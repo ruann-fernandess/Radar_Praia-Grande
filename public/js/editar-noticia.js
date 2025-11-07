@@ -1,4 +1,4 @@
-import { exibirAlertaConfirmar, exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
+import { exibirAlertaConfirmar, exibirAlertaSucesso, exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
 
 let apelido = "";
 let imagensNoticiaAntesEdicao = "";
@@ -147,7 +147,7 @@ async function carregarNoticia() {
                     });
                     
                     await exibirAlertaSucesso("Notícia excluída!");
-                    window.location.href = "perfil.html";
+                    window.location.href = "/perfil.html";
                 } catch (error) {
                     await exibirAlertaErro("error", "Erro", "Erro ao apagar notícia!");
                     console.error('Erro na requisição: ' + error.message);
@@ -439,7 +439,7 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
   
   // Caso nenhuma alteração seja feita o usuário é redirecionado
   if ((document.getElementById("imagens").files == imagensNoticiaAntesEdicao) && (listaBairros.value == bairroNoticiaAntesEdicao) && (document.getElementById("descricao").value == descricaoNoticiaAntesEdicao)) {
-    window.location.href = "perfil.html";
+    window.location.href = "/perfil.html";
   } else {
     let bairroValido = await verificarBairro();
     let descricaoValida = await verificarDescricao();
@@ -520,7 +520,7 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
                             }
     
                             await exibirAlertaSucesso(data.message);
-                            window.location.href = "perfil.html";
+                            window.location.href = "/perfil.html";
                         }
                     } else {
                         loadingContainer.style.display = "none";
@@ -549,7 +549,7 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
     
                 if (data.statusCode === 200) {
                     await exibirAlertaSucesso(data.message);
-                    window.location.href = "perfil.html";
+                    window.location.href = "/perfil.html";
                 } else {
                     loadingContainer.style.display = "none";
                     await exibirAlertaErro("error", "Erro", "Erro ao editar notícia!");
@@ -563,10 +563,24 @@ document.getElementById("editarNoticiaForm").addEventListener("submit", async fu
   }
 });
 
-const barraDePesquisa = document.getElementById("barraDePesquisa");
+// Seleciona todas as barras de pesquisa pela classe
+const barrasDePesquisa = document.querySelectorAll(".barraDePesquisa");
 
-barraDePesquisa.addEventListener("keydown", function(event) {
-  if (event.key === "Enter" && barraDePesquisa.value.trim() != "") {
-    window.location.href = `resultados-pesquisa.html?busca=${barraDePesquisa.value.trim()}`;
-  }
+// Adiciona o evento a cada barra
+barrasDePesquisa.forEach(barra => {
+  // Atualiza a outra barra enquanto digita
+  barra.addEventListener("input", function() {
+    barrasDePesquisa.forEach(outraBarra => {
+      if (outraBarra !== barra) {
+        outraBarra.value = barra.value;
+      }
+    });
+  });
+
+  // Redireciona ao apertar Enter
+  barra.addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && barra.value.trim() !== "") {
+      window.location.href = `/resultados-pesquisa.html?busca=${encodeURIComponent(barra.value.trim())}`;
+    }
+  });
 });

@@ -14,40 +14,42 @@ export async function createTableUsuario() {
                 email VARCHAR(100) NOT NULL UNIQUE COLLATE NOCASE,
                 senha VARCHAR(100) NOT NULL,
                 biografia VARCHAR(200) DEFAULT "Estou usando o RADAR PG!",
+                desativado INTEGER NOT NULL DEFAULT 0, 
                 dataCriacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 admin INTEGER NOT NULL DEFAULT 0
             );`
     );
-    
+
     await db.exec('BEGIN TRANSACTION');
 
-    const result = await db.get(
-      `SELECT 1 
-       FROM USUARIO 
-       WHERE apelido = ? 
-         AND nome = ? 
-         AND email = ? 
-         AND admin = ?`,
-      [
-        "admin",
-        "Admin",
-        "admin@admin.com",
-        1
-      ]
-    );
+    // Lista de admins iniciais
+    const adminsIniciais = [
+      { apelido: "isaque@admin", nome: "Admin@Isaque", email: "isaque_admin@admin.com", senha: "admin@isaque" },
+      { apelido: "luiza@admin", nome: "Admin@Luiza", email: "luiza_admin@admin.com", senha: "admin@luiza" },
+      { apelido: "ruan@admin", nome: "Admin@Ruan", email: "ruan_admin@admin.com", senha: "admin@ruan" },
+      { apelido: "paddin@admin", nome: "Admin@Paddin", email: "paddin_admin@admin.com", senha: "admin@paddin" },
+      { apelido: "salgado@admin", nome: "Admin@Salgado", email: "salgado_admin@admin.com", senha: "admin@salgado" }
+    ];
 
-    if (!result) {
-      const hash = bcrypt.hashSync("admin", 10);
-
-      await db.run(
-        `INSERT INTO USUARIO (apelido, nome, email, senha, admin) VALUES (?, ?, ?, ?, ?)`,
-        ["admin", "Admin", "admin@admin.com", hash, 1]
+    for (const admin of adminsIniciais) {
+      const result = await db.get(
+        `SELECT 1 FROM USUARIO WHERE apelido = ? AND nome = ? AND email = ? AND admin = 1`,
+        [admin.apelido, admin.nome, admin.email]
       );
+
+      if (!result) {
+        const hash = bcrypt.hashSync(admin.senha, 10);
+
+        await db.run(
+          `INSERT INTO USUARIO (apelido, nome, email, senha, admin) VALUES (?, ?, ?, ?, ?)`,
+          [admin.apelido, admin.nome, admin.email, hash, 1]
+        );
+      }
     }
 
     await db.exec('COMMIT');
 
-    console.log(chalk.green("Tabela USUARIO criada com sucesso!"));
+    console.log(chalk.green("Tabela USUARIO criada com sucesso e admins iniciais inseridos!"));
   } catch (error) {
     await db.exec('ROLLBACK');
     console.error(chalk.red("Erro ao criar a tabela USUARIO:", error.message));
@@ -57,13 +59,19 @@ export async function createTableUsuario() {
 export async function verificaApelidoUsuario(apelido) {
   try {
     const result = await db.get(
-      `SELECT COUNT(*) AS count FROM usuario WHERE apelido = ? AND admin = ?`,
-      [apelido, 0]
+      `SELECT admin FROM usuario WHERE apelido = ?`,
+      [apelido]
     );
 
-    return result.count; 
+    if (result) {
+      // Apelido existe, retorna se é ou não admin (0 ou 1)
+      return { existe: 1, admin: result.admin };
+    } else {
+      return { existe: 0, admin: 0 };
+    }
   } catch (error) {
-    return -1; 
+    console.error("Erro ao verificar apelido:", error.message);
+    return { existe: -1, admin: 0 };
   }
 }
 
@@ -90,7 +98,8 @@ export async function verificaLogin(email, senha) {
         U.senha
       FROM USUARIO U 
       WHERE U.email = ? 
-        AND U.admin = ?`,
+        AND U.admin = ? 
+        AND U.desativado = 0`,
       [email, 0]
     );
 
@@ -217,7 +226,8 @@ export async function buscarUsuarioPorApelido(apelido) {
       LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
       LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
       WHERE U.apelido = ? 
-        AND U.admin = ?`,
+        AND U.admin = ? 
+        AND U.desativado = 0`,
       [apelido, 0]
     );
 
@@ -264,16 +274,84 @@ export async function selectUsuariosPesquisados(apelido, busca, pagina, limite) 
     const rows = await db.all(
       `SELECT 
         U.apelido, 
-        IP.imagem AS fotoPerfil
+        IP.imagem AS fotoPerfil, 
+        U.dataCriacao 
       FROM USUARIO U
       LEFT JOIN IMAGEM IP 
-        ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
-      WHERE U.apelido LIKE ? 
-        AND NOT U.apelido = ?
-        AND U.admin = ? 
-      ORDER BY U.dataCriacao DESC 
+        ON U.apelido = IP.apelido 
+        AND IP.identificador = "Ícone"
+      WHERE 
+        U.apelido LIKE ? 
+        AND U.apelido != ?          -- evita exibir o próprio apelido
+        AND U.admin = 0             -- retorna apenas usuários comuns
+        AND U.desativado = 0 
+      ORDER BY 
+        U.dataCriacao DESC 
       LIMIT ? OFFSET ?`,
-      [`${busca}%`, apelido, 0, limite, offset]
+      [`${busca}%`, apelido, limite, offset]
+    );
+
+    const countResult = await db.get(
+      `SELECT COUNT(*) as total
+       FROM USUARIO 
+       WHERE apelido LIKE ?
+         AND NOT apelido = ? 
+         AND admin = ? 
+         AND desativado = 0`,
+      [`${busca}%`, apelido, 0]
+    );
+
+    // Função para converter BLOB (Buffer) em data URI base64
+    function blobToDataURI(blobBuffer, mimeType = "image/jpeg") {
+      if (!blobBuffer) return null;
+      const base64 = blobBuffer.toString("base64");
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    // Aguarda todos os mapeamentos
+    const usuarios = await Promise.all(
+      rows.map(async usuario => ({
+        apelido: usuario.apelido,
+        fotoPerfil: blobToDataURI(usuario.fotoPerfil),
+        usuario1SegueUsuario2: await verificaAmizade(apelido, usuario.apelido),
+        usuario2SegueUsuario1: await verificaAmizade(usuario.apelido, apelido),
+        dataCriacao: usuario.dataCriacao
+      }))
+    );
+
+    return {
+      usuarios,
+      totalUsuarios: countResult.total
+    };
+
+  } catch (error) {
+    console.error("Erro ao pesquisar usuários:", error.message);
+    return { usuarios: [], totalUsuarios: 0 };
+  }
+}
+
+export async function selectUsuariosPesquisadosAdmin(apelido, busca, pagina, limite) {
+  try {
+    const offset = (pagina - 1) * limite;
+
+    const rows = await db.all(
+      `SELECT 
+        U.apelido, 
+        U.desativado, 
+        IP.imagem AS fotoPerfil, 
+        U.dataCriacao 
+      FROM USUARIO U
+      LEFT JOIN IMAGEM IP 
+        ON U.apelido = IP.apelido 
+        AND IP.identificador = "Ícone"
+      WHERE 
+        U.apelido LIKE ? 
+        AND U.apelido != ?          -- evita exibir o próprio apelido
+        AND U.admin = 0             -- retorna apenas usuários comuns
+      ORDER BY 
+        U.dataCriacao DESC 
+      LIMIT ? OFFSET ?`,
+      [`${busca}%`, apelido, limite, offset]
     );
 
     const countResult = await db.get(
@@ -296,9 +374,11 @@ export async function selectUsuariosPesquisados(apelido, busca, pagina, limite) 
     const usuarios = await Promise.all(
       rows.map(async usuario => ({
         apelido: usuario.apelido,
+        desativado: usuario.desativado,
         fotoPerfil: blobToDataURI(usuario.fotoPerfil),
         usuario1SegueUsuario2: await verificaAmizade(apelido, usuario.apelido),
-        usuario2SegueUsuario1: await verificaAmizade(usuario.apelido, apelido)
+        usuario2SegueUsuario1: await verificaAmizade(usuario.apelido, apelido),
+        dataCriacao: usuario.dataCriacao
       }))
     );
 
@@ -371,5 +451,111 @@ export async function verificaLoginAdmin(apelido, nome, senha) {
   } catch (error) {
     console.error(chalk.red("Email e senha não coincidem", error.message));
     return null;
+  }
+}
+
+export async function selectUsuariosAdmin(pagina, limite) {
+  try {
+    const offset = (pagina - 1) * limite;
+
+    // Consulta para obter os usuários, ordenados por número de denúncias
+    const rows = await db.all(
+      `SELECT 
+          U.apelido, 
+          U.desativado, 
+          IP.imagem AS fotoPerfil, 
+          U.dataCriacao,
+          COUNT(DU.idDenunciaUsuario) AS totalDenuncias
+        FROM USUARIO U
+        LEFT JOIN IMAGEM IP 
+          ON U.apelido = IP.apelido 
+          AND IP.identificador = "Ícone"
+        LEFT JOIN DENUNCIA_USUARIO DU 
+          ON U.apelido = DU.apelidoDenunciado
+        WHERE U.admin = ?
+        GROUP BY 
+          U.apelido, 
+          IP.imagem, 
+          U.dataCriacao
+        ORDER BY 
+          totalDenuncias DESC, 
+          U.dataCriacao DESC
+        LIMIT ? OFFSET ?`,
+      [0, limite, offset]
+    );
+
+    // Consulta para contar o total de usuários
+    const countResult = await db.get(
+      `SELECT COUNT(DISTINCT U.apelido) AS total
+        FROM USUARIO U
+        WHERE U.admin = ?`,
+      [0]
+    );
+
+    // Função para converter BLOB (Buffer) em data URI base64
+    function blobToDataURI(blobBuffer, mimeType = "image/jpeg") {
+      if (!blobBuffer) return null;
+      const base64 = blobBuffer.toString("base64");
+      return `data:${mimeType};base64,${base64}`;
+    }
+
+    // Aguarda todos os mapeamentos
+    const usuarios = await Promise.all(
+      rows.map(async usuario => ({
+        apelido: usuario.apelido, 
+        desativado: usuario.desativado,
+        fotoPerfil: blobToDataURI(usuario.fotoPerfil),
+        dataCriacao: usuario.dataCriacao
+      }))
+    );
+
+    return {
+      usuarios,
+      totalUsuarios: countResult.total
+    };
+
+  } catch (error) {
+    console.error("Erro ao capturar usuários:", error.message);
+    return { usuarios: [], totalUsuarios: 0 };
+  }
+}
+
+export async function updateDesativarUsuario(apelido) {
+  try {
+    await db.run(
+      `UPDATE usuario 
+                SET desativado = ?
+                WHERE apelido = ?`,
+      [
+        1,
+        apelido
+      ]
+    );
+
+    console.log(chalk.green("Usuário desativado com sucesso!"));
+    return { statusCode: 200, message: "Usuário desativado com sucesso!" };
+  } catch (error) {
+    console.error(chalk.red("Erro ao desativar usuário:", error.message));
+    return { statusCode: 500, message: "Erro ao desativar usuário!" };
+  }
+}
+
+export async function updateAtivarUsuario(apelido) {
+  try {
+    await db.run(
+      `UPDATE usuario 
+                SET desativado = ?
+                WHERE apelido = ?`,
+      [
+        0,
+        apelido
+      ]
+    );
+
+    console.log(chalk.green("Usuário ativado com sucesso!"));
+    return { statusCode: 200, message: "Usuário ativado com sucesso!" };
+  } catch (error) {
+    console.error(chalk.red("Erro ao ativar usuário:", error.message));
+    return { statusCode: 500, message: "Erro ao ativar usuário!" };
   }
 }
