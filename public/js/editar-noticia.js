@@ -1,4 +1,4 @@
-import { exibirAlertaConfirmar, exibirAlertaSucesso, exibirAlertaErro, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
+import { exibirAlertaConfirmar, exibirAlertaSucesso, exibirAlertaErro, exibirAlertaErroERedirecionar } from "./alert.js";
 
 let apelido = "";
 let imagensNoticiaAntesEdicao = "";
