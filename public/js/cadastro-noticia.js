@@ -1,4 +1,4 @@
-import { exibirAlertaErro, exibirAlertaSucesso, exibirAlertaErroERedirecionar, exibirAlertaSucesso } from "./alert.js";
+import { exibirAlertaErro, exibirAlertaSucesso, exibirAlertaErroERedirecionar } from "./alert.js";
 
 let apelido = "";
 
