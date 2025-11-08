@@ -1,4 +1,4 @@
-import { exibirAlertaErroERedirecionar, exibirAlertaSucesso, exibirAlertaErro, exibirAlertaSucesso, exibirAlertaConfirmar } from "./alert.js";
+import { exibirAlertaErroERedirecionar, exibirAlertaSucesso, exibirAlertaErro, exibirAlertaConfirmar } from "./alert.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const apelidoSpan = document.getElementById("apelido");
