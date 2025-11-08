@@ -375,15 +375,15 @@ span {
     margin-right: 0;
   }
 
-  .exibir-denuncias-btn, .desativar-noticia-btn, .ativar-noticia-btn, .exibir-comentarios-btn {
+  .exibir-denuncias-btn, .desativar-noticia-btn, .ativar-noticia-btn, .exibir-comentarios-btn, .apagar-comentario-btn {
     width: 100%;
   }
 
-  .exibir-denuncias-btn, .desativar-noticia-btn, .ativar-noticia-btn, .exibir-comentarios-btn {
+  .exibir-denuncias-btn, .desativar-noticia-btn, .ativar-noticia-btn, .exibir-comentarios-btn, .apagar-comentario-btn {
     padding: 12px 16px;
   }
 
-  .exibir-denuncias-btn, .desativar-noticia-btn, .ativar-noticia-btn, .exibir-comentarios-btn {
+  .exibir-denuncias-btn, .desativar-noticia-btn, .ativar-noticia-btn, .exibir-comentarios-btn, .apagar-comentario-btn {
     margin-top: 16px;
   }
 }
