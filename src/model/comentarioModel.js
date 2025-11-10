@@ -23,24 +23,30 @@ export async function createTableComentario() {
   }
 
 export async function insertComentarioNoticia(comentario, idNoticia, apelido) {
-  try {
-    await db.run(
-      `INSERT INTO comentario 
-                (comentario, idNoticia, apelido) 
-                VALUES (?, ?, ?)`,
-      [
-        comentario, 
-        idNoticia, 
-        apelido
-      ]
-    );
+    try {
+        await db.run(
+            `INSERT INTO comentario 
+             (comentario, idNoticia, apelido) 
+             VALUES (?, ?, ?)`,
+            [
+                comentario, 
+                idNoticia, 
+                apelido
+            ]
+        );
 
-    console.log(chalk.green("Comentário inserido com sucesso!"));
-    return { statusCode: 200, message: "Comentário inserido com sucesso!" };
-  } catch (error) {
-    console.error(chalk.red("Erro ao inserir comentário:", error.message));
-    return { statusCode: 500, message: "Erro ao inserir comentário!"};
-  }
+        console.log(chalk.green("Comentário inserido com sucesso!"));
+        return {
+            statusCode: 200,
+            message: "Comentário inserido com sucesso!"
+        };
+    } catch (error) {
+        console.error(chalk.red("Erro ao inserir comentário:", error.message));
+        return {
+            statusCode: 500,
+            message: "Erro ao inserir comentário!"
+        };
+    }
 }
 
 export async function updateComentarioNoticia(comentarioEditado, idComentario) {

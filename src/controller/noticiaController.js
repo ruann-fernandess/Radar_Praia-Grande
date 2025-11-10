@@ -151,51 +151,51 @@ export async function capturarBairros(req, res) {
 }
 
 export async function capturarNoticias(req, res) {
-  try {
-    const pagina = parseInt(req.query.pagina || "1", 10);
+    try {
+        const pagina = parseInt(req.query.pagina || "1", 10);
 
-    const { noticias, totalNoticias } = await selectNoticias(pagina, 10);
+        const { noticias, totalNoticias } = await selectNoticias(pagina, 10);
 
-    res.status(200).json({
-      statusCode: 200,
-      message: "As notícias foram capturadas com sucesso!",
-      noticias,
-      totalNoticias
-    });
-  } catch (error) {
-    res.status(500).json({
-      statusCode: 500,
-      message: "Erro ao capturar as notícias."
-    });
-  }
+        res.status(200).json({
+            statusCode: 200,
+            message: "As notícias foram capturadas com sucesso!",
+            noticias,
+            totalNoticias
+        });
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Erro ao capturar as notícias."
+        });
+    }
 }
 
 export async function capturarNoticiasDoUsuario(req, res) {
-  try {
-    const { apelido } = req.params;
-    const pagina = parseInt(req.query.pagina || "1", 10);
+    try {
+        const { apelido } = req.params;
+        const pagina = parseInt(req.query.pagina || "1", 10);
 
-    if (!apelido) {
-      return res.status(400).json({
-        statusCode: 400,
-        message: "Parâmetro 'apelido' é obrigatório."
-      });
+        if (!apelido) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "Parâmetro 'apelido' é obrigatório."
+            });
+        }
+
+        const { noticias, totalNoticias } = await selectNoticiasDoUsuario(apelido, pagina, 10);
+
+        res.status(200).json({
+            statusCode: 200,
+            message: "As notícias foram capturadas com sucesso!",
+            noticias,
+            totalNoticias
+        });
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Erro ao capturar as notícias."
+        });
     }
-
-    const { noticias, totalNoticias } = await selectNoticiasDoUsuario(apelido, pagina, 10);
-
-    res.status(200).json({
-      statusCode: 200,
-      message: "As notícias foram capturadas com sucesso!",
-      noticias,
-      totalNoticias
-    });
-  } catch (error) {
-    res.status(500).json({
-      statusCode: 500,
-      message: "Erro ao capturar as notícias."
-    });
-  }
 }
 
 export async function capturarNoticiaDoUsuario(req, res) {
@@ -326,42 +326,42 @@ export async function apagarNoticia(req, res) {
 }
 
 export async function curtirNoticia(req, res) {
-  try {
-    const { idNoticia, apelido } = req.body;
-    if (!idNoticia) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "ID da notícia é obrigatório." 
-      });
-    }
-    if (!apelido) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "Apelido é obrigatório." 
-      });
-    }
+    try {
+        const { idNoticia, apelido } = req.body;
+        if (!idNoticia) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "ID da notícia é obrigatório." 
+            });
+        }
+        if (!apelido) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "Apelido é obrigatório." 
+            });
+        }
 
-    const noticiaExiste = await verificaNoticia(idNoticia);
-    const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
-      const resultado = await insertCurtidaNoticia(idNoticia, apelido);
+        const noticiaExiste = await verificaNoticia(idNoticia);
+        const usuarioExiste = await verificaApelidoUsuario(apelido);
+        if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
+            const resultado = await insertCurtidaNoticia(idNoticia, apelido);
 
-      return res.status(resultado.statusCode).json({
-        statusCode: resultado.statusCode,
-        message: resultado.message
-      });
-    } else {
-      return res.status(404).json({
-        statusCode: 404,
-        message: "Notícia ou apelido não encontrados!"
-      });
+            return res.status(resultado.statusCode).json({
+                statusCode: resultado.statusCode,
+                message: resultado.message
+            });
+        } else {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Notícia ou apelido não encontrados!"
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ 
+            statusCode: 500, 
+            message: "Erro ao curtir notícia!"
+        });
     }
-  } catch (error) {
-    res.status(500).json({ 
-      statusCode: 500, 
-      message: "Erro ao curtir notícia!"
-    });
-  }
 }
 
 export async function removerCurtidaNoticia(req, res) {
@@ -506,48 +506,48 @@ export async function contarComentariosNoticia(req, res) {
 }
 
 export async function comentarNoticia(req, res) {
-  try {
-    const { comentario, idNoticia, apelido } = req.body;
-    if (!comentario) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "Comentário é obrigatório." 
-      });
-    }
-    if (!idNoticia) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "ID da notícia é obrigatório." 
-      });
-    }
-    if (!apelido) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "Apelido é obrigatório." 
-      });
-    }
+    try {
+        const { comentario, idNoticia, apelido } = req.body;
+        if (!comentario) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "Comentário é obrigatório." 
+            });
+        }
+        if (!idNoticia) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "ID da notícia é obrigatório." 
+            });
+        }
+        if (!apelido) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "Apelido é obrigatório." 
+            });
+        }
 
-    const noticiaExiste = await verificaNoticia(idNoticia);
-    const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
-      const resultado = await insertComentarioNoticia(comentario, idNoticia, apelido);
+        const noticiaExiste = await verificaNoticia(idNoticia);
+        const usuarioExiste = await verificaApelidoUsuario(apelido);
+        if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
+            const resultado = await insertComentarioNoticia(comentario, idNoticia, apelido);
 
-      return res.status(resultado.statusCode).json({
-        statusCode: resultado.statusCode,
-        message: resultado.message
-      });
-    } else {
-      return res.status(404).json({
-        statusCode: 404,
-        message: "Notícia ou apelido não encontrados!"
-      });
+            return res.status(resultado.statusCode).json({
+                statusCode: resultado.statusCode,
+                message: resultado.message
+            });
+        } else {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Notícia ou apelido não encontrados!"
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ 
+            statusCode: 500, 
+            message: "Erro ao comentar notícia!"
+        });
     }
-  } catch (error) {
-    res.status(500).json({ 
-      statusCode: 500, 
-      message: "Erro ao comentar notícia!"
-    });
-  }
 }
 
 export async function capturarComentariosNoticia(req, res) {
@@ -1049,7 +1049,7 @@ export async function capturarNoticia(req, res) {
     const noticiaExiste = await verificaNoticia(idNoticia);
 
     if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
-      const noticia = await selectNoticia(idNoticia);
+      const noticia = await selectNoticia(idNoticia, apelidoAutor);
 
       res.status(200).json({
         statusCode: 200,

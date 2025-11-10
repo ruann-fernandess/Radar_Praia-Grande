@@ -45,25 +45,31 @@ export async function verificaDenunciaNoticia(idNoticia, apelido) {
 }
 
 export async function insertDenunciaNoticia(categoriaDenunciaSelecionada, denuncia, idNoticia, apelido) {
-  try {
-    await db.run(
-      `INSERT INTO denuncia_noticia 
-                (idCategoriaDenuncia, descricao, idNoticia, apelido) 
-                VALUES (?, ?, ?, ?)`,
-      [
-        categoriaDenunciaSelecionada,
-        denuncia, 
-        idNoticia, 
-        apelido
-      ]
-    );
+    try {
+        await db.run(
+            `INSERT INTO denuncia_noticia 
+             (idCategoriaDenuncia, descricao, idNoticia, apelido) 
+             VALUES (?, ?, ?, ?)`,
+            [
+                categoriaDenunciaSelecionada,
+                denuncia, 
+                idNoticia, 
+                apelido
+            ]
+        );
 
-    console.log(chalk.green("Denúncia da notícia inserida com sucesso!"));
-    return { statusCode: 200, message: "Denúncia da notícia inserida com sucesso!" };
-  } catch (error) {
-    console.error(chalk.red("Erro ao inserir denúncia da notícia:", error.message));
-    return { statusCode: 500, message: "Erro ao inserir denúncia da notícia!" };
-  }
+        console.log(chalk.green("Denúncia da notícia inserida com sucesso!"));
+        return {
+            statusCode: 200,
+            message: "Denúncia da notícia inserida com sucesso!"
+        };
+    } catch (error) {
+        console.error(chalk.red("Erro ao inserir denúncia da notícia:", error.message));
+        return {
+            statusCode: 500,
+            message: "Erro ao inserir denúncia da notícia!"
+        };
+    }
 }
 
 export async function contaDenunciasNoticiaAprovadas(idNoticia) {

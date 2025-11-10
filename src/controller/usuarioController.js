@@ -8,79 +8,79 @@ import { deleteTodasCurtidasComentarioNoticiaPorApelido, deleteCurtidasComentari
 import { deleteTodasDenunciasUsuarioPorApelido } from "../model/denunciaUsuarioModel.js";
 
 export async function cadastro(req, res) {
-  try {
-    const { email, apelido } = req.body;
-    const emailExiste = await verificaEmail(email);
-    const usuarioExiste = await verificaApelidoUsuario(apelido);
+    try {
+        const { email, apelido } = req.body;
+        const emailExiste = await verificaEmail(email);
+        const usuarioExiste = await verificaApelidoUsuario(apelido);
 
-    if (emailExiste > 0 || usuarioExiste.existe > 0) {
-      if (emailExiste > 0 && usuarioExiste.existe > 0) {
-        return res.status(400).json({
-          statusCode: 400,
-          message: "O e-mail e o apelido já estão em uso."
+        if (emailExiste > 0 || usuarioExiste.existe > 0) {
+            if (emailExiste > 0 && usuarioExiste.existe > 0) {
+                return res.status(400).json({
+                    statusCode: 400,
+                    message: "O e-mail e o apelido já estão em uso."
+                });
+            } else if (emailExiste > 0) {
+                return res.status(400).json({
+                    statusCode: 400,
+                    message: "O e-mail já está em uso."
+                });
+            } else if (usuarioExiste.existe > 0) {
+                return res.status(400).json({
+                    statusCode: 400,
+                    message: "O apelido já está em uso."
+                });
+            }
+        }
+
+        const resultado = await insertUsuario(req.body);
+
+        res.status(resultado.statusCode).json({
+            statusCode: resultado.statusCode,
+            message: resultado.message,
+            redirect: "/login.html"
         });
-      } else if (emailExiste > 0) {
-        return res.status(400).json({
-          statusCode: 400,
-          message: "O e-mail já está em uso."
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Erro ao cadastrar usuário!"
         });
-      } else if (usuarioExiste.existe > 0) {
-        return res.status(400).json({
-          statusCode: 400,
-          message: "O apelido já está em uso."
-        });
-      }
     }
-
-    const resultado = await insertUsuario(req.body);
-
-    res.status(resultado.statusCode).json({
-      statusCode: resultado.statusCode,
-      message: resultado.message,
-      redirect: "/login.html"
-    });
-  } catch (error) {
-    res.status(500).json({
-      statusCode: 500,
-      message: "Erro ao cadastrar usuário!"
-    });
-  }
 }
 
 export async function login(req, res) {
-  try {
-    const { email, senha } = req.body;
-    const usuarioExiste = await verificaLogin(email, senha);
+    try {
+        const { email, senha } = req.body;
+        const usuarioExiste = await verificaLogin(email, senha);
 
-    if (usuarioExiste) {
-      req.session.user = {
-        apelido: usuarioExiste.apelido,
-        email: usuarioExiste.email,
-        nome: usuarioExiste.nome,
-        fotoCapa: usuarioExiste.fotoCapa,
-        fotoPerfil: usuarioExiste.fotoPerfil,
-        biografia: usuarioExiste.biografia,
-        dataCriacao: usuarioExiste.dataCriacao,
-        admin: usuarioExiste.admin
-      };
+        if (usuarioExiste) {
+            req.session.user = {
+                apelido: usuarioExiste.apelido,
+                email: usuarioExiste.email,
+                nome: usuarioExiste.nome,
+                fotoCapa: usuarioExiste.fotoCapa,
+                fotoPerfil: usuarioExiste.fotoPerfil,
+                biografia: usuarioExiste.biografia,
+                dataCriacao: usuarioExiste.dataCriacao,
+                admin: usuarioExiste.admin
+            };
 
-      return res.status(200).json({
-        statusCode: 200,
-        message: "Login bem-sucedido!",
-        redirect: "/home.html"
-      });
-    } else {
-      return res.status(400).json({
-        statusCode: 400,
-        message: "Email ou senha não coincidem."
-      });
+            return res.status(200).json({
+                statusCode: 200,
+                message: "Login bem-sucedido!",
+                redirect: "/home.html"
+            });
+        } else {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "Email ou senha não coincidem."
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: "Erro ao logar usuário!"
+        });
     }
-  } catch (error) {
-    res.status(500).json({
-      statusCode: 500,
-      message: "Erro ao logar usuário!"
-    });
-  }
 }
 
 export function verificaAutenticacao(req, res, next) {
@@ -261,39 +261,39 @@ export async function apagarPerfil(req, res) {
 }
 
 export async function logout(req, res) {
-  try {
-    const nivelUsuario = req.session.user.admin;
+    try {
+        const nivelUsuario = req.session.user.admin;
 
-    req.session.destroy(err => {
-      if (err) {
-        console.error('Erro ao fazer logout:', err);
+        req.session.destroy(err => {
+            if (err) {
+                console.error("Erro ao fazer logout:", err);
+                return res.status(500).json({
+                    statusCode: 500,
+                    message: "Erro ao encerrar a sessão!"
+                });
+            }
+
+            res.clearCookie("connect.sid"); // nome padrão do cookie
+            if (nivelUsuario == 1) {
+                return res.status(200).json({
+                    statusCode: 200,
+                    message: "Logout ADMIN realizado com sucesso!",
+                    redirect: "/admin/login.html"
+                });
+            } else {
+                return res.status(200).json({
+                    statusCode: 200,
+                    message: "Logout realizado com sucesso!",
+                    redirect: "/login.html"
+                });
+            }
+        });
+    } catch (error) {
         return res.status(500).json({
-          statusCode: 500,
-          message: 'Erro ao encerrar a sessão!'
+            statusCode: 500,
+            message: "Erro interno no logout!"
         });
-      }
-
-      res.clearCookie('connect.sid'); // nome padrão do cookie
-      if (nivelUsuario == 1) {
-        return res.status(200).json({
-          statusCode: 200,
-          message: 'Logout ADMIN realizado com sucesso!',
-          redirect: '/admin/login.html'
-        });
-      } else {
-        return res.status(200).json({
-          statusCode: 200,
-          message: 'Logout realizado com sucesso!',
-          redirect: '/login.html'
-        });
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({
-      statusCode: 500,
-      message: 'Erro interno no logout!'
-    });
-  }
+    }
 }
 
 export async function verificaExistenciaAmizade(req, res) {

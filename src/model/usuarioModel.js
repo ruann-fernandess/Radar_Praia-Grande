@@ -89,77 +89,78 @@ export async function verificaEmail(email) {
 }
 
 export async function verificaLogin(email, senha) {
-  try {
-    // Não é possível verificar a validade da senha durante o SELECT na tabela
-    // Por isso é necessário capturar o e-mail, verificar o hash da senha e somente se ambos forem válidos: puxar os dados do usuário
-    const validacao = await db.get(
-      `SELECT
-        U.email, 
-        U.senha
-      FROM USUARIO U 
-      WHERE U.email = ? 
-        AND U.admin = ? 
-        AND U.desativado = 0`,
-      [email, 0]
-    );
+    try {
+        // Não é possível verificar a validade da senha durante o SELECT na tabela
+        // Por isso é necessário capturar o e-mail, verificar o hash da senha e somente se ambos forem válidos: puxar os dados do usuário
+        const validacao = await db.get(
+            `SELECT
+                U.email, 
+                U.senha
+            FROM USUARIO U 
+            WHERE U.email = ? 
+                AND U.admin = ? 
+                AND U.desativado = 0`,
+            [email, 0]
+        );
 
-    if (!validacao) {
-      return null;
-    }
-
-    // Comparando o hash gerado na tentativa de login com o hash presente no banco de dados
-    const loginValido = bcrypt.compareSync(senha, validacao.senha);
-    
-    if (loginValido) {
-      const usuario = await db.get(
-        // IP = Imagem perfil
-        // IB = Imagem fotoCapa
-        `SELECT 
-          U.apelido, 
-          U.email, 
-          U.nome, 
-          U.biografia, 
-          datetime(U.dataCriacao, 'localtime') AS dataCriacao, 
-          IP.imagem AS fotoPerfil,
-          IB.imagem AS fotoCapa, 
-          U.admin 
-        FROM USUARIO U
-        LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
-        LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
-        WHERE U.email = ? 
-          AND U.admin = ?`,
-        [email, 0]
-      );
-
-      if (!usuario) {
+        if (!validacao) {
         return null;
-      }
+        }
 
-      // Função para converter BLOB (Buffer) em data URI base64
-      function blobToDataURI(blobBuffer, mimeType = 'image/jpeg') {
-        if (!blobBuffer) return null;
-        const base64 = blobBuffer.toString('base64');
-        return `data:${mimeType};base64,${base64}`;
-      }
+        // Comparando o hash gerado na tentativa de login com o hash presente no banco de dados
+        const loginValido = bcrypt.compareSync(senha, validacao.senha);
+        
+        if (loginValido) {
+            const usuario = await db.get(
+                `SELECT 
+                U.apelido, 
+                U.email, 
+                U.nome, 
+                U.biografia, 
+                datetime(U.dataCriacao, 'localtime') AS dataCriacao, 
+                IP.imagem AS fotoPerfil,
+                IB.imagem AS fotoCapa, 
+                U.admin 
+                FROM USUARIO U
+                LEFT JOIN IMAGEM IP ON U.apelido = IP.apelido AND IP.identificador = "Ícone"
+                LEFT JOIN IMAGEM IB ON U.apelido = IB.apelido AND IB.identificador = "Banner"
+                WHERE U.email = ? 
+                AND U.admin = ?`,
+                [email, 0]
+            );
 
-      // Cria novo objeto com as imagens convertidas
-      return {
-        apelido: usuario.apelido,
-        email: usuario.email,
-        nome: usuario.nome,
-        biografia: usuario.biografia,
-        dataCriacao: usuario.dataCriacao,
-        fotoPerfil: blobToDataURI(usuario.fotoPerfil),
-        fotoCapa: blobToDataURI(usuario.fotoCapa),
-        admin: usuario.admin
-      };
-    } else {
-      return null;
+            if (!usuario) {
+                return null;
+            }
+
+            // Função para converter BLOB (Buffer) em data URI base64
+            function blobToDataURI(blobBuffer, mimeType = "image/jpeg") {
+                if (!blobBuffer) {
+                    return null;
+                }
+
+                const base64 = blobBuffer.toString("base64");
+                return `data:${mimeType};base64,${base64}`;
+            }
+
+            // Cria novo objeto com as imagens convertidas
+            return {
+                apelido: usuario.apelido,
+                email: usuario.email,
+                nome: usuario.nome,
+                biografia: usuario.biografia,
+                dataCriacao: usuario.dataCriacao,
+                fotoPerfil: blobToDataURI(usuario.fotoPerfil),
+                fotoCapa: blobToDataURI(usuario.fotoCapa),
+                admin: usuario.admin
+            };
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error(chalk.red("Email e senha não coincidem", error.message));
+        return null;
     }
-  } catch (error) {
-    console.error(chalk.red("Email e senha não coincidem", error.message));
-    return null;
-  }
 }
 
 export async function insertUsuario(usuario) {
@@ -180,10 +181,14 @@ export async function insertUsuario(usuario) {
     );
 
     console.log(chalk.green("Usuário inserido com sucesso!"));
-    return { statusCode: 200, message: "Usuário inserido com sucesso!" };
+    return {
+      statusCode: 200, message: "Usuário inserido com sucesso!"
+    };
   } catch (error) {
     console.error(chalk.red("Erro ao inserir usuário:", error.message));
-    return { statusCode: 500, message: "Erro ao inserir usuário!"};
+    return {
+      statusCode: 500, message: "Erro ao inserir usuário!"
+    };
   }
 }
 

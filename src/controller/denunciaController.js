@@ -192,58 +192,58 @@ export async function denunciarComentario(req, res) {
 }
 
 export async function denunciarNoticia(req, res) {
-  try {
-    const { categoriaDenunciaSelecionada, denuncia, idNoticia, apelido } = req.body;
-    if (!categoriaDenunciaSelecionada) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "Categoria de denúncia é obrigatória." 
-      });
-    }
-    if (!denuncia) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "Denúncia é obrigatória." 
-      });
-    }
-    if (!idNoticia) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "ID da notícia é obrigatória." 
-      });
-    }
-    if (!apelido) {
-      return res.status(400).json({ 
-        statusCode: 400, 
-        message: "Apelido é obrigatório." 
-      });
-    }
+    try {
+        const { categoriaDenunciaSelecionada, denuncia, idNoticia, apelido } = req.body;
+        if (!categoriaDenunciaSelecionada) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "Categoria de denúncia é obrigatória." 
+            });
+        }
+        if (!denuncia) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "Denúncia é obrigatória." 
+            });
+        }
+        if (!idNoticia) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "ID da notícia é obrigatória." 
+            });
+        }
+        if (!apelido) {
+            return res.status(400).json({ 
+                statusCode: 400, 
+                message: "Apelido é obrigatório." 
+            });
+        }
 
-    const noticiaExiste = await verificaNoticia(idNoticia);
-    const usuarioExiste = await verificaApelidoUsuario(apelido);
-    if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
-      const resultado = await insertDenunciaNoticia(categoriaDenunciaSelecionada, denuncia, idNoticia, apelido);
+        const noticiaExiste = await verificaNoticia(idNoticia);
+        const usuarioExiste = await verificaApelidoUsuario(apelido);
+        if (noticiaExiste > 0 && usuarioExiste.existe > 0 && usuarioExiste.admin == 0) {
+            const resultado = await insertDenunciaNoticia(categoriaDenunciaSelecionada, denuncia, idNoticia, apelido);
 
-      if (resultado.statusCode == 200) {
-        await updateStatusNoticia(idNoticia, "Aguardando revisão dos administradores");
-      }
+            if (resultado.statusCode == 200) {
+                await updateStatusNoticia(idNoticia, "Aguardando revisão dos administradores");
+            }
 
-      return res.status(resultado.statusCode).json({
-        statusCode: resultado.statusCode,
-        message: resultado.message
-      });
-    } else {
-      return res.status(404).json({
-        statusCode: 404,
-        message: "Notícia ou apelido não encontrados!"
-      });
+            return res.status(resultado.statusCode).json({
+                statusCode: resultado.statusCode,
+                message: resultado.message
+            });
+        } else {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Notícia ou apelido não encontrados!"
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ 
+            statusCode: 500, 
+            message: "Erro ao denunciar notícia!"
+        });
     }
-  } catch (error) {
-    res.status(500).json({ 
-      statusCode: 500, 
-      message: "Erro ao denunciar notícia!"
-    });
-  }
 }
 
 export async function denunciarUsuario(req, res) {

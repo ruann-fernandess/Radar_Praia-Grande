@@ -22,23 +22,29 @@ export async function createTableCurtidaNoticia() {
 }
 
 export async function insertCurtidaNoticia(idNoticia, apelido) {
-  try {
-    await db.run(
-      `INSERT INTO curtida_noticia 
-                (idNoticia, apelido) 
-                VALUES (?, ?)`,
-      [
-        idNoticia,
-        apelido
-      ]
-    );
+    try {
+        await db.run(
+            `INSERT INTO curtida_noticia 
+             (idNoticia, apelido) 
+             VALUES (?, ?)`,
+            [
+                idNoticia,
+                apelido
+            ]
+        );
 
-    console.log(chalk.green("Notícia curtida com sucesso!"));
-    return { statusCode: 200, message: "Notícia curtida com sucesso!" };
-  } catch (error) {
-    console.error(chalk.red("Erro ao curtir notícia:", error.message));
-    return { statusCode: 500, message: "Erro ao curtir notícia!"};
-  }
+        console.log(chalk.green("Notícia curtida com sucesso!"));
+        return {
+            statusCode: 200,
+            message: "Notícia curtida com sucesso!"
+        };
+    } catch (error) {
+        console.error(chalk.red("Erro ao curtir notícia:", error.message));
+        return {
+            statusCode: 500,
+            message: "Erro ao curtir notícia!"
+        };
+    }
 }
 
 export async function deleteCurtidaNoticia(idNoticia, apelido) {
