@@ -130,16 +130,6 @@ app.get("/noticias/:apelidoAutor/:idNoticia", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/noticia.html"));
 });
 
-/*
-app.use((req, res, next) => {
-  res.status(404);
-  if (req.accepts("html")) {
-    res.sendFile(path.join(__dirname, "../view/404.html"));
-    return;
-  }
-});
-*/
-
 // Importação e uso das rotas especializadas
 import usuarioRoutes from "../routes/usuarioRoutes.js";
 import noticiaRoutes from "../routes/noticiaRoutes.js";
@@ -153,7 +143,7 @@ app.use("/imagem", imagemRoutes);
 app.use("/denuncia", denunciaRoutes);
 app.use("/admin", adminRoutes);
 
-app.use(impedeUsuariosAutenticados, (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "../view/erro-404.html"));
 });
 
