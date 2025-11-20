@@ -38,7 +38,7 @@ export async function createTableUsuario() {
       );
 
       if (!result) {
-        const hash = bcrypt.hashSync(admin.senha, 10);
+        const hash = bcrypt.hashSync(token.senha, 10);
 
         await db.run(
           `INSERT INTO USUARIO (apelido, nome, email, senha, admin) VALUES (?, ?, ?, ?, ?)`,
@@ -165,9 +165,6 @@ export async function verificaLogin(email, senha) {
 
 export async function insertUsuario(usuario) {
   try {
-    // 10 = quantidade de vezes que o algoritmo vai processar, ou reforçar, a criptografia
-    const hash = bcrypt.hashSync(usuario.senha, 10);
-
     await db.run(
       `INSERT INTO usuario 
                 (apelido, nome, email, senha) 
@@ -176,7 +173,7 @@ export async function insertUsuario(usuario) {
         usuario.apelido,
         usuario.nome,
         usuario.email,
-        hash,
+        usuario.senha,
       ]
     );
 
@@ -192,7 +189,6 @@ export async function insertUsuario(usuario) {
   }
 }
 
-//   o update será somente de atributos que não são chave primária. para atualizar a chave primária é necessário outro tipo de abordagem
 export async function updateUsuario(usuario) {
   try {
     await db.run(
@@ -562,5 +558,26 @@ export async function updateAtivarUsuario(apelido) {
   } catch (error) {
     console.error(chalk.red("Erro ao ativar usuário:", error.message));
     return { statusCode: 500, message: "Erro ao ativar usuário!" };
+  }
+}
+
+export async function updateSenha(senha, email) {
+  try {
+    const hash = bcrypt.hashSync(senha, 10);
+    await db.run(
+      `UPDATE usuario 
+       SET senha = ?
+       WHERE email = ?`,
+      [
+        hash,
+        email
+      ]
+    );
+
+    console.log(chalk.green("Senha atualizada com sucesso!"));
+    return { statusCode: 200, message: "Senha atualizada com sucesso!" };
+  } catch (error) {
+    console.error(chalk.red("Erro ao atualizar senha:", error.message));
+    return { statusCode: 500, message: "Erro ao atualizar senha!" };
   }
 }

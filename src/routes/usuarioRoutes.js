@@ -1,10 +1,12 @@
 import express from "express";
-import { cadastro, login, perfil, verificaAutenticacao, alterarPerfil, apagarPerfil, logout, perfilOutroUsuario, verificaExistenciaAmizade, seguirUsuario, deixarDeSeguirUsuario, contarSeguidores, contarSeguindo, capturarSeguidores, capturarSeguindo, pesquisarUsuarios } from "../controller/usuarioController.js";
+import { preCadastro, login, perfil, verificaAutenticacao, alterarPerfil, apagarPerfil, logout, perfilOutroUsuario, verificaExistenciaAmizade, seguirUsuario, deixarDeSeguirUsuario, contarSeguidores, contarSeguindo, capturarSeguidores, capturarSeguindo, pesquisarUsuarios, verificaExistenciaEmail, redefinirSenha, atualizarSenha } from "../controller/usuarioController.js";
 
 const router = express.Router();
 
-router.post("/cadastro", cadastro);
+router.post("/pre-cadastro", preCadastro);
 router.post("/login", login);
+router.post("/redefinir-senha", redefinirSenha);
+router.post("/atualizar-senha", atualizarSenha);
 router.get("/editar-perfil", verificaAutenticacao, perfil);
 router.put("/editar-perfil", verificaAutenticacao, alterarPerfil);
 router.delete("/editar-perfil", verificaAutenticacao, apagarPerfil);
@@ -19,5 +21,6 @@ router.get("/contar-seguindo/:apelido", verificaAutenticacao, contarSeguindo);
 router.get("/capturar-seguidores", verificaAutenticacao, capturarSeguidores);
 router.get("/capturar-seguindo", verificaAutenticacao, capturarSeguindo);
 router.get("/pesquisar-usuarios", verificaAutenticacao, pesquisarUsuarios);
+router.get("/verificar-existencia-email/:email", verificaExistenciaEmail);
 
 export default router;

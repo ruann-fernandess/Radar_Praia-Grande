@@ -59,6 +59,12 @@ function editarCampo(span, campo, tipo = "text") {
   input.defaultValue = valorAtual;
   input.classList.add("input-editar");
 
+  if (campo == "biografia") {
+    input.maxLength = 200;
+  } else {
+    input.maxLength = 100;
+  }
+
   span.innerHTML = "";
   span.appendChild(input);
   salvarBtn.classList.remove("hidden");

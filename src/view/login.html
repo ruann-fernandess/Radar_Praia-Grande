@@ -18,27 +18,50 @@
 <body>
   <section class="container principal">
     <div class="quadrado">
-      <h2>Login</h2>
-      <form id="LoginForm">
-        <input type="email" id="email" placeholder="E-mail" required />
+      <div id="login">
+        <h2>Login</h2>
+        <form id="LoginForm">
+          <input type="email" id="email" placeholder="E-mail" required maxlength="100"/>
 
-        <div class="ver-senha">
-        <input type="password" id="senha" placeholder="Senha" required />
-         <button type="button" id="toggleSenha" aria-label="Mostrar senha"><i class="bi bi-eye-fill"></i></button>
-         </div>
+          <div class="ver-senha">
+          <input type="password" id="senha" placeholder="Senha" required maxlength="100"/>
+          <button type="button" id="toggleSenha" aria-label="Mostrar senha"><i class="bi bi-eye-fill"></i></button>
+          </div>
 
-        <button type="submit">Entrar</button>
-        <div id="erroMensagem"></div>
-      </form>
+          <button type="submit">Entrar</button>
+          <div id="erroMensagem"></div>
+        </form>
+      </div>
+      <div id="redefinirSenha">
+        <h2>Redefinir senha</h2>
+        <label for="emailRedefinirSenha"><p>Para redefinir sua senha, informe o e-mail associado à sua conta.</p></label>
+        <input type="email" id="emailRedefinirSenha" placeholder="E-mail" required />
+        <button id="enviarEmail">Confirmar</button>
+        <div id="erroMensagemRedefinirSenha"></div>
+      </div>
+      <div id="confirmarEmail">
+        <h2>Quase lá</h2>
+        <p>E-mail reenviado!</p>
+        <p>Enviamos um e-mail para <b></b> com as instruções necessárias para prosseguir.</p>
+        <p>Verifique sua caixa de entrada e siga o passo a passo para continuar.</p>
+        <p>Esta solicitação expirará em 1 hora.</p>
+        <button id="reenviarEmail">Reenviar e-mail</button>
+        <button id="voltarRedefinirSenha">Voltar</button>
+      </div>
     </div>
 
     <a href="/cadastro.html" class="conta-btn">
       Ainda não possui conta? Cadastre-se!
     </a>
-
+    <a class="conta-btn" id="exibirRedefinirSenha">
+      Esqueceu sua senha?
+    </a>
+    <a class="conta-btn" id="exibirLogin">
+      Já possui conta? Faça login!
+    </a>
   </section>
 
-  <script src="/js/login.js"></script>
+  <script type="module" src="/js/login.js"></script>
   <script src="/js/ver-senha.js"></script>
 </body>
 </html>

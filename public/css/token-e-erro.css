@@ -81,3 +81,84 @@ body, html {
     padding: 1.75em;
   }
 }
+
+.ver-senha {
+  position: relative;
+  width: 100%;
+}
+
+.ver-senha input {
+  width: 100%;
+  padding-right: 40px; /* espaço para o botão */
+  box-sizing: border-box;
+}
+
+.ver-senha button {
+  width: auto;
+  margin: auto;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--marrom-escuro);
+  padding: 0;
+  line-height: 1;
+}
+
+.ver-senha button:hover{
+    color: var(--preto);
+}
+
+#erroMensagem {
+    margin-top: 10px;
+    color: red;
+    background-color: var(--branco);
+}
+
+input[type="password"], input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  font-family: var(--fonte-principal);
+  font-weight: 700;
+  background-color: #fff;
+  border: none;
+  color: var(--preto)
+}
+
+input[type="password"]:focus, input[type="text"]:focus{
+  outline: none;
+  box-shadow: none;
+}
+
+input[type="password"]::placeholder, input[type="text"]::placeholder {
+  color: var(--marrom-escuro);
+}
+
+input[type="password"]:focus::placeholder, input[type="text"]:focus::placeholder {
+  color: transparent;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 16px;
+  background-color: var(--marrom-escuro);
+  color: var(--branco);
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: var(--fonte-principal);
+  font-weight: 700;
+}
+
+button:not(#toggleSenha):hover {
+    background-color: var(--preto);
+}
+
+
+

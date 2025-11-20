@@ -1,7 +1,20 @@
+document.getElementById("reenviarEmail").addEventListener("click", async function() {
+    await enviarEmailPreCadastro();
+    document.querySelector("#confirmarEmail p:nth-child(2)").style.display = "block";
+});
+
+document.getElementById("voltarCadastro").addEventListener("click", function() {
+    document.getElementById("cadastro").style.display = "block";
+    document.getElementById("confirmarEmail").style.display = "none";
+});
 
 document.getElementById("cadastroForm").addEventListener("submit", async function(event) {
     event.preventDefault();
 
+    await enviarEmailPreCadastro();
+});
+
+async function enviarEmailPreCadastro() {
     const apelido = document.getElementById("apelido").value.trim().replaceAll(" ", "");
     const nome = document.getElementById("nome").value.trim();
     const email = document.getElementById("email").value.trim();
@@ -25,7 +38,7 @@ document.getElementById("cadastroForm").addEventListener("submit", async functio
 
     const usuario = { apelido, nome, email, senha };
 
-    const response = await fetch("usuario/cadastro", {
+    const response = await fetch("usuario/pre-cadastro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(usuario)
@@ -36,36 +49,7 @@ document.getElementById("cadastroForm").addEventListener("submit", async functio
     if (!response.ok) {
         erroMensagem.textContent = `${data.message}`;
     } else {
-        const blobfotoPerfil = await (await fetch("/imagens/iconeUsuarioPadrao.jpg")).blob();
-
-        const formDatafotoPerfil = new FormData();
-        formDatafotoPerfil.append("imagem", blobfotoPerfil, "iconeUsuarioPadrao.jpg");
-        formDatafotoPerfil.append("apelido", usuario.apelido);
-        formDatafotoPerfil.append("idNoticia", null);
-        formDatafotoPerfil.append("identificador", "Ícone");
-
-        await fetch("/imagem/upload", {
-            method: "POST",
-            body: formDatafotoPerfil
-        });
-
-        const blobfotoCapa = await (await fetch("/imagens/bannerUsuarioPadrao.jpg")).blob();
-
-        const formDatafotoCapa = new FormData();
-        formDatafotoCapa.append("imagem", blobfotoCapa, "bannerUsuarioPadrao.jpg");
-        formDatafotoCapa.append("apelido", usuario.apelido);
-        formDatafotoCapa.append("idNoticia", null);
-        formDatafotoCapa.append("identificador", "Banner");
-
-        await fetch("/imagem/upload", {
-            method: "POST",
-            body: formDatafotoCapa
-        });
-
-        if (data.redirect) {
-            window.location.href = data.redirect;
-        } else {
-            erroMensagem.textContent = 'Cadastro realizado com sucesso!';
-        }
+        document.getElementById("cadastro").style.display = "none";
+        document.getElementById("confirmarEmail").style.display = "block";
     }
-});
+}

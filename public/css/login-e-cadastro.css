@@ -51,7 +51,8 @@ form {
 
 input[type="email"],
 input[type="password"],
-input[type="text"] {
+input[type="text"],
+p {
   width: 100%;
   padding: 10px;
   font-size: 16px;
@@ -71,8 +72,25 @@ input[type="text"]:focus {
 
 input[type="email"]::placeholder,
 input[type="password"]::placeholder,
-input[type="text"]::placeholder {
+input[type="text"]::placeholder,
+p {
   color: var(--marrom-escuro);
+}
+
+p {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  margin-bottom: 12px;
+}
+
+#redefinirSenha,
+#confirmarEmail,
+#confirmarEmail p:nth-child(2) {
+    display: none;
+}
+
+p b {
+  text-decoration: underline;
 }
 
 input[type="email"]:focus::placeholder,
@@ -81,7 +99,7 @@ input[type="text"]:focus::placeholder {
   color: transparent;
 }
 
-button[type="submit"] {
+button:not(#toggleSenha) {
   width: 100%;
   padding: 10px;
   background-color: var(--marrom-escuro);
@@ -93,13 +111,22 @@ button[type="submit"] {
   font-weight: 700;
 }
 
-button[type="submit"]:hover{
+button:not(#toggleSenha):hover{
     background-color: var(--preto);
+}
+
+#confirmarEmail button:last-child,
+#redefinirSenha button {
+  margin-top: 16px;
+}
+
+#exibirLogin {
+  display: none;
 }
 
 .conta-btn {
   margin-top: 20px;
-  padding: 10px 20px;
+  padding: 0 20px;
   background-color: transparent;
   color: var(--branco);
   font-size: 16px;
@@ -142,7 +169,8 @@ button[type="submit"]:hover{
     color: var(--preto);
 }
 
-#erroMensagem{
+#erroMensagem,
+#erroMensagemRedefinirSenha {
     margin-top: 10px;
     color: red;
     background-color: var(--branco);

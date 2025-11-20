@@ -10,6 +10,7 @@ import { createTableCategoriaDenuncia } from "../model/categoriaDenunciaModel.js
 import { createTableDenunciaComentario } from "../model/denunciaComentarioModel.js";
 import { createTableDenunciaNoticia } from "../model/denunciaNoticiaModel.js";
 import { createTableDenunciaUsuario } from "../model/denunciaUsuarioModel.js";
+import { createTableToken } from "../model/tokenModel.js";
 // Criando as tabelas
 await createTableUsuario();
 await createTableAmizade();
@@ -23,6 +24,7 @@ await createTableCategoriaDenuncia();
 await createTableDenunciaComentario();
 await createTableDenunciaNoticia();
 await createTableDenunciaUsuario();
+await createTableToken();
 
 import express from "express";
 import session from "express-session";
@@ -129,6 +131,12 @@ app.get("/perfil/:apelidoOutroUsuario", (req, res) => {
 app.get("/noticias/:apelidoAutor/:idNoticia", (req, res) => {
     res.sendFile(path.join(__dirname, "../view/noticia.html"));
 });
+app.get("/tokens/token-confirmar-cadastro/:apelido/:token", impedeUsuariosAutenticados, (req, res) => {
+  res.sendFile(path.join(__dirname, "../view/token-confirmar-cadastro.html"));
+});
+app.get("/tokens/token-redefinir-senha/:token", impedeUsuariosAutenticados, (req, res) => {
+  res.sendFile(path.join(__dirname, "../view/token-redefinir-senha.html"));
+});
 
 // Importação e uso das rotas especializadas
 import usuarioRoutes from "../routes/usuarioRoutes.js";
@@ -136,12 +144,14 @@ import noticiaRoutes from "../routes/noticiaRoutes.js";
 import imagemRoutes from "../routes/imagemRoutes.js";
 import denunciaRoutes from "../routes/denunciaRoutes.js";
 import adminRoutes from "../routes/adminRoutes.js";
+import tokenRoutes from "../routes/tokenRoutes.js";
 
 app.use("/usuario", usuarioRoutes);
 app.use("/noticia", noticiaRoutes);
 app.use("/imagem", imagemRoutes);
 app.use("/denuncia", denunciaRoutes);
 app.use("/admin", adminRoutes);
+app.use("/token", tokenRoutes);
 
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, "../view/erro-404.html"));

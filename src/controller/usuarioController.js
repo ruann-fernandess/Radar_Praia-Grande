@@ -1,50 +1,168 @@
 import { deleteImagensUsuario } from "../model/imagemModel.js";
 import { deleteNoticiasUsuario, selectIdsNoticiasPorApelido, updateAtivarNoticia, updateDesativarNoticia } from "../model/noticiaModel.js";
-import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario, selectUsuariosPesquisados, verificaLoginAdmin, selectUsuariosAdmin, selectUsuariosPesquisadosAdmin, updateDesativarUsuario, updateAtivarUsuario } from "../model/usuarioModel.js";
+import { verificaEmail, verificaApelidoUsuario, insertUsuario, verificaLogin, updateUsuario, buscarUsuarioPorApelido, deleteUsuario, selectUsuariosPesquisados, verificaLoginAdmin, selectUsuariosAdmin, selectUsuariosPesquisadosAdmin, updateDesativarUsuario, updateAtivarUsuario, updateSenha } from "../model/usuarioModel.js";
 import { verificaAmizade, insertAmizade, deleteAmizade, contaSeguidores, contaSeguindo, selectSeguidores, selectSeguindo, deleteTodasAmizadesPorApelido } from "../model/amizadeModel.js";
 import { deleteTodasCurtidasNoticia, deleteTodasCurtidasNoticiaPorApelido } from "../model/curtidaNoticiaModel.js";
 import { deleteTodosComentariosPorApelido, deleteComentariosNoticiaPorAutorDaNoticia } from "../model/comentarioModel.js";
 import { deleteTodasCurtidasComentarioNoticiaPorApelido, deleteCurtidasComentariosNoticiaPorAutorDaNoticia } from "../model/curtidaComentarioModel.js";
 import { deleteTodasDenunciasUsuarioPorApelido } from "../model/denunciaUsuarioModel.js";
+import { enviarEmailBrevo, gerarConteudoEmailConfirmarCadastro, gerarConteudoEmailRedefinirSenha, gerarToken } from "./emailController.js";
+import { insertTokenConfirmarCadastro, insertTokenRedefinirSenha, selectEmailTokenRedefinirSenhaValidado, updateStatusValidadoToken, verificaToken } from "../model/tokenModel.js";
 
-export async function cadastro(req, res) {
-    try {
-        const { email, apelido } = req.body;
-        const emailExiste = await verificaEmail(email);
-        const usuarioExiste = await verificaApelidoUsuario(apelido);
+export async function preCadastro(req, res) {
+  try {
+    const { email, apelido, nome, senha } = req.body;
 
-        if (emailExiste > 0 || usuarioExiste.existe > 0) {
-            if (emailExiste > 0 && usuarioExiste.existe > 0) {
-                return res.status(400).json({
-                    statusCode: 400,
-                    message: "O e-mail e o apelido já estão em uso."
-                });
-            } else if (emailExiste > 0) {
-                return res.status(400).json({
-                    statusCode: 400,
-                    message: "O e-mail já está em uso."
-                });
-            } else if (usuarioExiste.existe > 0) {
-                return res.status(400).json({
-                    statusCode: 400,
-                    message: "O apelido já está em uso."
-                });
-            }
-        }
+    // Verificar email e apelido
+    const emailExiste = await verificaEmail(email);
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
 
-        const resultado = await insertUsuario(req.body);
-
-        res.status(resultado.statusCode).json({
-            statusCode: resultado.statusCode,
-            message: resultado.message,
-            redirect: "/login.html"
+    if (emailExiste > 0 || usuarioExiste.existe > 0) {
+      if (emailExiste > 0 && usuarioExiste.existe > 0) {
+        return res.status(400).json({
+          statusCode: 400,
+          message: "O e-mail e o apelido já estão em uso."
         });
-    } catch (error) {
-        res.status(500).json({
-            statusCode: 500,
-            message: "Erro ao cadastrar usuário!"
+      } else if (emailExiste > 0) {
+        return res.status(400).json({
+          statusCode: 400,
+          message: "O e-mail já está em uso."
         });
+      } else {
+        return res.status(400).json({
+          statusCode: 400,
+          message: "O apelido já está em uso."
+        });
+      }
     }
+
+    const token = await gerarToken();
+    
+    // Salvar token + dados do pre cadastro
+    await insertTokenConfirmarCadastro({token, apelido, nome, email, senha});
+    // Preparar email
+    const conteudo = await gerarConteudoEmailConfirmarCadastro(email, token, apelido);
+    await enviarEmailBrevo(conteudo);
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: `Um e-mail foi enviado para <b>${email}</b> com instruções para ativar sua conta. O token é válido por 1 hora.`
+    });
+  } catch (error) {
+    console.error("Erro no preCadastro:", error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao iniciar cadastro!"
+    });
+  }
+}
+
+export async function redefinirSenha(req, res) {
+  try {
+    const { email } = req.body;
+    const emailExiste = await verificaEmail(email);
+
+    if (emailExiste == 0) {
+      return res.status(200).json({
+        statusCode: 200,
+        message: "E-mail não encontrado.",
+        existe: false
+      });
+    }
+
+    const token = await gerarToken();
+    
+    await insertTokenRedefinirSenha({token, email});
+    // Preparar email
+    const conteudo = await gerarConteudoEmailRedefinirSenha(email, token);
+    await enviarEmailBrevo(conteudo);
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: `Um e-mail foi enviado para <b>${email}</b> com instruções para redefinir sua senha. O token é válido por 1 hora.`
+    });
+  } catch (error) {
+    console.error("Erro no redefinir senha:", error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao redefinir senha!"
+    });
+  }
+}
+
+export async function atualizarSenha(req, res) {
+  try {
+    const { token, senha } = req.body;
+    const tokenInfo = await verificaToken(token, "Redefinir senha");
+    
+    if (!tokenInfo.existe) {
+      return res.status(404).json({ statusCode: 404, message: "Token não encontrado" });
+    }
+    
+    if (!tokenInfo.valido) {
+      return res.status(400).json({ statusCode: 400, message: "Token já utilizado ou expirado" });
+    }
+    
+    // Atualiza token como validado
+    await updateStatusValidadoToken(1, token, "Redefinir senha");
+
+    // Busca dados do token
+    const email = await selectEmailTokenRedefinirSenhaValidado(token);
+    if (email.email) {
+      const atualizacaoSenha = await updateSenha(senha, email.email);
+
+      return res.status(atualizacaoSenha.statusCode).json({ 
+        statusCode: atualizacaoSenha.statusCode, 
+        message: atualizacaoSenha.message 
+      });
+    } else {
+      return res.status(500).json({ 
+        statusCode: 500,
+        message: "Erro ao encontrar e-mail do token!" 
+      });
+    }    
+  } catch (error) {
+    console.error("Erro ao atualizar senha:", error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao atualizar senha!"
+    });
+  }
+}
+
+export async function cadastro({ email, apelido, nome, senha }) {
+  try {
+    // Verifica se já existe e-mail ou apelido na tabela USUARIO
+    const emailExiste = await verificaEmail(email);
+    const usuarioExiste = await verificaApelidoUsuario(apelido);
+
+    if (emailExiste > 0 || usuarioExiste.existe > 0) {
+      if (emailExiste > 0 && usuarioExiste.existe > 0) {
+        return {
+          statusCode: 400,
+          message: "O e-mail e o apelido já estão em uso."
+        };
+      } else if (emailExiste > 0) {
+        return {
+          statusCode: 400,
+          message: "O e-mail já está em uso."
+        };
+      } else {
+        return {
+          statusCode: 400,
+          message: "O apelido já está em uso." };
+      }
+    }
+
+    const resultado = await insertUsuario({ email, apelido, nome, senha });
+    return {
+      statusCode: resultado.statusCode,
+      message: resultado.message
+    }
+  } catch (error) {
+    console.error("Erro ao cadastrar usuário:", error);
+    return { statusCode: 500, message: "Erro ao cadastrar usuário!" };
+  }
 }
 
 export async function login(req, res) {
@@ -780,6 +898,38 @@ export async function ativarPerfilUsuarioAdmin(req, res) {
     res.status(500).json({
       statusCode: 500,
       message: "Erro ao ativar perfil!"
+    });
+  }
+}
+
+export async function verificaExistenciaEmail(req, res) {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Parâmetro e-mail é obrigatório.",
+        emailExiste: false
+      });
+    }
+
+    const emailExiste = await verificaEmail(email);
+    if (emailExiste > 0) {
+      return res.status(200).json({statusCode: 200, message: "E-mail encontrado", existe: (emailExiste >= 1)});
+    } else {
+      return res.status(200).json({
+        statusCode: 200,
+        message: "E-mail encontrado!",
+        existe: false
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      statusCode: 500,
+      message: "Erro ao verificar e-mail!",
+      existe: false 
     });
   }
 }
